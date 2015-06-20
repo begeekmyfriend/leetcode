@@ -94,7 +94,7 @@ list_move(struct list_head *list, struct list_head *head)
 static inline void
 list_move_tail(struct list_head *entry, struct list_head *head)
 {
-	_list_del(entry);
+	__list_del(entry);
 	list_add_tail(entry, head);
 }
 
@@ -262,29 +262,12 @@ void lru_cache_init(int capacity)
 
 void lru_cache_free(void)
 {
-        int i = cache.sk_list.level - 1;
-        struct list_head *pos = &cache.sk_list.head[i];
-        struct list_head *end = &cache.sk_list.head[i];
-
-        for (; i >= 0; i--) {
-                struct list_head *n;
-                pos = pos->next;
-                skip_list_foreach_safe(pos, n, end) {
-                        struct skip_node *node = list_entry(pos, struct skip_node, sk_link[i]);
-                        __delete(&cache.sk_list, node, i + 1);
-                }
-                pos = end->prev;
-                pos--;
-                end--;
+        struct list_head *pos, *n;
+        list_for_each_safe(pos, n, &cache.sk_list.head[0]) {
+                struct skip_node *node = list_entry(pos, struct skip_node, sk_link[0]);
+                skip_node_delete(node);
         }
-
-        cache.count = 0;
-        cache.capacity = 0;
-        INIT_LIST_HEAD(&cache.d_list);
-        cache.sk_list.level = 1;
-        for (i = 0; i < MAX_LEVEL; i++) {
-                INIT_LIST_HEAD(&cache.sk_list.head[i]);
-        }
+        lru_cache_init(0);
 }
 
 int lru_cache_get(int key)
