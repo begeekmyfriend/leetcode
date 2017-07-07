@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-static int num2char(char **num, int bit, int n) {
+static void num2char(char **num, int bit, int n) {
     int i;
     char low, mid, high;
     char *p = *num;
@@ -58,9 +58,9 @@ static int num2char(char **num, int bit, int n) {
     *num = p;
 }
 
+static char roman_numeral[64] = { '\0' };
 
-static void intToRoman(int num) {
-    char roman_numeral[64] = { '\0' };
+static char *intToRoman(int num) {
     char *p = &roman_numeral[0];
     int thousand_bit = num / 1000;
     int hundred_bit = (num % 1000) / 100;
@@ -76,15 +76,14 @@ static void intToRoman(int num) {
         }
     }
 
-    num2char(&p, hundred_bit, 2); 
-    num2char(&p, ten_bit, 1); 
-    num2char(&p, one_bit, 0); 
+    num2char(&p, hundred_bit, 2);
+    num2char(&p, ten_bit, 1);
+    num2char(&p, one_bit, 0);
 
-    printf("%s\n", roman_numeral);
+    return roman_numeral;
 }
 
-int main(int argc, char **argv)
-{
-    intToRoman(atoi(argv[1]));
+int main(int argc, char **argv) {
+    printf("%s\n", intToRoman(atoi(argv[1])));
     return 0;
 }
