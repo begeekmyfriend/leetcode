@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-static char palindrome[1000] = { '\0' };
+static char palindrome[1000];
 
 static void palindrome_find(char *s, int len, int low, int high, int *max_size) {
     while (low >= 0 && high < len && s[low] == s[high]) {
@@ -28,7 +28,9 @@ static char *longestPalindrom(char *s) {
         return s;
     }
 
-    int max_size = 1;
+    memset(palindrome, 0, sizeof(palindrome));
+
+    int max_size = 0;
     for (i = 0; i < len; i++) {
         palindrome_find(s, len, i, i, &max_size);
         palindrome_find(s, len, i, i + 1, &max_size);

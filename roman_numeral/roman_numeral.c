@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 static void num2char(char **num, int bit, int n) {
     int i;
@@ -58,7 +59,7 @@ static void num2char(char **num, int bit, int n) {
     *num = p;
 }
 
-static char roman_numeral[64] = { '\0' };
+static char roman_numeral[64];
 
 static char *intToRoman(int num) {
     char *p = &roman_numeral[0];
@@ -67,6 +68,8 @@ static char *intToRoman(int num) {
     int ten_bit = (num % 100) / 10;
     int one_bit = num % 10;
     int i;
+
+    memset(roman_numeral, 0, sizeof(roman_numeral));
 
     if (thousand_bit > 0) {
         if (thousand_bit < 4) {
