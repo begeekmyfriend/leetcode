@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <assert.h>
 
 struct hlist_node;
 
@@ -68,6 +67,10 @@ static int * twosum(int *nums, int numsSize, int target)
         struct hlist_node node;
     };
 
+    if (numSize < 2) {
+        return NULL;
+    }
+
     int i, j;
     struct hash_table *ht = malloc(numsSize * sizeof(*ht));
     for (i = 0; i < numsSize; i++) {
@@ -89,35 +92,29 @@ static int * twosum(int *nums, int numsSize, int target)
     }
 
     for (i = 0; i < numsSize; i++) {
-        int num = target - nums[i];
+        int other = target - nums[i];
         int h1 = nums[i] < 0 ? -nums[i] % numsSize : nums[i] % numsSize;
-        int h2 = num < 0 ? -num % numsSize : num % numsSize;
-        int i1 = -1, i2 = -1;
+        int hash = other < 0 ? -other % numsSize : other % numsSize;
+        int index = -1;
         struct hlist_node *pos;
-        hlist_for_each(pos, &ht[h1].head) {
+
+        hlist_for_each(pos, &ht[hash].head) {
             struct plus_elem *elem = hlist_entry(pos, struct plus_elem, node);
-            if (elem->num == nums[i]) {
-                i1 = elem->index;
-                break;
-            }
-        }
-        hlist_for_each(pos, &ht[h2].head) {
-            struct plus_elem *elem = hlist_entry(pos, struct plus_elem, node);
-            if (elem->num == num) {
-                if (i1 != elem->index) {
-                    i2 = elem->index;
+            if (elem->num == other) {
+                if (elem->index != i) {
+                    index = elem->index;
                     break;
                 }
             }
         }
 
-        if (i1 >= 0 && i2 >= 0) {
+        if (index >= 0) {
             int *indexes = malloc(2 * sizeof(int));
             if (indexes == NULL) {
                 break;
             }
-            indexes[0] = i1 < i2 ? i1 : i2;
-            indexes[1] = i1 > i2 ? i1 : i2;
+            indexes[0] = i < index ? i : index;
+            indexes[1] = i > index ? i : index;
             return indexes;
         }
     }
