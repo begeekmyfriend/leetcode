@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-
 static inline int conflict(int *stack, int i, int j)
 {
     int k;
@@ -11,7 +10,6 @@ static inline int conflict(int *stack, int i, int j)
             return 1;
         }
     }
-    
     return 0;
 }
 
@@ -35,43 +33,18 @@ static inline int top(int *stack, int n)
             return row;
         }
     }
-
     return 0;
 }
 
-static char **solution(int *stack, int n)
-{
-    int row, col;
-    char **solution = malloc(n * sizeof(char *));
-    for (row = 0; row < n; row++) {
-        char *line = malloc(n + 1);
-        for (col = 0; col < n; col++) {
-            line[col] = col == stack[row] ? 'Q' : '.';
-        }
-        line[n] = '\0';
-        solution[row] = line;
-    }
-    return solution;
-}
-
-/**
- ** Return an array of arrays of size *returnSize.
- ** Note: The returned array must be malloced, assume caller calls free().
- **/
-char*** solveNQueens(int n, int *returnSize) {
-    int row = 0, col = 0, sum = 0;
-    char ***solutions = malloc(1000 * sizeof(char **));
-
+int totalNQueens(int n) {
+    int row = 0, col = 0, sum = 0, cap = 1;
     int *stack = malloc(n * sizeof(int));
     for (row = 0; row < n; row++) {
         stack[row] = -1;
     }
 
     if (n == 1) {
-        stack[0] = 0;
-        solutions[0] = solution(stack, n);
-        *returnSize = 1;
-        return solutions;
+        return 1;
     }
 
     for (; ;) {
@@ -83,8 +56,7 @@ char*** solveNQueens(int n, int *returnSize) {
                         if (--row < 0) {
                             /* All solution provided */
                             free(stack);
-                            *returnSize = sum;
-                            return solutions;
+                            return sum;
                         }
                         col = pop(stack, row);
                     }
@@ -100,39 +72,23 @@ char*** solveNQueens(int n, int *returnSize) {
         /* Full stack, a new complete solution */
         row = top(stack, n);
         if (row == n - 1) {
-            solutions[sum++] = solution(stack, n);
+            sum++;
         }
 
         /* Move on to find if there are still other solutions */
         col = pop(stack, row);
         col++;
-    }
-
-    assert(0);
+    }    
 }
 
 int main(int argc, char **argv)
 {
-    int i, n, row, col, num_of_solution;
-
     if (argc != 2) {
         printf("Usage: ./queen 8\n");
         exit(-1);
     }
 
-    n = atoi(argv[1]);
-    char ***solutions = solveNQueens(n, &num_of_solution);
-    for (i = 0; i < num_of_solution; i++) {
-        char **solution = solutions[i];
-        for (row = 0; row < n; row++) {
-            char *line = solution[row];
-            for (col = 0; col < n; col++) {
-                putchar(line[col]);
-            }
-            putchar('\n');
-        }
-        printf("The %dth solution.\n", i + 1);
-    }
-
+    int n = atoi(argv[1]);
+    printf("Total %d solution for %d queens.\n", totalNQueens(n), n);
     return 0;
 }
