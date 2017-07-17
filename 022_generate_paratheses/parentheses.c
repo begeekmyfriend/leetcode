@@ -8,27 +8,27 @@
  **/
 char** generateParenthesis(int n, int* returnSize) {
     int left, right, cap = 1, count = 0;
-    char *parenthese = malloc(2 * n + 1);
-    char **par_lists = malloc(cap * sizeof(char *));
+    char *stack = malloc(2 * n + 1);
+    char **parentheses = malloc(cap * sizeof(char *));
 
-    char *p = parenthese;
+    char *p = stack;
     left = right = 0;
-    parenthese[2 * n] = '\0';
+    stack[2 * n] = '\0';
 
     /* begin and end condition of loop */
-    while (count == 0 || p != parenthese) {
+    while (count == 0 || p != stack) {
         if (left == n && right == n) {
-            /* new parentheses */
+            /* new stacks */
             if (count + 1 >= cap) {
                 cap *= 2;
-                par_lists = realloc(par_lists, cap * sizeof(char *));
+                parentheses = realloc(parentheses, cap * sizeof(char *));
             }
-            par_lists[count] = malloc(2 * n + 1);
-            strcpy(par_lists[count], parenthese);
+            parentheses[count] = malloc(2 * n + 1);
+            strcpy(parentheses[count], stack);
             count++;
 
             /* back tracking */
-            while (--p != parenthese) {
+            while (--p != stack) {
                 if (*p == '(') {
                     /* until ')' is no more than '(' is guaranteed */
                     if (--left > right) {
@@ -54,7 +54,7 @@ char** generateParenthesis(int n, int* returnSize) {
     }
 
     *returnSize = count;
-    return par_lists;
+    return parentheses;
 }
 
 int main(int argc, char **argv)
