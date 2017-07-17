@@ -16,7 +16,7 @@ char** generateParenthesis(int n, int* returnSize) {
     stack[2 * n] = '\0';
 
     /* begin and end condition of loop */
-    while (count == 0 || p != stack) {
+    while (p != stack || count == 0) {
         if (left == n && right == n) {
             /* new stacks */
             if (count + 1 >= cap) {
