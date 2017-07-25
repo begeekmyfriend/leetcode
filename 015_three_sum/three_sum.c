@@ -123,6 +123,7 @@ static int** threeSum(int* nums, int numsSize, int* returnSize) {
             hlist_for_each(pos, &ht[hash].head) {
                 struct plus_elem *elem = hlist_entry(pos, struct plus_elem, node);
                 if (elem->num == other) {
+                    /* Eliminate duplicate */
                     if (elem->index > j) {
                         index = elem->index;
                         break;

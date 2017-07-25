@@ -101,7 +101,8 @@ static int * twosum(int *nums, int numsSize, int target)
         hlist_for_each(pos, &ht[hash].head) {
             struct plus_elem *elem = hlist_entry(pos, struct plus_elem, node);
             if (elem->num == other) {
-                if (elem->index != i) {
+                /* Eliminate duplicate */
+                if (elem->index > i) {
                     index = elem->index;
                     break;
                 }

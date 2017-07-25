@@ -133,8 +133,7 @@ static int** fourSum(int* nums, int numsSize, int target, int* returnSize) {
     for (i = 0; i < numsSize - 1; i++) {
         for (j = i + 1; j < numsSize; j++) {
             int new_target = target - nums[i] - nums[j];
-            for (k = 0; k < numsSize; k++) {
-                if (k == i || k == j) continue;
+            for (k = j + 1; k < numsSize; k++) {
                 int other = new_target - nums[k];
                 int hash = other < 0 ? -other % numsSize : other % numsSize;
                 int index = -1;
@@ -143,7 +142,8 @@ static int** fourSum(int* nums, int numsSize, int target, int* returnSize) {
                 hlist_for_each(pos, &ht[hash].head) {
                     struct element *elem = hlist_entry(pos, struct element, node);
                     if (elem->num == other) {
-                        if (elem->index != i && elem->index != j && elem->index != k) {
+                        /* Eliminate duplicate */
+                        if (elem->index > k) {
                             index = elem->index;
                             break;
                         }
