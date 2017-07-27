@@ -3,13 +3,13 @@
 #include <limits.h>
 
 int divide(int dividend, int divisor) {
-    int sign = (float)dividend / divisor > 0 ? 1 : -1;
+    int sign = (float) dividend / divisor > 0 ? 1 : -1;
     unsigned int dvd = dividend > 0 ? dividend : -dividend;
     unsigned int dvs = divisor > 0 ? divisor : -divisor;
-
-    unsigned int bit_num[32];
+    unsigned int bit_num[33];
     unsigned int i = 0;
     long long d = dvs;
+
     bit_num[i] = d;
     while (d <= dvd) {
         bit_num[++i] = d = d << 1;
