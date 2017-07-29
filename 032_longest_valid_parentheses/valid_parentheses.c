@@ -18,8 +18,10 @@ static int longestValidParentheses(char* s) {
         } else {
             if (top > stack) {
                 if (--top == stack) {
+                    /* The stack never keep ')' so we use 'error' to record index */
                     length = s - p - error;
                 } else {
+                    /* The *(top - 1) is the index of the last kept '(' */
                     length = s - p - *(top - 1);
                 }
                 if (length > max_length) {
