@@ -11,18 +11,15 @@ static char *minWindow(char *s, char *t)
      * m[]: stores the chars in t
      */
     int i, f[256], m[256], pat_len = 0;
-    const int NOT_EXISTED   = -1;
-    const int NOT_FOUND     =  0;
-    memset(m, NOT_EXISTED, sizeof(m));
-    memset(f, NOT_EXISTED, sizeof(f));
+    memset(m, 0, sizeof(m));
+    memset(f, 0, sizeof(f));
 
     /*
      *  Go through t, and inital the m[] and f[]
-     *  Notes: a same char can be appeared multiple times.
+     *  Notes: duplicate char is allowed.
      */
     for (i = 0; t[i] != '\0'; i++) {
-        m[t[i]] == NOT_EXISTED ? m[t[i]] = 1 : m[t[i]]++;
-        f[t[i]] = NOT_FOUND;
+        m[t[i]]++;
         pat_len++;
     }
 
@@ -31,43 +28,37 @@ static char *minWindow(char *s, char *t)
     int found = 0;
     int begin = 0;
     for (i = 0; s[i] != '\0'; i++) {
-        /* if s[i] is existed in t */
-        if (m[s[i]] != NOT_EXISTED) {
+        /* First, find the right side of the window which should be in t */
+        if (m[s[i]] > 0) {
             /* if one char has been found enough times, then do not do found++ */
             if (++f[s[i]] <= m[s[i]]) {
                 found++;
             }
 
-            if (found >= pat_len) {
-                /* 
-                 * Find the beginning of the window
-                 * 1) f[s[begin]] == NOT_EXISTED  ===> the char at the `begin` is not in t
-                 * 2) f[s[begin]] > m[s[begin]]   ===> a same char appeared more than excepted.
-                 */
-                while (f[s[begin]] == NOT_EXISTED || f[s[begin]] > m[s[begin]]) {
+            /* the right side of the window is confirmed as i */
+            /* The found counter will no more increase if the first right side of the window is confirmed,
+             * the next step run here can also be regarded as a new right side of a new window. */
+            if (found == pat_len) {
+                /* Then we need to find the left side of the window
+                 * 1) m[s[begin]] == 0 => Both left and right side should be found in t
+                 * 2) f[s[begin]] > m[s[begin]] => duplicate chars are more than excepted in the window so that we can even shrink the size. */
+                while (m[s[begin]] == 0 || f[s[begin]] > m[s[begin]]) {
                     if (f[s[begin]] > m[s[begin]]) {
                         f[s[begin]]--;
                     }
                     begin++;
                 }
 
-int j;
-printf("%d %d\n", begin, i);
-for (j = begin; j < i - begin + 1; j++) {
-printf("%c", s[j]);
-}
-printf("\n");
                 /* Calculate the minimized window size */
                 if (size > i - begin + 1) {
                     start = begin;
                     size = i - begin + 1;
-printf("size:%d\n", size);
                 }
             }
         }
     }
 
-    char *result = NULL;
+    char *result;
     if (start >= 0 && size > 0) {
         result = malloc(size + 1);
         memcpy(result, s + start, size);
