@@ -1,10 +1,61 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define container_of(ptr, type, member) \
-  ((type *)((char *)(ptr) - (unsigned long)(&((type *)0)->member)))
+struct hlist_node;
 
-#define	list_entry(ptr, type, field)  container_of(ptr, type, field)
+struct hlist_head {
+    struct hlist_node *first;
+};
+
+struct hlist_node {
+    struct hlist_node *next, **pprev;
+};
+
+static inline void INIT_HLIST_HEAD(struct hlist_head *h) {
+    h->first = NULL;
+}
+
+static inline void INIT_HLIST_NODE(struct hlist_node *n) {
+    n->next = NULL;
+    n->pprev = NULL;
+}
+
+static inline int hlist_empty(struct hlist_head *h) {
+    return !h->first;
+}
+
+static inline void hlist_add_head(struct hlist_node *n, struct hlist_head *h)
+{
+    if (h->first != NULL) {
+        h->first->pprev = &n->next;
+    }
+    n->next = h->first;
+    n->pprev = &h->first;
+    h->first = n;
+}
+
+static inline void hlist_del(struct hlist_node *n)
+{
+    struct hlist_node *next = n->next;
+    struct hlist_node **pprev = n->pprev;
+    *pprev = next;
+    if (next != NULL) {
+        next->pprev = pprev;
+    }
+}
+
+#define container_of(ptr, type, member) \
+    ((type *)((char *)(ptr) - (size_t)&(((type *)0)->member)))
+
+#define list_entry(ptr, type, member) \
+    container_of(ptr, type, member)
+
+#define hlist_for_each(pos, head) \
+    for (pos = (head)->first; pos; pos = pos->next)
+
+#define hlist_for_each_safe(pos, n, head) \
+    for (pos = (head)->first; pos && ({ n = pos->next; true; }); pos = n)
+
 #define	list_first_entry(ptr, type, field)  list_entry((ptr)->next, type, field)
 #define	list_last_entry(ptr, type, field)  list_entry((ptr)->prev, type, field)
 
@@ -14,67 +65,60 @@
 #define	list_for_each_safe(p, n, head) \
 	for (p = (head)->next, n = p->next; p != (head); p = n, n = p->next)
 
-#define skip_list_foreach(pos, end) \
-        for (; pos != end; pos = pos->next)
-
-#define skip_list_foreach_safe(pos, n, end) \
-        for (n = pos->next; pos != end; pos = n, n = pos->next)
-
 struct list_head {
-	struct list_head *next;
-	struct list_head *prev;
+    struct list_head *next, *prev;
 };
 
 static inline void
 INIT_LIST_HEAD(struct list_head *list)
 {
-	list->next = list->prev = list;
+    list->next = list->prev = list;
 }
 
 static inline int
 list_empty(const struct list_head *head)
 {
-	return (head->next == head);
+    return (head->next == head);
 }
 
 static inline int
 list_is_first(const struct list_head *list, const struct list_head *head)
 {
-	return list->prev == head;
+    return list->prev == head;
 }
 
 static inline int
 list_is_last(const struct list_head *list, const struct list_head *head)
 {
-	return list->next == head;
+    return list->next == head;
 }
 
 static inline void
 __list_add(struct list_head *new, struct list_head *prev, struct list_head *next)
 {
-	next->prev = new;
-	new->next = next;
-	new->prev = prev;
-	prev->next = new;
+    next->prev = new;
+    new->next = next;
+    new->prev = prev;
+    prev->next = new;
 }
 
 static inline void
 list_add(struct list_head *_new, struct list_head *head)
 {
-	__list_add(_new, head, head->next);
+    __list_add(_new, head, head->next);
 }
 
 static inline void
 list_add_tail(struct list_head *_new, struct list_head *head)
 {
-	__list_add(_new, head->prev, head);
+    __list_add(_new, head->prev, head);
 }
 
 static inline void
 __list_del(struct list_head *entry)
 {
-	entry->next->prev = entry->prev;
-	entry->prev->next = entry->next;
+    entry->next->prev = entry->prev;
+    entry->prev->next = entry->next;
 }
 
 static inline void
@@ -94,266 +138,175 @@ list_move(struct list_head *list, struct list_head *head)
 static inline void
 list_move_tail(struct list_head *entry, struct list_head *head)
 {
-	__list_del(entry);
-	list_add_tail(entry, head);
+    __list_del(entry);
+    list_add_tail(entry, head);
 }
 
-struct skip_node {
-        int key;
-        int value;
-        struct list_head d_link;
-        struct list_head sk_link[0];
-};
+typedef struct {
+    int capacity;
+    int count;
+    struct list_head dhead;
+    struct hlist_head hhead[];
+} LRUCache;
 
-#define MAX_LEVEL 12
+typedef struct {
+    int key;
+    int value;
+    struct hlist_node node;
+    struct list_head link;
+} LRUNode;
 
-struct skip_list {
-        int level;
-        struct list_head head[MAX_LEVEL];
-};
 
-struct lru_cache {
-        void *buffer;
-        struct skip_list sk_list;
-        struct list_head d_list;
-        int capacity;
-        int count;
-};
-
-static struct lru_cache cache;
-
-static int random_level(void)
+LRUCache *lRUCacheCreate(int capacity)
 {
-        const double p = 0.25;
-        int level = 1;
-        while ((random() & 0xffff) < 0xffff * p) {
-                level++;
+    int i;
+    LRUCache *obj = malloc(2 * sizeof(int) + sizeof(struct list_head) + capacity * sizeof(struct hlist_head));
+    obj->count = 0;
+    obj->capacity = capacity;
+    INIT_LIST_HEAD(&obj->dhead);
+    for (i = 0; i < capacity; i++) {
+        INIT_HLIST_HEAD(&obj->hhead[i]);
+    }
+    return obj;
+}
+
+void lRUCacheFree(LRUCache *obj)
+{
+    struct list_head *pos, *n;
+    list_for_each_safe(pos, n, &obj->dhead) {
+        LRUNode *cache = list_entry(pos, LRUNode, link);
+        list_del(&cache->link);
+        free(cache);
+    }
+    free(obj);
+}
+
+int lRUCacheGet(LRUCache *obj, int key)
+{
+    int hash = key % obj->capacity;
+    struct hlist_node *pos;
+    hlist_for_each(pos, &obj->hhead[hash]) {
+        LRUNode *cache = list_entry(pos, LRUNode, node);
+        if (cache->key == key) {
+            /* Move it to header */
+            list_move(&cache->link, &obj->dhead);
+            return cache->value;
         }
-        return level > MAX_LEVEL ? MAX_LEVEL : level;
+    }
+    return -1;
 }
 
-static struct skip_node *skip_node_new(int level, int key)
+void lRUCachePut(LRUCache *obj, int key, int value)
 {
-        struct skip_node *node = malloc(sizeof(*node) + level * sizeof(struct list_head));
-        if (node != NULL) {
-                int i;
-                for (i = 0; i < level; i++) {
-                        INIT_LIST_HEAD(&node->sk_link[i]);
-                }
-                node->key = key;
+    LRUNode *cache = NULL;
+    int hash = key % obj->capacity;
+    struct hlist_node *pos;
+    hlist_for_each(pos, &obj->hhead[hash]) {
+        LRUNode *c = list_entry(pos, LRUNode, node);
+        if (c->key == key) {
+            list_move(&c->link, &obj->dhead);
+            cache = c;
         }
+    }
 
-        return node;
-}
-
-static void skip_node_delete(struct skip_node *node)
-{
-        free(node);
-}
-
-static struct skip_node *skip_list_search(struct skip_list *sk_list, int key)
-{
-        int i = sk_list->level - 1;
-        struct list_head *pos = &sk_list->head[i];
-        struct list_head *end = &sk_list->head[i];
-
-        for (; i >= 0; i--) {
-                struct skip_node *node;
-                pos = pos->next;
-                skip_list_foreach(pos, end) {
-                        node = list_entry(pos, struct skip_node, sk_link[i]);
-                        if (node->key == key) {
-                                return node;
-                        } else if (node->key > key) {
-                                end = &node->sk_link[i];
-                                break;
-                        }
-                }
-                pos = end->prev;
-                pos--;
-                end--;
-        }
-
-        return NULL;
-}
-
-static struct skip_node *skip_list_insert(struct skip_list *sk_list, int key)
-{
-        int level = random_level();
-        if (level > sk_list->level) {
-                sk_list->level = level;
-        }
-
-        struct skip_node *node = skip_node_new(level, key);
-        if (node != NULL) {
-                int i = sk_list->level - 1;
-                struct list_head *pos = &sk_list->head[i];
-                struct list_head *end = &sk_list->head[i];
-
-                for (; i >= 0; i--) {
-                        struct skip_node *n;
-                        pos = pos->next;
-                        skip_list_foreach(pos, end) {
-                                n = list_entry(pos, struct skip_node, sk_link[i]);
-                                if (n->key >= key) {
-                                        end = &n->sk_link[i];
-                                        break;
-                                }
-                        }
-                        pos = end->prev;
-                        if (i < level) {
-                                __list_add(&node->sk_link[i], pos, end);
-                        }
-                        pos--;
-                        end--;
-                }
-        }
-        
-        return node;
-}
-
-static void __delete(struct skip_list *sk_list, struct skip_node *node, int level)
-{
-        int i;
-        for (i = 0; i < level; i++) {
-                list_del(&node->sk_link[i]);
-                if (list_empty(&sk_list->head[i])) {
-                        sk_list->level--;
-                }
-        }
-
-        skip_node_delete(node);
-}
-
-static void skip_list_delete(struct skip_list *sk_list, int key)
-{
-        int i = sk_list->level - 1;
-        struct list_head *pos = &sk_list->head[i];
-        struct list_head *end = &sk_list->head[i];
-
-        for (; i >= 0; i--) {
-                struct list_head *n;
-                pos = pos->next;
-                skip_list_foreach_safe(pos, n, end) {
-                        struct skip_node *node = list_entry(pos, struct skip_node, sk_link[i]);
-                        if (node->key == key) {
-                                // Here's no break statement because we allow nodes with same key.
-                                __delete(sk_list, node, i + 1);
-                        }
-                }
-                pos = end->prev;
-                pos--;
-                end--;
-        }
-}
-
-void lru_cache_init(int capacity)
-{
-        int i;
-
-        cache.count = 0;
-        cache.capacity = capacity;
-        INIT_LIST_HEAD(&cache.d_list);
-        cache.sk_list.level = 1;
-        for (i = 0; i < MAX_LEVEL; i++) {
-                INIT_LIST_HEAD(&cache.sk_list.head[i]);
-        }
-}
-
-void lru_cache_free(void)
-{
-        struct list_head *pos, *n;
-        list_for_each_safe(pos, n, &cache.sk_list.head[0]) {
-                struct skip_node *node = list_entry(pos, struct skip_node, sk_link[0]);
-                skip_node_delete(node);
-        }
-        lru_cache_init(0);
-}
-
-int lru_cache_get(int key)
-{
-        struct skip_node *node = skip_list_search(&cache.sk_list, key);
-        if (node != NULL) {
-                list_move(&node->d_link, &cache.d_list);
-                return node->value;
+    if (cache == NULL) {
+        if (obj->count == obj->capacity) {
+            cache = list_last_entry(&obj->dhead, LRUNode, link);
+            list_move(&cache->link, &obj->dhead);
+            hlist_del(&cache->node);
+            hlist_add_head(&cache->node, &obj->hhead[hash]);
         } else {
-                return -1;
+            cache = malloc(sizeof(LRUNode));
+            INIT_HLIST_NODE(&cache->node);
+            INIT_LIST_HEAD(&cache->link);
+            /* Add into hash list */
+            hlist_add_head(&cache->node, &obj->hhead[hash]);
+            /* Add into double list */
+            list_add(&cache->link, &obj->dhead);
+            obj->count++;
         }
+        cache->key = key;
+    }
+    cache->value = value;
 }
 
-void lru_cache_set(int key, int value)
+void lRUCacheDump(LRUCache *obj)
 {
-        struct skip_node *node = skip_list_search(&cache.sk_list, key);
-        if (node != NULL) {
-                list_move(&node->d_link, &cache.d_list);
-        } else {
-                if (cache.count == cache.capacity) {
-                        node = list_last_entry(&cache.d_list, struct skip_node, d_link);
-                        list_del(&node->d_link);
-                        skip_list_delete(&cache.sk_list, node->key);
-                } else {
-                        cache.count++;
-                }
-                node = skip_list_insert(&cache.sk_list, key);
-                list_add(&node->d_link, &cache.d_list);
+    if (obj == NULL) return;
+
+    int i;
+    LRUNode *cache;
+    printf(">>> Total %d nodes: \n", obj->count);
+    for (i = 0; i < obj->count; i++) {
+        printf("hash:%d:", i);
+        struct hlist_node *pos;
+        hlist_for_each(pos, &obj->hhead[i]) {
+            cache = list_entry(pos, LRUNode, node);
+            if (cache != NULL) {
+                printf(" (%d %d)", cache->key, cache->value);
+            }
         }
+        printf("\n");
+    }
 
-        node->value = value;
-}
-
-void lru_cache_dump(void)
-{
-        struct list_head *pos;
-
-        printf("\n>>> Total %d nodes: \n", cache.count);
-        pos = cache.sk_list.head[0].next;
-        skip_list_foreach(pos, &cache.sk_list.head[0]) {
-                struct skip_node *node = list_entry(pos, struct skip_node, sk_link[0]);
-                printf("%d %d\n", node->key, node->value);
-        }
-
-        printf(">>> Double list dump\n");
-        list_for_each(pos, &cache.d_list) {
-                struct skip_node *node = list_entry(pos, struct skip_node, d_link);
-                printf("%d %d\n", node->key, node->value);
-        }
+    printf(">>> Double list dump\n");
+    struct list_head *p;
+    list_for_each(p, &obj->dhead) {
+        cache = list_entry(p, LRUNode, link);
+        printf("(%d %d)\n", cache->key, cache->value);
+    }
 }
 
 int main(void)
 {
-#if 1
-        lru_cache_init(2);
-        lru_cache_dump();
-        printf("get 2, %d\n", lru_cache_get(2));
-        printf("set 2, 6\n");
-        lru_cache_set(2, 6);
-        lru_cache_dump();
-        printf("get 1, %d\n", lru_cache_get(1));
-        printf("set 1, 5\n");
-        lru_cache_set(1, 5);
-        lru_cache_dump();
-        printf("set 1, 2\n");
-        lru_cache_set(1, 2);
-        lru_cache_dump();
-        printf("get 1, %d\n", lru_cache_get(1));
-        printf("get 2, %d\n", lru_cache_get(2));
-        lru_cache_free();
-#else
-        lru_cache_init(2);
-        printf("set 2, 1\n");
-        lru_cache_set(2, 1);
-        printf("set 1, 1\n");
-        lru_cache_set(1, 1);
-        lru_cache_dump();
-        printf("get 2, %d\n", lru_cache_get(2));
-        lru_cache_dump();
-        printf("set 4, 1\n");
-        lru_cache_set(4, 1);
-        lru_cache_dump();
-        printf("get 1, %d\n", lru_cache_get(1));
-        printf("get 2, %d\n", lru_cache_get(2));
-        lru_cache_free();
-#endif
+    LRUCache *obj;
+    obj = lRUCacheCreate(2);
+    printf("put 1, 1\n");
+    lRUCachePut(obj, 1, 1);
+    printf("put 2, 2\n");
+    lRUCachePut(obj, 2, 2);
+    printf("get 1, %d\n", lRUCacheGet(obj, 1));
+    printf("put 3, 3\n");
+    lRUCachePut(obj, 3, 3);
+    printf("get 2, %d\n", lRUCacheGet(obj, 2));
+    printf("put 4, 4\n");
+    lRUCachePut(obj, 4, 4);
+    printf("get 1, %d\n", lRUCacheGet(obj, 1));
+    printf("get 3, %d\n", lRUCacheGet(obj, 3));
+    printf("get 4, %d\n", lRUCacheGet(obj, 4));
+//#if 1
+//    obj = lRUCacheCreate(2);
+//    lRUCacheDump(obj);
+//    printf("get 2, %d\n", lRUCacheGet(obj, 2));
+//    printf("put 2, 6\n");
+//    lRUCachePut(obj, 2, 6);
+//    lRUCacheDump(obj);
+//    printf("get 1, %d\n", lRUCacheGet(obj, 1));
+//    printf("put 1, 5\n");
+//    lRUCachePut(obj, 1, 5);
+//    lRUCacheDump(obj);
+//    printf("put 1, 2\n");
+//    lRUCachePut(obj, 1, 2);
+//    lRUCacheDump(obj);
+//    printf("get 1, %d\n", lRUCacheGet(obj, 1));
+//    printf("get 2, %d\n", lRUCacheGet(obj, 2));
+//    lRUCacheFree(obj);
+//#else
+//    obj = lRUCacheCreate(2);
+//    printf("put 2, 1\n");
+//    lRUCachePut(obj, 2, 1);
+//    printf("put 1, 1\n");
+//    lRUCachePut(obj, 1, 1);
+//    lRUCacheDump(obj);
+//    printf("get 2, %d\n", lRUCacheGet(obj, 2));
+//    lRUCacheDump(obj);
+//    printf("put 4, 1\n");
+//    lRUCachePut(obj, 4, 1);
+//    lRUCacheDump(obj);
+//    printf("get 1, %d\n", lRUCacheGet(obj, 1));
+//    printf("get 2, %d\n", lRUCacheGet(obj, 2));
+//    lRUCacheFree(obj);
+//#endif
 
-        return 0;
+    return 0;
 }
