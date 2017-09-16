@@ -167,7 +167,6 @@ static int** levelOrder(struct TreeNode* root, int** columnSizes, int* returnSiz
     if (root->right != NULL) {
         new = node_new(&free_list, root->right);
         list_add_tail(&new->link, &bfs_queue0);
-        (*columnSizes)[level]++;
     }
 
     results[level] = malloc(sizeof(int));
