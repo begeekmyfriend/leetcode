@@ -2,41 +2,136 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define BST_MAX_LEVEL 800
+
+#define container_of(ptr, type, member) \
+    ((type *)((char *)(ptr) - (size_t)&(((type *)0)->member)))
+
+#define list_entry(ptr, type, member) \
+    container_of(ptr, type, member)
+
+#define	list_first_entry(ptr, type, field)  list_entry((ptr)->next, type, field)
+#define	list_last_entry(ptr, type, field)  list_entry((ptr)->prev, type, field)
+
+#define	list_for_each(p, head) \
+	for (p = (head)->next; p != (head); p = p->next)
+
+#define	list_for_each_safe(p, n, head) \
+	for (p = (head)->next, n = p->next; p != (head); p = n, n = p->next)
+
 struct TreeNode {
     int val;
     struct TreeNode *left;
     struct TreeNode *right;
 };
 
-#define BST_MAX_LEVEL   800
-#define BST_LEFT_INDEX  0
-#define BST_RIGHT_INDEX 1
-
-struct node_backlog {
-    /* Node backlogged */
-    struct TreeNode *node;
-    /* The index next to the backtrack point, valid when >= 1 */
-    int next_sub_idx;
+struct list_head {
+    struct list_head *next, *prev;
 };
 
 static inline void
-nbl_push(struct node_backlog *nbl, struct node_backlog **top, struct node_backlog **bottom)
+INIT_LIST_HEAD(struct list_head *list)
 {
-    if (*top - *bottom < BST_MAX_LEVEL) {
-        (*(*top)++) = *nbl;
-    }
-}
-
-static inline struct node_backlog *
-nbl_pop(struct node_backlog **top, struct node_backlog **bottom)
-{
-    return *top > *bottom ? --*top : NULL;
+    list->next = list->prev = list;
 }
 
 static inline int
-is_leaf(struct TreeNode *node)
+list_empty(const struct list_head *head)
 {
-    return node->left == NULL && node->right == NULL;
+    return (head->next == head);
+}
+
+static inline int
+list_is_first(const struct list_head *list, const struct list_head *head)
+{
+    return list->prev == head;
+}
+
+static inline int
+list_is_last(const struct list_head *list, const struct list_head *head)
+{
+    return list->next == head;
+}
+
+static inline void
+__list_add(struct list_head *new, struct list_head *prev, struct list_head *next)
+{
+    next->prev = new;
+    new->next = next;
+    new->prev = prev;
+    prev->next = new;
+}
+
+static inline void
+list_add(struct list_head *_new, struct list_head *head)
+{
+    __list_add(_new, head, head->next);
+}
+
+static inline void
+list_add_tail(struct list_head *_new, struct list_head *head)
+{
+    __list_add(_new, head->prev, head);
+}
+
+static inline void
+__list_del(struct list_head *entry)
+{
+    entry->next->prev = entry->prev;
+    entry->prev->next = entry->next;
+}
+
+static inline void
+list_del(struct list_head *entry)
+{
+    __list_del(entry);
+    entry->next = entry->prev = NULL;
+}
+
+struct bfs_node {
+    struct TreeNode *node;
+    struct list_head link;
+};
+
+static struct bfs_node *node_new(struct list_head *free_list, struct TreeNode *node)
+{
+    struct bfs_node *new;
+    if (list_empty(free_list)) {
+        new = malloc(sizeof(*new));
+    } else {
+        new = list_first_entry(free_list, struct bfs_node, link);
+        list_del(&new->link);
+    }
+    new->node = node;
+    return new;
+}
+
+static void queue(struct list_head *parents, struct list_head *children,
+                  struct list_head *free_list, int **results, int *col_sizes, int level)
+{
+    struct list_head *p, *n;
+    list_for_each(p, parents) {
+        struct bfs_node *new;
+        struct bfs_node *parent = list_entry(p, struct bfs_node, link);
+        if (parent->node->left != NULL) {
+            new = node_new(free_list, parent->node->left);
+            list_add_tail(&new->link, children);
+        }
+        if (parent->node->right != NULL) {
+            new = node_new(free_list, parent->node->right);
+            list_add_tail(&new->link, children);
+        }
+        col_sizes[level]++;
+    }
+
+    int i = 0;
+    results[level] = malloc(col_sizes[level] * sizeof(int));
+    list_for_each_safe(p, n, parents) {
+        struct bfs_node *parent = list_entry(p, struct bfs_node, link);
+        results[level][i++] = parent->node->val;
+        list_del(p);
+        list_add(p, free_list);
+    }
 }
 
 /**
@@ -46,77 +141,48 @@ is_leaf(struct TreeNode *node)
  **/
 static int** levelOrder(struct TreeNode* root, int** columnSizes, int* returnSize)
 {
-    int i, j, capacity[BST_MAX_LEVEL];
+    if (root == NULL) {
+        *returnSize = 0;
+        return NULL;
+    }
+
+    struct list_head free_list;
+    struct list_head bfs_queue0;
+    struct list_head bfs_queue1;
+    INIT_LIST_HEAD(&free_list);
+    INIT_LIST_HEAD(&bfs_queue0);
+    INIT_LIST_HEAD(&bfs_queue1);
+
     int **results = malloc(BST_MAX_LEVEL * sizeof(int *));
     *columnSizes = malloc(BST_MAX_LEVEL * sizeof(int));
-    memset(results, 0, BST_MAX_LEVEL * sizeof(int *));
     memset(*columnSizes, 0, BST_MAX_LEVEL * sizeof(int));
-    for (i = 0; i < BST_MAX_LEVEL; i++) {
-        capacity[i] = 1;
+
+    int level = 0;
+    struct bfs_node *new;
+    if (root->left != NULL) {
+        new = node_new(&free_list, root->left);
+        list_add_tail(&new->link, &bfs_queue0);
     }
 
-    for (i = 0; i < BST_MAX_LEVEL; i++) {
-        int level = 0;
-        struct TreeNode *node = root;
-        struct node_backlog nbl, *p_nbl = NULL;
-        struct node_backlog *top, *bottom, nbl_stack[BST_MAX_LEVEL];
+    if (root->right != NULL) {
+        new = node_new(&free_list, root->right);
+        list_add_tail(&new->link, &bfs_queue0);
+        (*columnSizes)[level]++;
+    }
 
-        top = bottom = nbl_stack;
+    results[level] = malloc(sizeof(int));
+    results[level][0] = root->val;
+    (*columnSizes)[level] = 1;
 
-        for (; ;) {
-            if (node != NULL) {
-                /* Fetch the pop-up backlogged node's sub-id.
-                 * If not backlogged, fetch the first sub-id. */
-                int sub_index = p_nbl != NULL ? p_nbl->next_sub_idx : BST_LEFT_INDEX;
-
-                /* Draw lines as long as sub_idx is the first one */
-                if (sub_index == BST_LEFT_INDEX && level == i) {
-                    if (results[i] == NULL) {
-                        results[i] = malloc(capacity[i] * sizeof(int));
-                    }
-                    if ((*columnSizes)[i] + 1 > capacity[i]) {
-                        int *p = malloc(capacity[i] * 2 * sizeof(int));
-                        memcpy(p, results[i], capacity[i] * sizeof(int));
-                        capacity[i] *= 2;
-                        free(results[i]);
-                        results[i] = p;
-                    }
-                    results[i][(*columnSizes)[i]++] = node->val;
-                }
-
-                /* backlog should be reset since node has gone deep down */
-                p_nbl = NULL;
-
-                /* Backlog the node */
-                if (is_leaf(node) || sub_index == BST_RIGHT_INDEX) {
-                    nbl.node = NULL;
-                    nbl.next_sub_idx = BST_LEFT_INDEX;
-                } else {
-                    nbl.node = node;
-                    nbl.next_sub_idx = BST_RIGHT_INDEX;
-                }
-                nbl_push(&nbl, &top, &bottom);
-                level++;
-
-                /* Move down according to sub_idx */
-                node = sub_index == BST_LEFT_INDEX ? node->left : node->right;
-            } else {
-                p_nbl = nbl_pop(&top, &bottom);
-                if (p_nbl == NULL) {
-                    /* End of traversal */
-                    break;
-                }
-                node = p_nbl->node;
-                level--;
-            }
-        }
-
-        if ((*columnSizes)[i] == 0) {
-            break;
+    while (!list_empty(&bfs_queue0) || !list_empty(&bfs_queue1)) {
+        if (++level & 1) {
+            queue(&bfs_queue0, &bfs_queue1, &free_list, results, *columnSizes, level);
+        } else {
+            queue(&bfs_queue1, &bfs_queue0, &free_list, results, *columnSizes, level);
         }
     }
 
-    *returnSize = i;
+    *returnSize = level + 1;
     return results;
 }
 
@@ -141,6 +207,10 @@ int main(void)
     node1[1].left = &node2[2];
     node1[1].right = &node2[3];
 
+    node2[0].left = NULL;
+    node2[0].right = NULL;
+    node2[1].left = NULL;
+    node2[1].right = NULL;
     node2[2].left = NULL;
     node2[2].right = NULL;
     node2[3].left = NULL;
