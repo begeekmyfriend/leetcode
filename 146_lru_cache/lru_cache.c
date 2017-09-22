@@ -60,10 +60,10 @@ static inline void hlist_del(struct hlist_node *n)
 #define	list_last_entry(ptr, type, field)  list_entry((ptr)->prev, type, field)
 
 #define	list_for_each(p, head) \
-	for (p = (head)->next; p != (head); p = p->next)
+    for (p = (head)->next; p != (head); p = p->next)
 
 #define	list_for_each_safe(p, n, head) \
-	for (p = (head)->next, n = p->next; p != (head); p = n, n = p->next)
+    for (p = (head)->next, n = p->next; p != (head); p = n, n = p->next)
 
 struct list_head {
     struct list_head *next, *prev;
@@ -79,18 +79,6 @@ static inline int
 list_empty(const struct list_head *head)
 {
     return (head->next == head);
-}
-
-static inline int
-list_is_first(const struct list_head *list, const struct list_head *head)
-{
-    return list->prev == head;
-}
-
-static inline int
-list_is_last(const struct list_head *list, const struct list_head *head)
-{
-    return list->next == head;
 }
 
 static inline void
@@ -124,15 +112,15 @@ __list_del(struct list_head *entry)
 static inline void
 list_del(struct list_head *entry)
 {
-	__list_del(entry);
-	entry->next = entry->prev = NULL;
+    __list_del(entry);
+    entry->next = entry->prev = NULL;
 }
 
 static inline void
 list_move(struct list_head *list, struct list_head *head)
 {
-	__list_del(list);
-	list_add(list, head);
+    __list_del(list);
+    list_add(list, head);
 }
 
 static inline void
