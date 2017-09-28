@@ -1,2 +1,2 @@
 all:
-	gcc -O2 -o palindrome longest_palindromic_substring.c
+	gcc -O2 -o test longest_palindromic_substring.c
