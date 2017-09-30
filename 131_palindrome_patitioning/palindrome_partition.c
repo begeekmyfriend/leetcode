@@ -19,22 +19,12 @@ static void collect(char *s, int len, int low, int high, struct palindrome *resu
     }
 }
 
-static void show(struct palindrome **stack, int size)
-{
-    int i;
-    for (i = 0; i < size; i++) {
-        printf("%d %d %d\n", i, stack[i]->low, stack[i]->high);
-    }
-}
-
 static void recursive(struct palindrome *pal_set, int num, int start,
                       char *s, int len, struct palindrome **stack, int size,
                       char ***results, int *col_sizes, int *count)
 {
     int i;
-    int begin = 0;
-    int end = size == 0 ? 0 : size - 1;
-    if (size > 0 && stack[begin]->low == 0 && stack[end]->high == len - 1) {
+    if (size > 0 && stack[size - 1]->high == len - 1) {
         col_sizes[*count] = size;
         results[*count] = malloc(size * sizeof(char *));
         for (i = 0; i < size; i++) {
@@ -47,7 +37,8 @@ static void recursive(struct palindrome *pal_set, int num, int start,
         (*count)++;
     } else {
         for (i = start; i < num; i++) {
-            if (size == 0 || stack[size - 1]->high + 1 == pal_set[i].low) {
+            if ((size == 0 && pal_set[i].low == 0) ||
+                (size > 0 && stack[size - 1]->high + 1 == pal_set[i].low)) {
                 stack[size] = &pal_set[i];
                 recursive(pal_set, num, i + 1, s, len, stack, size + 1, results, col_sizes, count);
             }
@@ -60,14 +51,14 @@ static void recursive(struct palindrome *pal_set, int num, int start,
  ** The sizes of the arrays are returned as *columnSizes array.
  ** Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
  **/
-char*** partition(char* s, int** columnSizes, int* returnSize) {
+char ***partition(char* s, int** columnSizes, int* returnSize) {
     int len = strlen(s);
     if (len == 0) {
         *returnSize = 0;
         return NULL;
     }
 
-    int i, cap = 1000, count = 0;
+    int i, cap = 800, count = 0;
     struct palindrome *pal_set = malloc(cap * sizeof(*pal_set));
     for (i = 0; i < len; i++) {
         collect(s, len, i, i, pal_set, &count);
