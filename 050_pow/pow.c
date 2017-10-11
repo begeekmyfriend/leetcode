@@ -41,6 +41,10 @@ static double my_pow(double x, int n)
 
 int main(int argc, char **argv)
 {
+    if (argc != 3) {
+        fprintf(stderr, "Usage: ./test x n\n");
+        exit(-1);
+    }
     printf("%lf\n", my_pow(atoi(argv[1]), atoi(argv[2])));
     return 0;
 }
