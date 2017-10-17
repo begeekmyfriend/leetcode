@@ -1,84 +1,100 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <string.h>
-#include "../uthash.h"
 
 struct word_hash {
     char *word;
     int freq;
-    int index;
-    UT_hash_handle hh;
 };
 
-static struct word_hash *hash_table = NULL;
+static inline int BKDRHash(char *s, size_t size)
+{
+    int seed = 31; /* 131 1313 13131... */
+    unsigned long hash = 0;
+    while (*s != '\0') {
+        hash = hash * seed + *s++;
+    }
+    return hash % size;
+}
+
+static int find(char *word, struct word_hash *table, int size)
+{
+    int i, first = 1, hash = BKDRHash(word, size);
+    for (i = hash; first || i != hash; i = ++i % size) { 
+        first = 0;
+        if (table[i].freq > 0 && !strcmp(table[i].word, word)) {
+            return i;
+        }
+    }
+    return -1;
+}
 
 /**
  ** Return an array of size *returnSize.
  ** Note: The returned array must be malloced, assume caller calls free().
  **/
-static int* findSubstring(char* s, char** words, int wordsSize, int* returnSize) {
-    if (s == NULL || wordsSize == 0) {
+static int *findSubstring(char *s, char **words, int wordsSize, int *returnSize)
+{
+    if (*s == '\0' || wordsSize == 0) {
         *returnSize = 0;
         return NULL;
     }
 
-    int i, index, cap = 1, count = 0;
+    int i, j, cap = 500, count = 0;
     char *start = s;
-    struct word_hash *obj, *tmp;
+    struct word_node *wn;
+    int hash_size = wordsSize;
     int len = strlen(words[0]);
     char *word = malloc(len + 1);
-    int length = strlen(s) - wordsSize * len + 1;
+    int *indexes = malloc(cap * sizeof(int));
     int *freqs = malloc(wordsSize * sizeof(int));
-    int *sub_indexes = malloc(cap * sizeof(int));
+    struct word_hash *table = malloc(hash_size * sizeof(*table));
 
-    word[len] = '\0';
+    memset(table, 0, hash_size * sizeof(*table));
     for (i = 0; i < wordsSize; i++) {
-        HASH_FIND_STR(hash_table, words[i], obj);
-        if (obj == NULL) {
-            obj = malloc(sizeof(*obj));
-            obj->word = words[i];
-            obj->freq = 1;
-            obj->index = i;
-            HASH_ADD_STR(hash_table, word, obj);
-        } else {
-            obj->freq++;
+        int hash = BKDRHash(words[i], hash_size);
+        for (j = hash; table[j].freq > 0 && strcmp(table[j].word, words[i]); j = ++j % hash_size) {}
+        if (table[j].freq == 0) {
+            table[j].word = words[i];
         }
+        table[j].freq++;
     }
 
-    while (length-- > 0) {
-        int sum = 0;
-        memset(freqs, 0, wordsSize * sizeof(int));
+    word[len] = '\0';
+    int length = len * wordsSize - 1;
+    while (s[length] != '\0') {
+        memset(freqs, 0, hash_size * sizeof(int));
         for (i = 0; i < wordsSize; i++) {
             memcpy(word, s + i * len, len);
-            HASH_FIND_STR(hash_table, word, obj);
-            if (obj == NULL) {
+            int index = find(word, table, hash_size);
+            if (index < 0) {
                 break;
             } else {
-                sum += ++freqs[obj->index] <= obj->freq ? 1 : -1;
+                if (++freqs[index] > table[index].freq) {
+                    break;
+                }
             }
         }
-        if (sum == wordsSize && i == wordsSize) {
-            if (count + 1 >= cap) {
-                cap *= 2;
-                sub_indexes = realloc(sub_indexes, cap * sizeof(int));
-            }
-            sub_indexes[count++] = s - start;
+
+        if (i == wordsSize) {
+            indexes[count++] = s - start;
         }
         s++;
     }
 
-    HASH_ITER(hh, hash_table, obj, tmp) {
-        HASH_DEL(hash_table, obj);
-        free(obj);
-    }
-
     *returnSize = count;
-    return sub_indexes;
+    return indexes;
 }
 
 int main(int argc, char **argv)
 {
-    int i, count;
+    if (argc < 3) {
+        fprintf(stderr, "Usage: ./test str w1 w2...\n");
+        exit(-1);
+    }
+
+    int i, count = 0;
     int *indexes = findSubstring(argv[1], argv + 2, argc - 2, &count);
     for (i = 0; i < count; i++) {
         printf("%d ", indexes[i]);
