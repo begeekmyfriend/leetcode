@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <limits.h>
 
 struct TreeNode {
     int val;
@@ -8,32 +9,33 @@ struct TreeNode {
     struct TreeNode *right;
 };
 
-static int last_val = -1;
-
-static bool traverse(struct TreeNode* node)
+static bool traverse(struct TreeNode* node, int *last_val)
 {
     bool ret = true;
 
     if (ret && node->left != NULL) {
-        ret = traverse(node->left);
+        ret = traverse(node->left, last_val);
     }
 
-    if (last_val != -1 && node->val <= last_val) {
+    if (node->val <= *last_val) {
         return false;
     }
-    last_val = node->val;
+    *last_val = node->val;
 
     if (ret && node->right != NULL) {
-        ret = traverse(node->right);
+        ret = traverse(node->right, last_val);
     }
     return ret;
 }
 
 static bool isValidBST(struct TreeNode* root)
 {
-    if (root == NULL)  return true;
-    last_val = -1;
-    return traverse(root);
+    if (root == NULL) {
+        return true;
+    } else {
+        int last_val = -1;
+        return traverse(root, &last_val);
+    }
 }
 
 int main(int argc, char **argv)

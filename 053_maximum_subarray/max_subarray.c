@@ -2,9 +2,42 @@
 #include <stdlib.h>
 #include <limits.h>
 
+static int recursive(int *nums, int lo, int hi)
+{
+    if (lo == hi) {
+        return nums[lo];
+    }
+
+    int ce = (hi - lo) / 2;
+    int left_max = recursive(nums, lo, lo + ce);
+    int right_max = recursive(nums, hi - ce, hi);
+
+    int i;
+    int left_border = 0, left_border_max = INT_MIN;
+    for (i = ce; i >= lo; i--) {
+        left_border += nums[i];
+        if (left_border > left_border_max) {
+            left_border_max = left_border;
+        }
+    }
+
+    int right_border = 0, right_border_max = INT_MIN;
+    for (i = ce + 1; i <= hi; i++) {
+        right_border += nums[i];
+        if (right_border > right_border_max) {
+            right_border_max = right_border;
+        }
+    }
+
+    int sum = left_border_max + right_border_max;
+    int max = left_max > right_max ? left_max : right_max;
+    return sum > max ? sum : max;
+}
+
 static int maxSubArray(int* nums, int numsSize)
 {
-    int i, max = INT_MIN, len = 0;
+#if 1
+    int i, len = 0, max = INT_MIN;
     for (i = 0; i < numsSize; i++) {
         len += nums[i];
         /* Calculate maximum each time in loop */
@@ -14,6 +47,9 @@ static int maxSubArray(int* nums, int numsSize)
         }
     }
     return max;
+#else
+    return recursive(nums, 0, numsSize - 1);
+#endif
 }
 
 int main(int argc, char **argv)
