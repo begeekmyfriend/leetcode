@@ -20,14 +20,25 @@ static inline int BKDRHash(char *s, size_t size)
 
 static int find(char *word, struct word_hash *table, int size)
 {
-    int i, first = 1, hash = BKDRHash(word, size);
-    for (i = hash; first || i != hash; i = ++i % size) { 
-        first = 0;
+    int hash = BKDRHash(word, size);
+    int i = hash;
+    do {
         if (table[i].freq > 0 && !strcmp(table[i].word, word)) {
             return i;
         }
-    }
+        i = ++i % size;
+    } while (i != hash);
     return -1;
+}
+
+static void add(char *word, struct word_hash *table, int size)
+{
+    int i, hash = BKDRHash(word, size);
+    for (i = hash; table[i].freq > 0 && strcmp(table[i].word, word); i = ++i % size) {}
+        if (table[i].freq == 0) {
+            table[i].word = word;
+        }
+        table[i].freq++;
 }
 
 /**
@@ -44,7 +55,7 @@ static int *findSubstring(char *s, char **words, int wordsSize, int *returnSize)
     int i, j, cap = 500, count = 0;
     char *start = s;
     struct word_node *wn;
-    int hash_size = wordsSize;
+    int hash_size = wordsSize * 2;
     int len = strlen(words[0]);
     char *word = malloc(len + 1);
     int *indexes = malloc(cap * sizeof(int));
@@ -53,12 +64,7 @@ static int *findSubstring(char *s, char **words, int wordsSize, int *returnSize)
 
     memset(table, 0, hash_size * sizeof(*table));
     for (i = 0; i < wordsSize; i++) {
-        int hash = BKDRHash(words[i], hash_size);
-        for (j = hash; table[j].freq > 0 && strcmp(table[j].word, words[i]); j = ++j % hash_size) {}
-        if (table[j].freq == 0) {
-            table[j].word = words[i];
-        }
-        table[j].freq++;
+        add(words[i], table, hash_size);
     }
 
     word[len] = '\0';
