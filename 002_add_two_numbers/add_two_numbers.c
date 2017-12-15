@@ -8,7 +8,8 @@ struct ListNode {
     struct ListNode *next;
 };
 
-struct ListNode* addTwoNumbers(struct ListNode* l1, struct ListNode* l2) {
+static struct ListNode* addTwoNumbers(struct ListNode* l1, struct ListNode* l2)
+{
     int carry_num = 0;
     int first = 1;
     struct ListNode *res = NULL;
@@ -90,6 +91,11 @@ static void show(struct ListNode *ln)
 
 int main(int argc, char **argv)
 {
+    if (argc < 3) {
+        fprintf(stderr, "Usage: ./test n1 n2\n");
+        exit(-1);
+    }
+
     struct ListNode *l1 = node_build(argv[1]);
     struct ListNode *l2 = node_build(argv[2]);
     struct ListNode *res = addTwoNumbers(l1, l2);
