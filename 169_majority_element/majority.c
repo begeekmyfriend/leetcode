@@ -3,9 +3,8 @@
 
 static int majorityElement(int* nums, int numsSize)
 {
-    int i, count = 1;
-    int major = nums[0];
-    for (i = 1; i < numsSize; i++) {
+    int i, major, count = 0;
+    for (i = 0; i < numsSize; i++) {
         if (count == 0) {
             major = nums[i];
             count++;
@@ -15,7 +14,6 @@ static int majorityElement(int* nums, int numsSize)
             count--;
         }
     }
-
     return major;
 }
 
