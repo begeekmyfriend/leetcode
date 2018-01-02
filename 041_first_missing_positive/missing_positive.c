@@ -8,7 +8,8 @@ static void swap(int *a, int *b)
     *b = tmp;
 }
 
-static int firstMissingPositive(int* nums, int numsSize) {
+static int firstMissingPositive(int* nums, int numsSize)
+{
     if (numsSize < 1) {
         return 1;
     }

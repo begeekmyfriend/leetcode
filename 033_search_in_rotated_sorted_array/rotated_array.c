@@ -36,7 +36,8 @@ static int start_find(int *nums, int size)
     return low;
 }
 
-static int search(int* nums, int numsSize, int target) {
+static int search(int* nums, int numsSize, int target)
+{
     if (numsSize <= 0) {
         return -1;
     }

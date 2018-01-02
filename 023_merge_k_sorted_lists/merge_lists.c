@@ -7,7 +7,8 @@ struct ListNode {
     struct ListNode *next;
 };
 
-struct ListNode* mergeKLists(struct ListNode** lists, int listsSize) {
+static struct ListNode* mergeKLists(struct ListNode** lists, int listsSize)
+{
     if (listsSize == 0) {
         return NULL;
     }

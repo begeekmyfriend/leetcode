@@ -3,26 +3,20 @@
 #include <math.h>
 #include <limits.h>
 
-static void insert_sort(int *a, int size)
+static int compare(const void *a, const void *b)
 {
-    int i, j;
-    for (i = 1; i < size; i++) {
-        int tmp = a[i];
-        for (j = i - 1; j >= 0 && a[j] > tmp; j--) {
-            a[j + 1] = a[j];
-        }
-        a[j + 1] = tmp;
-    }
+    return *(int *) a - *(int *) b;
 }
 
-static int threeSumClosest(int* nums, int numsSize, int target) {
+static int threeSumClosest(int* nums, int numsSize, int target)
+{
     int i, min_diff = INT_MAX;
 
     if (numsSize < 3) {
         return min_diff;
     }
 
-    insert_sort(nums, numsSize);
+    qsort(nums, numsSize, sizeof(*nums), compare);
 
     for (i = 0; i < numsSize - 2; i++) {
         int left = i + 1;
@@ -37,7 +31,7 @@ static int threeSumClosest(int* nums, int numsSize, int target) {
             } else if (diff > 0) {
                 right--;
             } else {
-                break;
+                return target;
             }
         }
     }

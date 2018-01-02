@@ -4,22 +4,17 @@
 
 static char* longestCommonPrefix(char** strs, int strsSize)
 {
-    int i, capacity = 50, count = 0;
-    char *result = malloc(50);
-    bool go_on = true;
-    while (strsSize > 0 && go_on) {
-        char temp = strs[0][count];
+    int i, count = 0;
+    char *result = malloc(100);
+    while (strsSize > 0) {
+        char c = strs[0][count];
         for (i = 1; i < strsSize; i++) {
-            if (temp != strs[i][count]) break;
+            if (c != strs[i][count]) break;
         }
-        if (i == strsSize && temp != '\0') {
-            if (count + 1 + 1 >= capacity) {
-                capacity *= 2;
-                result = realloc(result, capacity + 1);
-            }
-            result[count++] = temp;
+        if (i == strsSize && c != '\0') {
+            result[count++] = c;
         } else {
-            go_on = false;
+            break;
         }
     }
     result[count++] = '\0';

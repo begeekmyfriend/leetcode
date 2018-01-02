@@ -1,15 +1,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 
- struct ListNode {
-     int val;
-     struct ListNode *next;
- };
+struct ListNode {
+    int val;
+    struct ListNode *next;
+};
  
-struct ListNode* removeNthFromEnd(struct ListNode* head, int n) {
-    struct ListNode *p, *prev, dummy;
+static struct ListNode* removeNthFromEnd(struct ListNode* head, int n)
+{
     if (n < 1) return NULL;
 
+    struct ListNode *p, *prev, dummy;
     dummy.next = head;
     p = prev = &dummy;
     while (n-- > 0) {
@@ -26,7 +27,6 @@ struct ListNode* removeNthFromEnd(struct ListNode* head, int n) {
     if (tmp == head) {
         head = tmp->next;
     }
-    free(tmp);
     return head;
 }
 

@@ -6,45 +6,25 @@ struct ListNode {
     struct ListNode *next;
 };
 
-static struct ListNode* reverseKGroup(struct ListNode* head, int k) {
-    if (head == NULL || k <= 1) {
-        return head;
-    }
-
-    int first = 1;
+static struct ListNode* reverseKGroup(struct ListNode* head, int k)
+{
+    int i, len = 0;
     struct ListNode dummy;
+    struct ListNode *p = head;
+    struct ListNode *prev = &dummy;
     dummy.next = head;
-    struct ListNode *dhead = &dummy;
-    struct ListNode *prev = head;
-    struct ListNode *p = head->next;
-    struct ListNode *next = p == NULL ? NULL : p->next;
-    while (p != NULL) {
-        int i;
-        struct ListNode *end = dhead->next;
-        for (i = 0; end != NULL && i < k; i++) {
-            end = end->next;
+    for (p = head; p != NULL; p = p->next) {
+        if (++len % k == 0) {
+            struct ListNode *begin = prev->next;
+            for (i = 1; i < k; i++) {
+                struct ListNode *next = begin->next;
+                begin->next = next->next;
+                next->next = prev->next;
+                prev->next = next;
+            }
+            p = begin;
+            prev = p;
         }
-        if (i < k) {
-            break;
-        }
-
-        while (p != end) {
-            p->next = dhead->next;
-            dhead->next = p;
-            prev->next = next;
-            p = next;
-            next = p == NULL ? NULL : p->next;
-        }
-
-        if (first) {
-            first = 0;
-            dummy.next = dhead->next;
-        }
-
-        dhead = prev;
-        prev = p;
-        p = p == NULL ? NULL : p->next;
-        next = p == NULL ? NULL : p->next;
     }
     return dummy.next;
 }

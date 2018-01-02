@@ -15,7 +15,8 @@ static void reverse(char *s, int len)
     }
 }
 
-static char* multiply(char* num1, char* num2) {
+static char* multiply(char* num1, char* num2)
+{
     if (*num1 == '\0') {
         return num1;
     }

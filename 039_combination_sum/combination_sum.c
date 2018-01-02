@@ -2,42 +2,23 @@
 #include <stdlib.h>
 #include <string.h>
 
-static void insert_sort(int *a, int size)
-{
-    int i, j;
-    for (i = 1; i < size; i++) {
-        int tmp = a[i];
-        for (j = i - 1; j >= 0 && tmp < a[j]; j--) {
-            a[j + 1] = a[j];
-        }
-        a[j + 1] = tmp;
-    }
-}
-
-static void combination_recursive(int *nums, int size, int start, int target,
-                                  int *solution, int len,
-                                  int **results, int *column_sizes, int *count)
+static void dfs(int *nums, int size, int start, int target, int *stack,
+                int len, int **results, int *column_sizes, int *count)
 {
     int i;
-    if (target > 0) {
+    if (target == 0) {
+        results[*count] = malloc(len * sizeof(int));
+        memcpy(results[*count], stack, len * sizeof(int));
+        column_sizes[*count] = len;
+        (*count)++;
+    } else if (target > 0) {
         for (i = start; i < size; i++) {
             if (i > 0 && nums[i] == nums[i - 1]) {
                 continue;
             }
-            /* You may dump the content of the solution here, and you would find
-             * the order of element represents the number of nested layers, and
-             * the element at the specific order represents the iteration from
-             * the start in the current recursive layer.
-             */
-            solution[len++] = nums[i];
-            combination_recursive(nums, size, i, target - nums[i], solution, len, results, column_sizes, count);
-            len--;
+            stack[len] = nums[i];
+            dfs(nums, size, i, target - nums[i], stack, len + 1, results, column_sizes, count);
         }
-    } else if (target == 0) {
-        results[*count] = malloc(len * sizeof(int));
-        memcpy(results[*count], solution, len * sizeof(int));
-        column_sizes[*count] = len;
-        (*count)++;
     }
 }
 
@@ -46,34 +27,15 @@ static void combination_recursive(int *nums, int size, int start, int target,
  ** The sizes of the arrays are returned as *columnSizes array.
  ** Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
  **/
-int** combinationSum(int* candidates, int candidatesSize, int target, int** columnSizes, int* returnSize) {
-    insert_sort(candidates, candidatesSize);
-
-    int *solution = malloc(target * sizeof(int));
-    int **results = malloc(100 * sizeof(int *));
-    *columnSizes = malloc(100 * sizeof(int));
+static int** combinationSum(int* candidates, int candidatesSize, int target, int** columnSizes, int* returnSize)
+{
+    int cap = 100;
+    int *stack = malloc(target * sizeof(int));
+    int **results = malloc(cap * sizeof(int *));
+    *columnSizes = malloc(cap * sizeof(int));
     *returnSize = 0;
-    combination_recursive(candidates, candidatesSize, 0, target, solution, 0, results, *columnSizes, returnSize);
+    dfs(candidates, candidatesSize, 0, target, stack, 0, results, *columnSizes, returnSize);
     return results;
-    //for (i = 0; i < candidatesSize; i++) {
-    //    //int *columns = malloc();
-    //    for (j = 1; candidates[i] * j < target, j++) {
-    //        for (k = i + 1; k < candidatesSize; k++) {
-    //            
-    //        }
-    //        int remain = target - candidates[i] * j;
-    //        if (remain == 0) {
-    //            int *column = malloc(sizeof(int));
-    //            if (count + 1 >= cap) {
-    //                cap *= 2;
-    //                columnSizes = realloc(columnSizes, cap * sizeof(int *));
-    //            }
-    //            columnSizes[count++] = column;
-    //        } else {
-    //            k = i + 1;
-    //        }
-    //    }
-    //}
 }
 
 int main(int argc, char **argv)

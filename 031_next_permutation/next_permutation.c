@@ -14,7 +14,8 @@ static void reverse(int *a, int size)
     }
 }
 
-void nextPermutation(int* nums, int numsSize) {
+static void nextPermutation(int* nums, int numsSize)
+{
     if (numsSize <= 1) {
         return;
     }

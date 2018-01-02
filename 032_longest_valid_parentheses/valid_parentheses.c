@@ -3,7 +3,7 @@
 
 static int longestValidParentheses(char* s)
 {
-    int cap = 1, error = -1;
+    int cap = 8000, error = -1;
     int length = 0, max_length = 0;
     char *p = s;
     int *stack = malloc(cap * sizeof(int));

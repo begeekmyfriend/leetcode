@@ -1,28 +1,25 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-static int jump(int* nums, int numsSize) {
-    if (numsSize <= 1) {
-        return 0;
-    }
+static inline int max(int a, int b)
+{
+    return a > b ? a : b;
+}
 
-    int i;
-    int pos = numsSize - 1;
-    int *indexes = malloc(numsSize * sizeof(int));
-    int *p = indexes;
-
-    *p++ = numsSize - 1;
-    while (--pos >= 0) {
-        for (i = 0; i < p - indexes; i++) {
-            if (nums[pos] >= indexes[i] - pos) {
-                indexes[i + 1] = pos;
-                p = indexes + i + 2;
-                break;
-            }
+static int jump(int* nums, int numsSize)
+{
+    int i, lo = 0, hi = 0;
+    int steps = 0;
+    while (hi < numsSize - 1) {
+        int right = 0;
+        for (i = lo; i <= hi; i++) {
+            right = max(i + nums[i], right);
         }
+        lo = hi + 1;
+        hi = right;
+        steps++;
     }
-
-    return p - indexes - 1;
+    return steps;
 }
 
 int main(int argc, char **argv)

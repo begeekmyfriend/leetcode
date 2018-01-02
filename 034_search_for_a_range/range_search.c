@@ -47,6 +47,7 @@ static int binary_search_end(int *a, int size, int target)
  **/
 int* searchRange(int* nums, int numsSize, int target, int* returnSize) {
     int *range = malloc(2 * sizeof(int));
+    *returnSize = 2;    
 
     if (numsSize == 0) {
         range[0] = range[1] = -1;
@@ -55,7 +56,6 @@ int* searchRange(int* nums, int numsSize, int target, int* returnSize) {
 
     range[0] = binary_search_start(nums, numsSize, target);
     range[1] = binary_search_end(nums, numsSize, target);
-    *returnSize = 2;    
     return range;
 }
 

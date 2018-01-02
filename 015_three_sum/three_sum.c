@@ -1,16 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-static void insert_sort(int *nums, int len)
+static int compare(const void *a, const void *b)
 {
-    int i, j;
-    for (i = 1; i < len; i++) {
-        int tmp = nums[i];
-        for (j = i - 1; j >= 0 && nums[j] > tmp; j--) {
-            nums[j + 1] = nums[j];
-        }
-        nums[j + 1] = tmp;
-    }
+    return *(int *) a - *(int *) b;
 }
 
 static void two_sum(int *nums, int low, int high, int target, int **results, int *count)
@@ -37,20 +30,22 @@ static void two_sum(int *nums, int low, int high, int target, int **results, int
  ** Return an array of arrays of size *returnSize.
  ** Note: The returned array must be malloced, assume caller calls free().
  **/
-static int** threeSum(int* nums, int numsSize, int* returnSize) {
+static int** threeSum(int* nums, int numsSize, int* returnSize)
+{
     if (numsSize < 3) {
         return NULL;
     }
-    insert_sort(nums, numsSize);
 
-    int i, j, count = 0, capacity = 50000;
+    qsort(nums, numsSize, sizeof(*nums), compare);
+
+    *returnSize = 0;
+    int i, j, capacity = 50000;
     int **results = malloc(capacity * sizeof(int *));
     for (i = 0; i < numsSize; i++) {
         if (i == 0 || i > 0 && nums[i] != nums[i - 1]) {
-            two_sum(nums, i + 1, numsSize - 1, -nums[i], results, &count);
+            two_sum(nums, i + 1, numsSize - 1, -nums[i], results, returnSize);
         }
     }
-    *returnSize = count;
     return results;
 }
 

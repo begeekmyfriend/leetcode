@@ -6,15 +6,16 @@ struct ListNode {
     struct ListNode *next;
 };
 
-static struct ListNode* swapPairs(struct ListNode* head) {
-    struct ListNode dummy, *p, *prev, *next;
+static struct ListNode* swapPairs(struct ListNode* head)
+{
     if (head == NULL) {
         return NULL;
     }
+    struct ListNode dummy;
     dummy.next = head;
-    prev = &dummy;
-    p = dummy.next;
-    next = p->next;
+    struct ListNode *prev = &dummy;
+    struct ListNode *p = dummy.next;
+    struct ListNode *next = p->next;
     while (p != NULL && next != NULL) {
         prev->next = next;
         p->next = next->next;

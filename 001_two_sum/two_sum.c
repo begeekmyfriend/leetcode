@@ -1,48 +1,39 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-static void bubble_sort(int *nums, int *indexes, int size)
+struct object {
+    int val;
+    int index;
+};
+
+static int compare(const void *a, const void *b)
 {
-    int i, flag = size;
-    while (flag > 0) {
-        int len = flag;
-        flag = 0;
-        for (i = 1; i < len; i++) {
-            if (nums[i] < nums[i - 1]) {
-                int tmp = nums[i];
-                nums[i] = nums[i - 1];
-                nums[i - 1] = tmp;
-                tmp = indexes[i];
-                indexes[i] = indexes[i - 1];
-                indexes[i - 1] = tmp;
-                flag = i;
-            }
-        }
-    }
+    return ((struct object *) a)->val - ((struct object *) b)->val;
 }
 
 static int * twosum(int *nums, int numsSize, int target)
 {
     int i, j;
-    int *indexes = malloc(numsSize * sizeof(int));
+    struct object *objs = malloc(numsSize * sizeof(*objs));
     for (i = 0; i < numsSize; i++) {
-        indexes[i] = i;
+        objs[i].val = nums[i];
+        objs[i].index = i;
     }
-    bubble_sort(nums, indexes, numsSize);
+    qsort(objs, numsSize, sizeof(*objs), compare);
     
     int count = 0;
     int *results = malloc(2 * sizeof(int));
     i = 0;
     j = numsSize - 1;
     while (i < j) {
-        int diff = target - nums[i];
-        if (diff > nums[j]) {
-            while (++i < j && nums[i] == nums[i - 1]) {}
-        } else if (diff < nums[j]) {
-            while (--j > i && nums[j] == nums[j + 1]) {}
+        int diff = target - objs[i].val;
+        if (diff > objs[j].val) {
+            while (++i < j && objs[i].val == objs[i - 1].val) {}
+        } else if (diff < objs[j].val) {
+            while (--j > i && objs[j].val == objs[j + 1].val) {}
         } else {
-            results[0] = indexes[i];
-            results[1] = indexes[j];
+            results[0] = objs[i].index;
+            results[1] = objs[j].index;
             return results;
         }
     }

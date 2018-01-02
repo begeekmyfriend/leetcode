@@ -1,32 +1,37 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-static double find_kth(int a[], int m, int b[], int n, int k)  
+static double find_kth(int a[], int alen, int b[], int blen, int k)  
 {  
-    /* Always assume that m is equal or smaller than n */ 
-    if (m > n) {
-        return find_kth(b, n, a, m, k);
+    /* Always assume that alen is equal or smaller than blen */ 
+    if (alen > blen) {
+        return find_kth(b, blen, a, alen, k);
     }
-    if (m == 0) {
+
+    if (alen == 0) {
         return b[k - 1];
     }
+
     if (k == 1) {
         return a[0] < b[0] ? a[0] : b[0];
     }
 
     /* Divide k into two parts */
-    int i = k / 2 < m ? k / 2 : m;
-    int j = k - i;  
-    if (a[i - 1] < b[j - 1]) {
-        return find_kth(a + i, m - i, b, n, k - i);
-    } else if (a[i - 1] > b[j - 1]) {  
-        return find_kth(a, m, b + j, n - j, k - j);
+    int ia = k / 2 < alen ? k / 2 : alen;
+    int ib = k - ia;  
+    if (a[ia - 1] < b[ib - 1]) {
+        /* a[ia - 1] must be ahead of k-th */
+        return find_kth(a + ia, alen - ia, b, blen, k - ia);
+    } else if (a[ia - 1] > b[ib - 1]) {  
+        /* b[ib - 1] must be ahead of k-th */
+        return find_kth(a, alen, b + ib, blen - ib, k - ib);
     } else {
-        return a[i - 1];
+        return a[ia - 1];
     }
 }
 
-double findMedianSortedArrays(int* nums1, int nums1Size, int* nums2, int nums2Size) {
+static double findMedianSortedArrays(int* nums1, int nums1Size, int* nums2, int nums2Size)
+{
     int half = (nums1Size + nums2Size) / 2;
     if ((nums1Size + nums2Size) & 0x1) {
         return find_kth(nums1, nums1Size, nums2, nums2Size, half + 1);

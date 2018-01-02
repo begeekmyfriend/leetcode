@@ -6,8 +6,9 @@
  ** Return an array of size *returnSize.
  ** Note: The returned array must be malloced, assume caller calls free().
  **/
-char** generateParenthesis(int n, int* returnSize) {
-    int left, right, cap = 1, count = 0;
+static char** generateParenthesis(int n, int* returnSize)
+{
+    int left, right, cap = 5000, count = 0;
     char *stack = malloc(2 * n + 1);
     char **parentheses = malloc(cap * sizeof(char *));
 
@@ -18,11 +19,6 @@ char** generateParenthesis(int n, int* returnSize) {
     /* begin and end condition of loop */
     while (p != stack || count == 0) {
         if (left == n && right == n) {
-            /* new stacks */
-            if (count + 1 >= cap) {
-                cap *= 2;
-                parentheses = realloc(parentheses, cap * sizeof(char *));
-            }
             parentheses[count] = malloc(2 * n + 1);
             strcpy(parentheses[count], stack);
             count++;

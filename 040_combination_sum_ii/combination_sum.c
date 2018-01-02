@@ -3,52 +3,29 @@
 #include <stdbool.h>
 #include <string.h>
 
-static bool exist(int **results, int count, int *solution, int len)
+static int compare(const void *a, const void *b)
 {
-    int i;
-    for (i = 0; i < count; i++) {
-        if (!memcmp(results[i], solution, len * sizeof(int))) {
-            return true;
-        }
-    }
-    return false;
+    return *(int *) a - *(int *) b;
 }
 
-static void insert_sort(int *a, int size)
-{
-    int i, j;
-    for (i = 1; i < size; i++) {
-        int tmp = a[i];
-        for (j = i - 1; j >= 0 && tmp < a[j]; j--) {
-            a[j + 1] = a[j];
-        }
-        a[j + 1] = tmp;
-    }
-}
-
-static void combination_recursive(int *nums, int size, int start, int target,
-                                  int *solution, int len,
-                                  int **results, int *column_sizes, int *count)
+static void dfs(int *nums, int size, int start, int target, int *solution, int len,
+                bool *used, int **results, int *column_sizes, int *count)
 {
     int i;
-    if (target > 0) {
+    if (target == 0) {
+        results[*count] = malloc(len * sizeof(int));
+        memcpy(results[*count], solution, len * sizeof(int));
+        column_sizes[*count] = len;
+        (*count)++;
+    } else if (target > 0) {
         for (i = start; i < size; i++) {
-            /* You may dump the content of the solution here, and you would find
-             * the order of element represents the number of nested layers, and
-             * the element at the specific order represents the iteration from
-             * the start in the current recursive layer.
-             */
-            solution[len++] = nums[i];
-            combination_recursive(nums, size, i + 1, target - nums[i], solution,
-                                  len, results, column_sizes, count);
-            len--;
-        }
-    } else if (target == 0) {
-        if (!exist(results, *count, solution, len)) {
-            results[*count] = malloc(len * sizeof(int));
-            memcpy(results[*count], solution, len * sizeof(int));
-            column_sizes[*count] = len;
-            (*count)++;
+            if (!used[i]) {
+                if (i > 0 && !used[i - 1] && nums[i - 1] == nums[i]) continue;
+                used[i] = true;
+                solution[len] = nums[i];
+                dfs(nums, size, i + 1, target - nums[i], solution, len + 1, used, results, column_sizes, count);
+                used[i] = false;
+            }
         }
     }
 }
@@ -60,13 +37,15 @@ static void combination_recursive(int *nums, int size, int start, int target,
  **/
 static int** combinationSum(int* candidates, int candidatesSize, int target, int** columnSizes, int* returnSize)
 {
-    insert_sort(candidates, candidatesSize);
+    qsort(candidates, candidatesSize, sizeof(int), compare);
 
     int *solution = malloc(target * sizeof(int));
     int **results = malloc(100 * sizeof(int *));
+    bool *used = malloc(candidatesSize);
+    memset(used, false, candidatesSize);
     *columnSizes = malloc(100 * sizeof(int));
     *returnSize = 0;
-    combination_recursive(candidates, candidatesSize, 0, target, solution, 0, results, *columnSizes, returnSize);
+    dfs(candidates, candidatesSize, 0, target, solution, 0, used, results, *columnSizes, returnSize);
     return results;
 }
 
