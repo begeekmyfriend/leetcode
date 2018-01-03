@@ -1,21 +1,28 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int removeDuplicates(int* nums, int numsSize) {
-    int i = 0, j, x, y, count = 0;
-    while (i < numsSize) {
-        for (j = i + 1; j < numsSize && nums[i] == nums[j]; j++) {}
-        int diff = j - i;
-        if (diff > 2) {
-            for (x = i + 2, y = j; y < numsSize; x++, y++) {
-                nums[x] = nums[y];
-            }
-            numsSize -= diff - 2;
-        }
-        count += diff > 2 ? 2 : diff;
-        i += diff > 2 ? 2 : diff;
+static int removeDuplicates(int* nums, int numsSize)
+{
+    if (numsSize == 0) {
+        return 0;
     }
-    return count;
+
+    int i;
+    int len = 0;
+    int count = 0;
+    for (i = 1; i < numsSize; i++) {
+        if (nums[len] == nums[i]) {
+            if (count < 2) {
+                count++;
+                nums[++len] = nums[i];
+            }
+        } else {
+            count = 1;
+            nums[++len] = nums[i];
+        }
+    }
+
+    return len + 1;
 }
 
 int main(int argc, char **argv)

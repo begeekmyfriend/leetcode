@@ -1,7 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-static void setZeroes(int** matrix, int matrixRowSize, int matrixColSize) {
+static void setZeroes(int** matrix, int matrixRowSize, int matrixColSize)
+{
     int row, col, bRow = 0, bCol = 0;
     for (row = 0; row < matrixRowSize; row++) {
         for (col = 0; col < matrixColSize; col++) {

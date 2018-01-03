@@ -3,32 +3,56 @@
 #include <stdbool.h>
 #include <string.h>
 
-int maximalRectangle(char** matrix, int matrixRowSize, int matrixColSize) {
+static inline int max(int a, int b)
+{
+    return a > b ? a : b;
+}
+
+static int area_calc(int *heights, int size)
+{
+    int *indexes = malloc(size * sizeof(int));
+    int *left = malloc(size * sizeof(int));
+    int *right = malloc(size * sizeof(int));
+
+    int i, pos = 0;
+    for (i = 0; i < size; i++) {
+        /* monotonous increasing stack */
+        while (pos > 0 && heights[indexes[pos - 1]] >= heights[i]) {
+            pos--;
+        }
+        left[i] = pos == 0 ? -1 : indexes[pos - 1];
+        indexes[pos++] = i;
+    }
+
+    pos = 0;
+    for (i = size - 1; i >= 0; i--) {
+        /* monotonous increasing stack */
+        while (pos > 0 && heights[indexes[pos - 1]] >= heights[i]) {
+            pos--;
+        }
+        right[i] = pos == 0 ? size : indexes[pos - 1];
+        indexes[pos++] = i;
+    }
+
+    int max_area = 0;
+    for (i = 0; i < size; i++) {
+        int area = heights[i] * (right[i] - left[i] - 1);
+        max_area = max(area, max_area);
+    }
+
+    return max_area;
+}
+
+static int maximalRectangle(char** matrix, int matrixRowSize, int matrixColSize)
+{
     int i, j, max_area = 0;
+    int *heights = malloc(matrixColSize * sizeof(int));
+    memset(heights, 0, matrixColSize * sizeof(int));
     for (i = 0; i < matrixRowSize; i++) {
         for (j = 0; j < matrixColSize; j++) {
-            if (matrix[i][j] == '1') {
-                int area = 0, x, y;
-                int row = i;
-                int min_col = matrixColSize;
-                while (row < matrixRowSize) {
-                    for (x = j; x < matrixColSize && matrix[row][x] == '1'; x++) {}
-                    min_col = x < min_col ? x : min_col;
-                    area = (row - i + 1) * (min_col - j);
-                    max_area = area > max_area ? area : max_area;
-                    row++;
-                }
-                int col = j;
-                int min_row = matrixRowSize;
-                while (col < matrixColSize) {
-                    for (y = i; y < matrixRowSize && matrix[y][col] == '1'; y++) {}
-                    min_row = y < min_row ? y : min_row;
-                    area = (min_row - i) * (col - j + 1);
-                    max_area = area > max_area ? area : max_area;
-                    col++;
-                }
-            }
+            heights[j] = matrix[i][j] == '1' ? heights[j] + 1 : 0;
         }
+        max_area = max(max_area, area_calc(heights, matrixColSize));
     }
     return max_area;
 }

@@ -2,9 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-static void subset_recursive(int *nums, int size, int start,
-                             int *buf, int len,
-                             int **sets, int *sizes, int *count)
+static void dfs(int *nums, int size, int start, int *buf,
+                int len, int **sets, int *sizes, int *count)
 {
     int i;
     sets[*count] = malloc(len * sizeof(int));
@@ -12,9 +11,8 @@ static void subset_recursive(int *nums, int size, int start,
     sizes[*count] = len;
     (*count)++;
     for (i = start; i < size; i++) {
-        buf[len++] = nums[i];
-        subset_recursive(nums, size, i + 1, buf, len, sets, sizes, count);
-        len--;
+        buf[len] = nums[i];
+        dfs(nums, size, i + 1, buf, len + 1, sets, sizes, count);
     }
 }
 
@@ -23,13 +21,14 @@ static void subset_recursive(int *nums, int size, int start,
  ** The sizes of the arrays are returned as *columnSizes array.
  ** Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
  **/
-int** subsets(int* nums, int numsSize, int** columnSizes, int* returnSize) {
+int** subsets(int* nums, int numsSize, int** columnSizes, int* returnSize)
+{
     int capacity = 5000;
     int **sets = malloc(capacity * sizeof(int *));
     int *buf = malloc(numsSize * sizeof(int));
     *columnSizes = malloc(capacity * sizeof(int));
     *returnSize = 0;
-    subset_recursive(nums, numsSize, 0, buf, 0, sets, *columnSizes, returnSize);
+    dfs(nums, numsSize, 0, buf, 0, sets, *columnSizes, returnSize);
     return sets;
 }
 

@@ -1,9 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <limits.h>
 
-int minPathSum(int** grid, int gridRowSize, int gridColSize) {
+static inline int min(int a, int b)
+{
+    return a < b ? a : b;
+}
+
+int minPathSum(int** grid, int gridRowSize, int gridColSize)
+{
     int i, j;
     int **dp = malloc(gridRowSize * sizeof(int *));
     for (i = 0; i < gridRowSize; i++) {
@@ -23,11 +28,9 @@ int minPathSum(int** grid, int gridRowSize, int gridColSize) {
         dp[0][i] = sum;
     }
 
-    int min = INT_MAX;
     for (i = 1; i < gridRowSize; i++) {
         for (j = 1; j < gridColSize; j++) {
-            int n = dp[i - 1][j] < dp[i][j - 1] ? dp[i - 1][j] : dp[i][j - 1];
-            dp[i][j] = n + grid[i][j];
+            dp[i][j] = grid[i][j] + min(dp[i - 1][j], dp[i][j - 1]);
         }
     }
 

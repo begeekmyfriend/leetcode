@@ -12,6 +12,7 @@ struct ListNode* partition(struct ListNode* head, int x) {
     dummy.next = head;
     for (pivot = head; pivot != NULL; pivot = pivot->next) {
         if (pivot->val >= x) {
+            /* start->next == pivot */
             break;
         }
         start = pivot;

@@ -52,7 +52,7 @@ struct TreeNode {
     struct TreeNode *right;
 };
 
-static struct TreeNode *sub_tree_generate(int low, int high, int *count)
+static struct TreeNode *dfs(int low, int high, int *count)
 {
     int i, j, k;
     if (low > high) {
@@ -72,8 +72,8 @@ static struct TreeNode *sub_tree_generate(int low, int high, int *count)
         for (i = low; i <= high; i++) {
             /* Possibilities of roots with different values */
             int left_cnt, right_cnt;
-            struct TreeNode *left_subs = sub_tree_generate(low, i - 1, &left_cnt);
-            struct TreeNode *right_subs = sub_tree_generate(i + 1, high, &right_cnt);
+            struct TreeNode *left_subs = dfs(low, i - 1, &left_cnt);
+            struct TreeNode *right_subs = dfs(i + 1, high, &right_cnt);
             /* Total number = left sub possibilities * right sub possibilities */
             if (left_cnt == 0) left_cnt = 1;
             if (right_cnt == 0) right_cnt = 1;
@@ -103,7 +103,7 @@ static struct TreeNode *sub_tree_generate(int low, int high, int *count)
 static struct TreeNode** generateTrees(int n, int* returnSize)
 {
     int i, count = 0;
-    struct TreeNode *roots = sub_tree_generate(1, n, &count);
+    struct TreeNode *roots = dfs(1, n, &count);
     struct TreeNode **results = malloc(count * sizeof(struct TreeNode *));
     for (i = 0; i < count; i++) {
         results[i] = &roots[i];

@@ -1,33 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-static void valid_path_recursive(int col, int m, int row, int n, int *count)
+static int uniquePaths(int m, int n)
 {
-    if (col == m - 1 && row == n - 1) {
-        (*count)++;
-    } else {
-        if (m > n) {
-            if (col < m - 1) {
-                valid_path(col + 1, m, row, n, count);
-            }
-            if (row < n - 1) {
-                valid_path(col, m, row + 1, n, count);
-            }
-        } else {
-            if (col < m - 1) {
-                valid_path(col + 1, m, row, n, count);
-            }
-            if (row < n - 1) {
-                valid_path(col, m, row + 1, n, count);
-            }
-        }
-    }
-}
-
-static int uniquePaths(int m, int n) {
-    //int count = 0;
-    //valid_path(0, m, 0, n, &count);
-    //return count;
     int row, col;
     int *grids = malloc(m * n * sizeof(int));
     for (col = 0; col < m; col++) {
@@ -41,9 +16,7 @@ static int uniquePaths(int m, int n) {
             grids[row * m + col] = grids[row * m + col - 1] + grids[(row - 1) * m + col];
         }
     }
-    int result = grids[m * n - 1];
-    free(grids);
-    return result;
+    return grids[m * n - 1];
 }
 
 int main(int argc, char **argv)

@@ -2,59 +2,34 @@
 #include <stdlib.h>
 #include <string.h>
 
-static void reverse(int *a, int size)
+static int factorial(int n)
 {
-    int left = 0;
-    int right = size - 1;
-    while (left < right) {
-        int tmp = a[left];
-        a[left] = a[right];
-        a[right] = tmp;
-        left++;
-        right--;
+    if (n == 0) {
+        return 0;
+    } else if (n == 1) {
+        return 1;
+    } else {
+        return n * factorial(n - 1);
     }
 }
 
-void nextPermutation(int* nums, int numsSize) {
-    if (numsSize <= 1) {
-        return;
-    }
-
-    int *p = nums + numsSize - 1;    
-    int *q = nums + numsSize - 1;
-
-    while (p != nums && *(p - 1) >= *p) {
-        p--;
-    }
-
-    if (p != nums) {
-        int n = *(p - 1);
-        while (*q <= n) {
-            q--;
-        }
-
-        int tmp = *q;
-        *q = *(p - 1);
-        *(p - 1) = tmp;
-    }
-    reverse(p, numsSize - (p - nums));
-}
-
-static char* getPermutation(int n, int k) {
+static char* getPermutation(int n, int k)
+{
     int i;
     int *permutation = malloc(n * sizeof(int));
     for (i = 0; i < n; i++) {
         permutation[i] = i + 1;
     }
-    while (--k > 0) {
-        nextPermutation(permutation, n);
-    }
+
     char *result = malloc(n + 1);
     for (i = 0; i < n; i++) {
-        result[i] = permutation[i] + '0';
+        int fac = factorial(n - i - 1);
+        int j = k > 1 ? (k - 1) / fac : 0;
+        result[i] = permutation[j] + '0';
+        k -= j * fac;
+        memmove(permutation + j, permutation + j + 1, (n - j) * sizeof(int));
     }
     result[n] = '\0';
-    free(permutation);
     return result;
 }
 

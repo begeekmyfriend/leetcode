@@ -60,9 +60,9 @@ int main(int argc, char **argv)
         mat[i] = malloc(col * sizeof(int));
         for (j = 0; j < col; j++) {
             mat[i][j] = ++count;
-printf("%d ", mat[i][j]);
+            printf("%d ", mat[i][j]);
         }
-printf("\n");
+        printf("\n");
     }
     int *nums = spiralOrder(mat, row, col);
     for (i = 0; i < row * col; i++) {

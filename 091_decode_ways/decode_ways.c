@@ -2,61 +2,29 @@
 #include <stdlib.h>
 #include <string.h>
 
-//static void recursive(char *s, char *stack, int len, char **results, int *count)
-//{
-//    if (*s == '\0') {
-//        printf("%s\n", stack);
-//        results[*count] = malloc(len + 1);
-//        strcpy(results[*count], stack);
-//        (*count)++;
-//    } else {
-//        //while (*s != '\0') {
-//            stack[len++] = *s - '0' - 1 + 'A';
-//            recursive(s + 1, stack, len, results, count);
-//            stack[--len] = '\0';
-//            if (*(s + 1) != '\0') {
-//                int value = (*s - '0') * 10 + (*(s + 1) - '0');
-//                char c = (value - 1) + 'A';
-//                if (c >= 'A' && c <= 'Z') {
-//                    stack[len++] = c;
-//                    recursive(s + 2, stack, len, results, count);
-//                    stack[--len] = '\0';
-//                    //s++;
-//                }
-//            }
-//            //s++;
-//        //}
-//    }
-//}
-
-static void recursive(char *s, int *count)
-{
-    int value;
-    char c;
-    if (*s == '\0') {
-        (*count)++;
-    } else {
-        value = *s - '0';
-        c = (value - 1) + 'A';
-        if (c >= 'A' && c <= 'Z') {
-            recursive(s + 1, count);
-        }
-        if (*(s + 1) != '\0' && *s != '0') {
-            value = (*s - '0') * 10 + (*(s + 1) - '0');
-            c = (value - 1) + 'A';
-            if (c >= 'A' && c <= 'Z') {
-                recursive(s + 2, count);
-            }
-        }
-    }
-}
-
 static int numDecodings(char* s) {
-    int count = 0;
-    if (*s != '\0' && *s != '0') {
-        recursive(s, &count);
+    int len = strlen(s);
+    if (len == 0) {
+        return 0;
     }
-    return count;
+
+    int dp[len + 1];
+    memset(dp, 0, (len + 1) * sizeof(int));
+
+    dp[0] = 1; 
+    dp[1] = s[0] == '0' ? 0 : 1;
+    for (int i = 2; i <= len; i++) {
+        if (s[i - 1] != '0') {
+            dp[i] = dp[i - 1];
+        }
+
+        int num = (s[i - 2] - '0') * 10 + (s[i - 1] - '0');
+        if (num >= 10 && num <= 26) {
+            dp[i] += dp[i - 2];
+        }
+    }
+
+    return dp[len];
 }
 
 int main(int argc, char **argv)

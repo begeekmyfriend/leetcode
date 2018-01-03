@@ -9,6 +9,7 @@ static int largestRectangleArea(int* heights, int heightsSize)
 
     int i, pos = 0;
     for (i = 0; i < heightsSize; i++) {
+        /* monotonous increasing stack */
         while (pos > 0 && heights[indexes[pos - 1]] >= heights[i]) {
             pos--;
         }
@@ -18,6 +19,7 @@ static int largestRectangleArea(int* heights, int heightsSize)
 
     pos = 0;
     for (i = heightsSize - 1; i >= 0; i--) {
+        /* monotonous increasing stack */
         while (pos > 0 && heights[indexes[pos - 1]] >= heights[i]) {
             pos--;
         }

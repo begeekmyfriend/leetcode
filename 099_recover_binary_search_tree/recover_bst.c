@@ -8,45 +8,41 @@ struct TreeNode {
     struct TreeNode *right;
 };
 
-static struct TreeNode *last = NULL;
-static struct TreeNode *m1 = NULL;
-static struct TreeNode *m2 = NULL;
-static int wrong = 0;
-
-static void traverse(struct TreeNode* node)
+static void traverse(struct TreeNode *node, struct TreeNode **prev,
+                     struct TreeNode **p1, struct TreeNode **p2, int *wrong)
 {
     if (node->left != NULL) {
-        traverse(node->left);
+        traverse(node->left, prev, p1, p2, wrong);
     }
 
-    if (last != NULL && node->val < last->val) {
-        if (++wrong == 2) {
-            int tmp = node->val;
-            node->val = m1->val;
-            m1->val = tmp;
+    if (*prev != NULL && node->val < (*prev)->val) {
+        (*wrong)++;
+        if (*wrong == 1) {
+            *p1 = *prev;
+            *p2 = node;
+        } else if (*wrong == 2) {
+            *p2 = node;
+            return;
         }
-        m1 = last;
-        m2 = node;
     }
-    last = node;
+    *prev = node;
 
     if (node->right != NULL) {
-        traverse(node->right);
+        traverse(node->right, prev, p1, p2, wrong);
     }
 }
 
-static void recoverTree(struct TreeNode* root) {
+static void recoverTree(struct TreeNode* root)
+{
     if (root != NULL) {
-        last = NULL;
-        m1 = NULL;
-        m2 = NULL;
-        wrong = 0;
-        traverse(root);
-        if (wrong == 1) {
-            int tmp = m1->val;
-            m1->val = m2->val;
-            m2->val = tmp;
-        }        
+        struct TreeNode *prev = NULL;
+        struct TreeNode *p1 = NULL;
+        struct TreeNode *p2 = NULL;
+        int wrong = 0;
+        traverse(root, &prev, &p1, &p2, &wrong);
+        int tmp = p1->val;
+        p1->val = p2->val;
+        p2->val = tmp;
     }
 }
 

@@ -2,15 +2,15 @@
 #include <stdlib.h>
 #include <limits.h>
 
-static int recursive(int *nums, int lo, int hi)
+static int partition(int *nums, int lo, int hi)
 {
     if (lo == hi) {
         return nums[lo];
     }
 
     int ce = (hi - lo) / 2;
-    int left_max = recursive(nums, lo, lo + ce);
-    int right_max = recursive(nums, hi - ce, hi);
+    int left_max = partition(nums, lo, lo + ce);
+    int right_max = partition(nums, hi - ce, hi);
 
     int i;
     int left_border = 0, left_border_max = INT_MIN;
@@ -48,7 +48,7 @@ static int maxSubArray(int* nums, int numsSize)
     }
     return max;
 #else
-    return recursive(nums, 0, numsSize - 1);
+    return partition(nums, 0, numsSize - 1);
 #endif
 }
 

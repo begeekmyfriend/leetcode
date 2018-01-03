@@ -20,6 +20,11 @@ static bool isInterleave(char* s1, char* s2, char* s3)
     int i, j;
     int len1 = strlen(s1);
     int len2 = strlen(s2);
+    int len3 = strlen(s3);
+    if (len1 + len2 != len3) {
+        return false;
+    }
+
     bool *table = malloc((len1 + 1) * (len2 + 1) * sizeof(bool));
     bool **dp = malloc((len1 + 1) * sizeof(bool *));
     for (i = 0; i < len1 + 1; i++) {

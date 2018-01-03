@@ -1,53 +1,29 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <string.h>
 
-int *cache1, *cache2;
-
-static void insert_sort(int *nums, int size)
+static inline int compare(const void *a, const void *b)
 {
-    int i, j;
-    for (i = 1; i < size; i++) {
-        int tmp = nums[i];
-        for (j = i - 1; j >= 0 && tmp < nums[j]; j--) {
-            nums[j + 1] = nums[j];
-        }
-        nums[j + 1] = tmp;
-    }
+    return *(int *) a - *(int *) b;
 }
 
-static int exist(int **results, int count, int *sizes, int *buf, int len)
-{
-    int i, j;
-    for (i = 0; i < count; i++) {
-        if (len == sizes[i]) {
-            memcpy(cache1, results[i], len * sizeof(int));
-            memcpy(cache2, buf, len * sizeof(int));
-            insert_sort(cache1, len);
-            insert_sort(cache2, len);
-            if (!memcmp(cache1, cache2, len * sizeof(int))) {
-                return 1;
-            }
-        }
-    }
-    return 0;
-}
-
-static void subset_recursive(int *nums, int size, int start,
-                             int *buf, int len,
-                             int **sets, int *sizes, int *count)
+static void dfs(int *nums, int size, int start, int *buf, int level,
+                bool *used, int **sets, int *sizes, int *count)
 {
     int i;
-    if (!exist(sets, *count, sizes, buf, len)) {
-        sets[*count] = malloc(len * sizeof(int));
-        memcpy(sets[*count], buf, len * sizeof(int));
-        sizes[*count] = len;
-        (*count)++;
-    }
+    sets[*count] = malloc(level * sizeof(int));
+    memcpy(sets[*count], buf, level * sizeof(int));
+    sizes[*count] = level;
+    (*count)++;
     for (i = start; i < size; i++) {
-        buf[len++] = nums[i];
-        subset_recursive(nums, size, i + 1, buf, len, sets, sizes, count);
-        len--;
+        if (!used[i]) {
+            if (i > 0 && !used[i - 1] && nums[i - 1] == nums[i]) continue;
+            used[i] = true;
+            buf[level] = nums[i];
+            dfs(nums, size, i + 1, buf, level + 1, used, sets, sizes, count);
+            used[i] = false;
+        }
     }
 }
 
@@ -56,15 +32,17 @@ static void subset_recursive(int *nums, int size, int start,
  ** The sizes of the arrays are returned as *columnSizes array.
  ** Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
  **/
-int** subsets(int* nums, int numsSize, int** columnSizes, int* returnSize) {
+static int** subsets(int* nums, int numsSize, int** columnSizes, int* returnSize)
+{
+    qsort(nums, numsSize, sizeof(int), compare);
     int capacity = 5000;
     int **sets = malloc(capacity * sizeof(int *));
     int *buf = malloc(numsSize * sizeof(int));
+    bool *used = malloc(numsSize);
+    memset(used, false, numsSize);
     *columnSizes = malloc(capacity * sizeof(int));
     *returnSize = 0;
-    cache1 = malloc(numsSize * sizeof(int));
-    cache2 = malloc(numsSize * sizeof(int));
-    subset_recursive(nums, numsSize, 0, buf, 0, sets, *columnSizes, returnSize);
+    dfs(nums, numsSize, 0, buf, 0, used, sets, *columnSizes, returnSize);
     return sets;
 }
 

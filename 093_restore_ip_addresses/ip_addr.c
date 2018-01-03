@@ -19,7 +19,7 @@ static bool valid(char *ip, int len)
 
 #define WIDTH 4
 
-static void recursive(char *s, int start, char *stack, int num, char **results, int *count)
+static void dfs(char *s, int start, char *stack, int num, char **results, int *count)
 {
     int i, j;
     if (num == 4) {
@@ -45,7 +45,7 @@ static void recursive(char *s, int start, char *stack, int num, char **results, 
             if (!valid(p, q - p)) {
                 return;
             }
-            recursive(s, i + 1, stack, num + 1, results, count);
+            dfs(s, i + 1, stack, num + 1, results, count);
             if (num + 1 < 4) {
                 memset(stack + (num + 1) * WIDTH, 0, WIDTH);
             }
@@ -57,11 +57,12 @@ static void recursive(char *s, int start, char *stack, int num, char **results, 
  ** Return an array of size *returnSize.
  ** Note: The returned array must be malloced, assume caller calls free().
  **/
-static char** restoreIpAddresses(char* s, int* returnSize) {
+static char** restoreIpAddresses(char* s, int* returnSize)
+{
     int count = 0;
     char **results = malloc(100 * sizeof(char *));
     char addr[16] = { '\0' };
-    recursive(s, 0, addr, 0, results, &count);
+    dfs(s, 0, addr, 0, results, &count);
     *returnSize = count;
     return results;
 }

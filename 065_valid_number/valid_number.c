@@ -1,57 +1,38 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <ctype.h>
 
-static bool isNumber(const char *s) {
-    bool point = false;
-    bool hasE = false;
-    
-    //trim the space
-    while(isspace(*s)) s++;
-    //check empty 
-    if (*s == '\0' ) return false;
-    //check sign
-    if (*s=='+' || *s=='-') s++;
-
-    const char *head  = s;
-    for(; *s!='\0'; s++){
-        // if meet point
-        if ( *s == '.' ){
-            if ( hasE == true || point == true){
-                return false;
-            }
-            if ( s == head && !isdigit(*(s+1))  ){
-                return false;
-            }
-            point = true; 
-            continue; 
-        }
-        //if meet "e"
-        if ( *s == 'e' ){
-            if ( hasE == true || s == head) {
-                return false;
-            }
-            s++;
-            if ( *s=='+' || *s=='-' )  s++;
-            if ( !isdigit(*s) ) return false;
-      
-            hasE = true; 
-            continue; 
-        }
-        //if meet space, check the rest chars are space or not
-        if (isspace(*s)){
-            for (; *s != '\0'; s++){
-                if (!isspace(*s)) return false;
-            }
-            return true;
-        }
-        if ( !isdigit(*s) ) {
-            return false;
-        }
-       
+static bool isNumber(const char *s)
+{
+    while (*s == ' ')
+        ++s;
+    bool if_find_num = false;
+    if (*s == '-' || *s == '+')
+        ++s;
+    while (isdigit(*s)) {
+        if_find_num = true;
+        ++s;
     }
-    
-    return true; 
+    if (*s == '.')
+        ++s;
+    while (isdigit(*s)) {
+        if_find_num = true;
+        ++s;
+    }
+    if (if_find_num == true && *s == 'e') {
+        ++s;
+        if (*s == '+' || *s == '-')
+            ++s;
+        if_find_num = false;
+        while (isdigit(*s)) {
+            if_find_num = true;
+            ++s;
+        }
+    }
+    while (*s == ' ')
+        ++s;
+    return *s == '\0' && if_find_num == true;
 }
 
 int main(int argc, char** argv)

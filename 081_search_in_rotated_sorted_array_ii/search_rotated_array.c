@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 static int binary_search(int *nums, int size, int target)
 {
@@ -20,12 +21,14 @@ static int binary_search(int *nums, int size, int target)
     }
 }
 
-static int search(int* nums, int numsSize, int target) {
+static bool search(int* nums, int numsSize, int target)
+{
     if (numsSize <= 0) {
-        return -1;
+        return false;
     }
+
     if (numsSize == 1) {
-        return target == nums[0] ? 0 : -1;
+        return target == nums[0];
     }
 
     int i;
@@ -36,12 +39,11 @@ static int search(int* nums, int numsSize, int target) {
     }
 
     if (i == 0) {
-        return binary_search(nums, numsSize, target);
+        return binary_search(nums, numsSize, target) >= 0;
     } else if (target >= nums[0]) {
-        return binary_search(nums, i, target);
+        return binary_search(nums, i, target) >= 0;
     } else if (target <= nums[numsSize - 1]) {
-        int index = binary_search(nums + i, numsSize - i, target);
-        return index >= 0 ? index + i : -1;
+        return binary_search(nums + i, numsSize - i, target) >= 0;
     } else {
         return -1;
     }

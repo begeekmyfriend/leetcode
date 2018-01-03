@@ -21,7 +21,7 @@ static int numTrees(int n) {
 int main(int argc, char **argv)
 {
     if (argc != 2) {
-        fprintf(stderr, "Usage: ./test n");
+        fprintf(stderr, "Usage: ./test n\n");
         exit(-1);
     }
     printf("%d\n", numTrees(atoi(argv[1])));

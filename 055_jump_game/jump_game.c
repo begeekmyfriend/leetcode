@@ -2,24 +2,22 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-static bool canJump(int* nums, int numsSize) {
-    if (numsSize == 0) return false;
+static inline int max(int a, int b)
+{
+    return a > b ? a : b;
+}
 
-    int i = numsSize - 1, j;
-    while (i > 0) {
-        if (nums[--i] == 0) {
-            for (j = i - 1; j >= 0; j--) {
-                if (nums[j] > i - j) {
-                    break;
-                }
-            }
-            if (j == -1) {
-                return false;
-            }
+static bool canJump(int* nums, int numsSize)
+{
+    int i, pos = 0;
+    for (i = 0; i < numsSize - 1; i++) {
+        if (pos < i || pos >= numsSize - 1) {
+            break;
         }
+        pos = max(i + nums[i], pos);
     }
 
-    return true;
+    return pos >= numsSize - 1;
 }
 
 int main(int argc, char **argv)

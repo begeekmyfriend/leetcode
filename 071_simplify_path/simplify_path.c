@@ -2,7 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-static char* simplifyPath(char* path) {
+static char* simplifyPath(char* path)
+{
     int len = strlen(path);
     if (len == 0) {
         return path;
