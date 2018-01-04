@@ -2,6 +2,16 @@
 #include <stdlib.h>
 #include <limits.h>
 
+static inline int gt(int a, int b)
+{
+    return a > b ? a : b;
+}
+
+static inline int lt(int a, int b)
+{
+    return a < b ? a : b;
+}
+
 static int maximumGap(int* nums, int numsSize)
 {
     if (numsSize < 2) {
@@ -12,8 +22,8 @@ static int maximumGap(int* nums, int numsSize)
     int min = INT_MAX;
     int max = INT_MIN;
     for (i = 0; i < numsSize; i++) {
-        min = nums[i] < min ? nums[i] : min;
-        max = nums[i] > max ? nums[i] : max;
+        min = lt(nums[i], min);
+        max = gt(nums[i], max);
     }
 
     /* the max gap size must be larger than or equal to the average */
@@ -33,8 +43,8 @@ static int maximumGap(int* nums, int numsSize)
 
     for (i = 0; i < numsSize; i++) {
         int id = (nums[i] - min) / buck_size;
-        max_buck[id] = nums[i] > max_buck[id] ? nums[i] : max_buck[id];
-        min_buck[id] = nums[i] < min_buck[id] ? nums[i] : min_buck[id];
+        max_buck[id] = gt(nums[i], max_buck[id]);
+        min_buck[id] = lt(nums[i], min_buck[id]);
     }
 
     int max_gap = 0;
@@ -47,7 +57,7 @@ static int maximumGap(int* nums, int numsSize)
              * bucket since the max gap must be larger or equal than the average
              * while the differences of elements in one bucket must less than
              * the average */
-            max_gap = min_buck[i] - last_max > max_gap ? min_buck[i] - last_max : max_gap;
+            max_gap = gt(min_buck[i] - last_max, max_gap);
             last_max = max_buck[i];
         }
     }

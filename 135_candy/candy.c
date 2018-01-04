@@ -13,6 +13,7 @@ static int candy(int* ratings, int ratingsSize)
         if (ratings[i] > ratings[i - 1]) {
             candies[i] = candies[i - 1] + 1;  
         } else {
+            /* Set as least so that it will be reset from the opposite side */
             candies[i] = 1;  
         }
     }  

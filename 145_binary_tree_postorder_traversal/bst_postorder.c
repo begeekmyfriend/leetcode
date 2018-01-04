@@ -12,6 +12,14 @@ struct node_backlog {
     struct TreeNode *right;
 };
 
+static int counting(struct TreeNode* node)
+{
+    if (node == NULL) {
+        return 0;
+    }
+    return 1 + counting(node->left) + counting(node->right);
+}
+
 /**
  ** Return an array of size *returnSize.
  ** Note: The returned array must be malloced, assume caller calls free().
@@ -22,34 +30,32 @@ static int* postorderTraversal(struct TreeNode* root, int* returnSize)
         return NULL;
     }
 
-    int cap = 10000, count = 0;
-    int *results = malloc(cap * sizeof(int));
-    struct node_backlog *stack = malloc(cap / 16 * sizeof(*stack));
+    *returnSize = counting(root);
+
+    int count = 0;
+    int *results = malloc(*returnSize * sizeof(int));
+    struct node_backlog *stack = malloc(*returnSize * sizeof(*stack));
     struct node_backlog *top = stack;
     struct TreeNode *node = root;
-    struct node_backlog nbl;
 
     while (node != NULL || top != stack) {
         if (node == NULL) {
-            nbl = *--top;
-            if (nbl.right != NULL) {
-                node = nbl.right;
-                nbl.right = NULL;
-                *top++ = nbl;
+            if ((top - 1)->right != NULL) {
+                node = (top - 1)->right;
+                (top - 1)->right = NULL;
             } else {
-                node = nbl.parent;
+                node = (--top)->parent;
                 results[count++] = node->val;
                 node = NULL;
                 continue;
             }
         }
-        nbl.parent = node;
-        nbl.right = node->right;
-        *top++ = nbl;
+        top->parent = node;
+        top->right = node->right;
+        top++;
         node = node->left;
     }
 
-    *returnSize = count;
     return results;
 }
 

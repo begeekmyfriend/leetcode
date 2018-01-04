@@ -49,10 +49,9 @@ static bool scramble(char *s1, int low1, int high1, char *s2, int low2, int high
     }
 }
 
-static bool isScramble(char* s1, char* s2) {
-    int len1 = strlen(s1);
-    int len2 = strlen(s2);
-    return scramble(s1, 0, len1 - 1, s2, 0, len2 - 1);
+static bool isScramble(char* s1, char* s2)
+{
+    return scramble(s1, 0, strlen(s1) - 1, s2, 0, strlen(s2) - 1);
 }
 
 int main(int argc, char **argv)

@@ -30,6 +30,7 @@ static int numDistinct(char* s, char* t)
         dp[0][i] = 0;
     }
 
+    /* I guess it, just dump the dp table and you will find the rule... */
     for (i = 1; i < s_len - start; i++) {
         dp[i][0] = dp[i - 1][0];
         if (s[start + i] == t[0]) {

@@ -12,13 +12,13 @@ struct TreeNode {
     struct TreeNode *right;
 };
 
-static struct TreeNode *recursive(int *nums, int lo, int hi)
+static struct TreeNode *traverse(int *nums, int lo, int hi)
 {
     int mid = lo + (hi - lo) / 2;
     struct TreeNode *node = malloc(sizeof(*node));
     node->val = nums[mid];
-    node->left = mid > lo ? recursive(nums, lo, mid - 1) : NULL;
-    node->right = mid < hi ? recursive(nums, mid + 1, hi) : NULL;
+    node->left = mid > lo ? traverse(nums, lo, mid - 1) : NULL;
+    node->right = mid < hi ? traverse(nums, mid + 1, hi) : NULL;
     return node;
 }
 
@@ -31,7 +31,7 @@ static struct TreeNode *sortedListToBST(struct ListNode *head)
     if (i == 0) {
         return NULL;
     }
-    return recursive(nums, 0, i - 1);
+    return traverse(nums, 0, i - 1);
 }
 
 int main(int argc, char **argv)

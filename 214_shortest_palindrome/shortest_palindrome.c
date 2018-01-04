@@ -32,6 +32,11 @@ static char *shortestPalindrome(char *s)
         next[i] = j;
     }
 
+    for (i = 0; i < res_len; i++) {
+        printf("%d ", next[i]);
+    }
+    printf("\n");
+
     memmove(result, result + len + 1, len + 1);
     int start = len - next[res_len - 1];
     strcpy(result + start, s);

@@ -8,19 +8,14 @@ struct TreeNode {
     struct TreeNode *right;
 };
 
-static void recursive(struct TreeNode **node, int *nums, int size, int i, struct TreeNode **root)
+static struct TreeNode *partition(int *nums, int lo, int hi)
 {
-    if () {
-        *node = malloc(sizeof(**node));
-        (*node)->val = nums[
-    } else {
-        recursive(node, nums, size, i, root);
-        *node = malloc(sizeof(**root));
-        if (i == size / 2) {
-            *root = *node;
-        }
-        recursive(node, nums, size, i, root);
-    }
+    int mid = lo + (hi - lo) / 2;
+    struct TreeNode *node = malloc(sizeof(*node));
+    node->val = nums[mid];
+    node->left = mid > lo ? partition(nums, lo, mid - 1) : NULL;
+    node->right = mid < hi ? partition(nums, mid + 1, hi) : NULL;
+    return node;
 }
 
 static struct TreeNode* sortedArrayToBST(int* nums, int numsSize)
@@ -28,9 +23,7 @@ static struct TreeNode* sortedArrayToBST(int* nums, int numsSize)
     if (numsSize == 0) {
         return NULL;
     }
-    struct TreeNode *node, *root;
-    recursive(nums, numsSize, 0, &root);
-    return root;
+    return partition(nums, 0, numsSize - 1);
 }
 
 int main(int argc, char **argv)

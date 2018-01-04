@@ -10,6 +10,10 @@ struct TreeLinkNode {
 
 static void connect(struct TreeLinkNode *root)
 {
+    if (root == NULL) {
+        return;
+    }
+
     struct TreeLinkNode *head = root;
     while (head->left != NULL) {
         struct TreeLinkNode *p;

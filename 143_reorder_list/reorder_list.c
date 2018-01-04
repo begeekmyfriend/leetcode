@@ -29,14 +29,18 @@ static void reorderList(struct ListNode *head)
     int count = 0;
     struct ListNode *p = head;
     struct ListNode *q = p;
+
+    /* locate half length */
     for (; p != NULL; p = p->next) {
         if ((++count & 0x1) == 0) {
             q = q->next;
         }
     }
 
+    /* reverse latter half list */
     reverse(q);
 
+    /* insert each element */
     struct ListNode *r;
     for (p = head, r = q->next; r != NULL; p = r->next, r = q->next) {
         q->next = r->next;

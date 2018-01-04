@@ -6,7 +6,7 @@ struct ListNode {
     struct ListNode *next;
 };
 
-static void recursive(struct ListNode *dummy, struct ListNode *end)
+static void traverse(struct ListNode *dummy, struct ListNode *end)
 {
     if (dummy == NULL || dummy->next == end) {
         return;
@@ -32,15 +32,15 @@ static void recursive(struct ListNode *dummy, struct ListNode *end)
         }
     }
 
-    recursive(dummy, pivot);
-    recursive(first, end);
+    traverse(dummy, pivot);
+    traverse(first, end);
 }
 
 static struct ListNode *sortList(struct ListNode *head)
 {
     struct ListNode dummy;
     dummy.next = head;
-    recursive(&dummy, NULL);
+    traverse(&dummy, NULL);
     return dummy.next;
 }
 

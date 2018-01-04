@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-static int recursive(int n, int *count)
+static int dfs(int n, int *count)
 {
     if (n == 0) {
         return 0;
@@ -10,10 +10,10 @@ static int recursive(int n, int *count)
         return count[n];
     } else {
         if (n >= 1) {
-            count[n] += recursive(n - 1, count);
+            count[n] += dfs(n - 1, count);
         }
         if (n >= 2) {
-            count[n] += recursive(n - 2, count);
+            count[n] += dfs(n - 2, count);
         }
         return count[n];
     }
@@ -25,7 +25,7 @@ static int climbStairs(int n)
     memset(count, 0, (n + 1) * sizeof(int));
     count[1] = 1;
     count[2] = 2;
-    return recursive(n, count);
+    return dfs(n, count);
 }
 
 int main(int argc, char **argv)

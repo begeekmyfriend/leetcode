@@ -2,24 +2,24 @@
 #include <stdlib.h>
 #include <string.h>
 
-static void recursive(char** grid, int row_size, int col_size, int row, int col)
+static void dfs(char** grid, int row_size, int col_size, int row, int col)
 {
     grid[row][col] = '0';
 
     if (row > 0 && grid[row - 1][col] == '1') {
-        recursive(grid, row_size, col_size, row - 1, col);
+        dfs(grid, row_size, col_size, row - 1, col);
     }
 
     if (row < row_size - 1 && grid[row + 1][col] == '1') {
-        recursive(grid, row_size, col_size, row + 1, col);
+        dfs(grid, row_size, col_size, row + 1, col);
     }
 
     if (col > 0 && grid[row][col - 1] == '1') {
-        recursive(grid, row_size, col_size, row, col - 1);
+        dfs(grid, row_size, col_size, row, col - 1);
     }
 
     if (col < col_size - 1 && grid[row][col + 1] == '1') {
-        recursive(grid, row_size, col_size, row, col + 1);
+        dfs(grid, row_size, col_size, row, col + 1);
     }
 }
 
@@ -29,7 +29,7 @@ static int numIslands(char** grid, int gridRowSize, int gridColSize)
     for (i = 0; i < gridRowSize; i++) {
         for (j = 0; j < gridColSize; j++) {
             if (grid[i][j] == '1') {
-                recursive(grid, gridRowSize, gridColSize, i, j);
+                dfs(grid, gridRowSize, gridColSize, i, j);
                 count++;
             }
         }

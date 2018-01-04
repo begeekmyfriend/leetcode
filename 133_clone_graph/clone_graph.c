@@ -1,6 +1,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define NEIGHBORS_MAX_SIZE 100
+
+#define container_of(ptr, type, member) \
+    ((type *)((char *)(ptr) - (size_t)&(((type *)0)->member)))
+
+#define list_entry(ptr, type, member) \
+    container_of(ptr, type, member)
+
+#define hlist_for_each(pos, head) \
+    for (pos = (head)->first; pos; pos = pos->next)
+
+#define hlist_for_each_safe(pos, n, head) \
+    for (pos = (head)->first; pos && ({ n = pos->next; true; }); pos = n)
+
 struct hlist_node;
 
 struct hlist_head {
@@ -44,20 +58,6 @@ static inline void hlist_del(struct hlist_node *n)
     }
 }
 
-#define container_of(ptr, type, member) \
-    ((type *)((char *)(ptr) - (size_t)&(((type *)0)->member)))
-
-#define list_entry(ptr, type, member) \
-    container_of(ptr, type, member)
-
-#define hlist_for_each(pos, head) \
-    for (pos = (head)->first; pos; pos = pos->next)
-
-#define hlist_for_each_safe(pos, n, head) \
-    for (pos = (head)->first; pos && ({ n = pos->next; true; }); pos = n)
-
-#define NEIGHBORS_MAX_SIZE 100
-
 struct UndirectedGraphNode {
     int label;
     struct UndirectedGraphNode *neighbors[NEIGHBORS_MAX_SIZE];
@@ -82,7 +82,7 @@ static struct UndirectedGraphNode *find(int label, int size, struct hlist_head *
     return NULL;
 }
 
-static struct UndirectedGraphNode *recursive_clone(struct UndirectedGraphNode *graph, struct hlist_head *heads, int size)
+static struct UndirectedGraphNode *dfs(struct UndirectedGraphNode *graph, struct hlist_head *heads, int size)
 {
     if (graph == NULL) {
         return NULL;
@@ -103,7 +103,7 @@ static struct UndirectedGraphNode *recursive_clone(struct UndirectedGraphNode *g
 
     int i;
     for (i = 0; i < node->neighborsCount; i++) {
-        node->neighbors[i] = recursive_clone(graph->neighbors[i], heads, size);
+        node->neighbors[i] = dfs(graph->neighbors[i], heads, size);
     }
 
     return node;
@@ -117,7 +117,7 @@ static struct UndirectedGraphNode *cloneGraph(struct UndirectedGraphNode *graph)
         INIT_HLIST_HEAD(&heads[i]);
     }
 
-    return recursive_clone(graph, heads, cap);
+    return dfs(graph, heads, cap);
 }
 
 int main(void)

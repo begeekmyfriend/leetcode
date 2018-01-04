@@ -1,6 +1,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define container_of(ptr, type, member) \
+    ((type *)((char *)(ptr) - (size_t)&(((type *)0)->member)))
+
+#define list_entry(ptr, type, member) \
+    container_of(ptr, type, member)
+
+#define hlist_for_each(pos, head) \
+    for (pos = (head)->first; pos; pos = pos->next)
+
 struct hlist_node;
 
 struct hlist_head {
@@ -13,11 +22,6 @@ struct hlist_node {
 
 static inline void INIT_HLIST_HEAD(struct hlist_head *h) {
     h->first = NULL;
-}
-
-static inline void INIT_HLIST_NODE(struct hlist_node *n) {
-    n->next = NULL;
-    n->pprev = NULL;
 }
 
 static inline int hlist_empty(struct hlist_head *h) {
@@ -43,15 +47,6 @@ static inline void hlist_del(struct hlist_node *n)
         next->pprev = pprev;
     }
 }
-
-#define container_of(ptr, type, member) \
-    ((type *)((char *)(ptr) - (size_t)&(((type *)0)->member)))
-
-#define list_entry(ptr, type, member) \
-    container_of(ptr, type, member)
-
-#define hlist_for_each(pos, head) \
-    for (pos = (head)->first; pos; pos = pos->next)
 
 struct TreeNode {
     int val;
@@ -87,9 +82,8 @@ static struct TreeNode *node_new(int val)
     return tn;
 }
 
-static struct TreeNode *recursive(int *preorder, int pre_low, int pre_high,
-                                  int *inorder, int in_low, int in_high,
-                                  struct hlist_head *in_heads, int size)
+static struct TreeNode *dfs(int *preorder, int pre_low, int pre_high, int *inorder,
+                            int in_low, int in_high, struct hlist_head *in_heads, int size)
 {
     if (in_low > in_high || pre_low > pre_high) {
         return NULL;
@@ -97,8 +91,8 @@ static struct TreeNode *recursive(int *preorder, int pre_low, int pre_high,
     struct TreeNode *tn = malloc(sizeof(*tn));
     tn->val = preorder[pre_low];
     int index = find(preorder[pre_low], size, in_heads);
-    tn->left = recursive(preorder, pre_low + 1, pre_low + (index - in_low), inorder, in_low, index - 1, in_heads, size);
-    tn->right = recursive(preorder, pre_high - (in_high - index - 1), pre_high, inorder, index + 1, in_high, in_heads, size);
+    tn->left = dfs(preorder, pre_low + 1, pre_low + (index - in_low), inorder, in_low, index - 1, in_heads, size);
+    tn->right = dfs(preorder, pre_high - (in_high - index - 1), pre_high, inorder, index + 1, in_high, in_heads, size);
     return tn;
 }
 
@@ -122,49 +116,7 @@ static struct TreeNode *buildTree(int *preorder, int preorderSize, int *inorder,
         node_add(inorder[i], i, inorderSize, in_heads);
     }
 
-#if 0
-    struct hlist_head *pre_heads = malloc(preorderSize * sizeof(*pre_heads));
-    for (i = 0; i < preorderSize; i++) {
-        INIT_HLIST_HEAD(&pre_heads[i]);
-    }
-    for (i = 0; i < inorderSize; i++) {
-        node_add(preorder[i], i, preorderSize, pre_heads);
-    }
-
-    int last_index, level = 0;
-    struct TreeNode **stack = malloc(preorderSize * sizeof(*stack));
-    struct TreeNode *tn, *root = NULL;
-    for (i = 0; i < preorderSize; i++) {
-        if (i == 0) {
-            tn = root = node_new(preorder[0]);
-            last_index = find(preorder[0], inorderSize, in_heads);
-            stack[level++] = root;
-        } else {
-            int index = find(preorder[i], inorderSize, in_heads);
-            if (index < last_index) {
-                tn->left = node_new(preorder[i]);
-                tn = tn->left;
-            } else {
-                for (j = index - 1; j >= 0; j--) {
-                    if (find(inorder[j], preorderSize, pre_heads) < i) {
-                        break;
-                    }
-                }
-                /* find the parent of the right child */
-                while (stack[--level]->val != inorder[j]) {}
-                tn = stack[level++];
-                tn->right = node_new(preorder[i]);
-                tn = tn->right;
-            }
-            stack[level++] = tn;
-            last_index = index;
-        }
-    }
-
-    return root;
-#else
-    return recursive(preorder, 0, preorderSize - 1, inorder, 0, inorderSize - 1, in_heads, inorderSize);
-#endif
+    return dfs(preorder, 0, preorderSize - 1, inorder, 0, inorderSize - 1, in_heads, inorderSize);
 }
 
 static void dump(struct TreeNode *node)

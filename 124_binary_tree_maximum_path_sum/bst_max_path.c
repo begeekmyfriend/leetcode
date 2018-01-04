@@ -8,17 +8,17 @@ struct TreeNode {
     struct TreeNode *right;
 };
 
-static int recursive(struct TreeNode *node, int *max)
+static int partition(struct TreeNode *node, int *max)
 {
     int left_max = 0;
     int right_max = 0;
 
     if (node->left != NULL) {
-        left_max = recursive(node->left, max);
+        left_max = partition(node->left, max);
     }
 
     if (node->right != NULL) {
-        right_max = recursive(node->right, max);
+        right_max = partition(node->right, max);
     }
 
     int sum = node->val + left_max + right_max;
@@ -26,8 +26,7 @@ static int recursive(struct TreeNode *node, int *max)
        *max = sum;
     }
 
-    int path_sum = node->val + (right_max > left_max ? right_max : left_max);
-    return path_sum > 0 ? path_sum : 0;
+    return node->val + (right_max > left_max ? right_max : left_max);
 }
 
 static int maxPathSum(struct TreeNode* root)
@@ -37,7 +36,7 @@ static int maxPathSum(struct TreeNode* root)
     }
 
     int max = INT_MIN;
-    recursive(root, &max);
+    partition(root, &max);
     return max;
 }
 

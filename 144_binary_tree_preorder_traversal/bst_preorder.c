@@ -28,9 +28,11 @@ static int* preorderTraversal(struct TreeNode* root, int* returnSize) {
         }
 
         results[count++] = node->val;
+
         if (node->right != NULL) {
             *top++ = node->right;
         }
+
         node = node->left;
     }
 

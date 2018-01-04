@@ -3,16 +3,16 @@
 #include <stdbool.h>
 #include <string.h>
 
-static int recursive(int** triangle, int row_size, int *col_sizes,
-                     int row, int col, int **sums, bool **passes)
+static int dfs(int** triangle, int row_size, int *col_sizes,
+               int row, int col, int **sums, bool **passes)
 {
     if (row == row_size - 1) {
         return triangle[row][col];
     } else if (passes[row][col]) {
         return sums[row][col];
     } else {
-        int s1 = recursive(triangle, row_size, col_sizes, row + 1, col, sums, passes);
-        int s2 = recursive(triangle, row_size, col_sizes, row + 1, col + 1, sums, passes);
+        int s1 = dfs(triangle, row_size, col_sizes, row + 1, col, sums, passes);
+        int s2 = dfs(triangle, row_size, col_sizes, row + 1, col + 1, sums, passes);
         sums[row][col] = triangle[row][col] + (s1 < s2 ? s1 : s2);
         passes[row][col] = true;
         return sums[row][col];
@@ -31,7 +31,7 @@ static int minimumTotal(int** triangle, int triangleRowSize, int *triangleColSiz
     for (i = 0; i < triangleRowSize; i++) {
         sums[i] = malloc(triangleColSizes[i] * sizeof(int));
     }
-    return recursive(triangle, triangleRowSize, triangleColSizes, 0, 0, sums, passes);
+    return dfs(triangle, triangleRowSize, triangleColSizes, 0, 0, sums, passes);
 }
 
 int main(void)

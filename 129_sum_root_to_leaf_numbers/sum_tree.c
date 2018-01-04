@@ -7,20 +7,21 @@ struct TreeNode {
     struct TreeNode *right;
 };
 
-static void recursive(struct TreeNode* node, int sum, int *total)
+static int dfs(struct TreeNode* node, int sum)
 {
+    int total = 0;
     sum = sum * 10 + node->val;
 
     if (node->left == NULL && node->right == NULL) {
-        *total += sum;
-    }
-
-    if (node->left != NULL) {
-        recursive(node->left, sum, total);
-    }
-
-    if (node->right != NULL) {
-        recursive(node->right, sum, total);
+        return sum;
+    } else {
+        if (node->left != NULL) {
+            total += dfs(node->left, sum);
+        }
+        if (node->right != NULL) {
+            total += dfs(node->right, sum);
+        }
+        return total;
     }
 }
 
@@ -29,10 +30,7 @@ static int sumNumbers(struct TreeNode* root)
     if (root == NULL) {
         return 0;
     }
-
-    int total = 0;
-    recursive(root, 0, &total);
-    return total;
+    return dfs(root, 0);
 }
 
 int main(void)

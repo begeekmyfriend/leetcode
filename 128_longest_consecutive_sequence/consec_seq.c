@@ -1,6 +1,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define container_of(ptr, type, member) \
+    ((type *)((char *)(ptr) - (size_t)&(((type *)0)->member)))
+
+#define list_entry(ptr, type, member) \
+    container_of(ptr, type, member)
+
+#define hlist_for_each(pos, head) \
+    for (pos = (head)->first; pos; pos = pos->next)
+
+#define hlist_for_each_safe(pos, n, head) \
+    for (pos = (head)->first; pos && ({ n = pos->next; true; }); pos = n)
+
 struct hlist_node;
 
 struct hlist_head {
@@ -11,16 +23,13 @@ struct hlist_node {
     struct hlist_node *next, **pprev;
 };
 
-static inline void INIT_HLIST_HEAD(struct hlist_head *h) {
+static inline void INIT_HLIST_HEAD(struct hlist_head *h)
+{
     h->first = NULL;
 }
 
-static inline void INIT_HLIST_NODE(struct hlist_node *n) {
-    n->next = NULL;
-    n->pprev = NULL;
-}
-
-static inline int hlist_empty(struct hlist_head *h) {
+static inline int hlist_empty(struct hlist_head *h)
+{
     return !h->first;
 }
 
@@ -44,18 +53,6 @@ static inline void hlist_del(struct hlist_node *n)
     }
 }
 
-#define container_of(ptr, type, member) \
-    ((type *)((char *)(ptr) - (size_t)&(((type *)0)->member)))
-
-#define list_entry(ptr, type, member) \
-    container_of(ptr, type, member)
-
-#define hlist_for_each(pos, head) \
-    for (pos = (head)->first; pos; pos = pos->next)
-
-#define hlist_for_each_safe(pos, n, head) \
-    for (pos = (head)->first; pos && ({ n = pos->next; true; }); pos = n)
-
 struct seq_node {
     int num;
     struct hlist_node node;
@@ -74,7 +71,8 @@ static struct seq_node *find(int num, int size, struct hlist_head *heads)
     return NULL;
 }
 
-static int longestConsecutive(int* nums, int numsSize) {
+static int longestConsecutive(int* nums, int numsSize)
+{
     int i, hash, length = 0;
     struct seq_node *node;
     struct hlist_head *heads = malloc(numsSize * sizeof(*heads));

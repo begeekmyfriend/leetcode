@@ -8,7 +8,7 @@ struct TreeNode {
     struct TreeNode *right;
 };
 
-static void recursive(struct TreeNode *node, int sum, int *stack, int len, int **results, int *sizes, int *count)
+static void dfs(struct TreeNode *node, int sum, int *stack, int len, int **results, int *sizes, int *count)
 {
     if (node == NULL) {
         return;
@@ -24,8 +24,8 @@ static void recursive(struct TreeNode *node, int sum, int *stack, int len, int *
         return;
     }
     stack[len] = node->val;
-    recursive(node->left, sum, stack, len + 1, results, sizes, count);
-    recursive(node->right, sum, stack, len + 1, results, sizes, count);
+    dfs(node->left, sum, stack, len + 1, results, sizes, count);
+    dfs(node->right, sum, stack, len + 1, results, sizes, count);
 }
 
 static int **pathSum(struct TreeNode *root, int sum, int **columnSizes, int *returnSize)
@@ -39,7 +39,7 @@ static int **pathSum(struct TreeNode *root, int sum, int **columnSizes, int *ret
     int *stack = malloc(level * sizeof(int));
     int **results = malloc(cap * sizeof(int *));
     *columnSizes = malloc(cap * sizeof(int));
-    recursive(root, sum, stack, 0, results, *columnSizes, returnSize);
+    dfs(root, sum, stack, 0, results, *columnSizes, returnSize);
     return results;
 }
 

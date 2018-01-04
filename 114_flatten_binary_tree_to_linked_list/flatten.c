@@ -8,7 +8,7 @@ struct TreeNode {
     struct TreeNode *right;
 };
 
-static struct TreeNode *recursive(struct TreeNode *node)
+static struct TreeNode *partition(struct TreeNode *node)
 {
     if (node == NULL) {
         return NULL;
@@ -18,8 +18,8 @@ static struct TreeNode *recursive(struct TreeNode *node)
         return node;
     }
 
-    struct TreeNode *right_last = recursive(node->right);
-    struct TreeNode *left_last = recursive(node->left);
+    struct TreeNode *right_last = partition(node->right);
+    struct TreeNode *left_last = partition(node->left);
 
     if (left_last != NULL) {
         left_last->right = node->right;
@@ -32,7 +32,7 @@ static struct TreeNode *recursive(struct TreeNode *node)
 
 static void flatten(struct TreeNode *root)
 {
-    recursive(root);
+    partition(root);
 }
 
 int main(void)

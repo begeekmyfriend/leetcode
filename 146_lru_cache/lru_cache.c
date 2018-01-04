@@ -1,6 +1,27 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define container_of(ptr, type, member) \
+    ((type *)((char *)(ptr) - (size_t)&(((type *)0)->member)))
+
+#define list_entry(ptr, type, member) \
+    container_of(ptr, type, member)
+
+#define hlist_for_each(pos, head) \
+    for (pos = (head)->first; pos; pos = pos->next)
+
+#define hlist_for_each_safe(pos, n, head) \
+    for (pos = (head)->first; pos && ({ n = pos->next; true; }); pos = n)
+
+#define	list_first_entry(ptr, type, field)  list_entry((ptr)->next, type, field)
+#define	list_last_entry(ptr, type, field)  list_entry((ptr)->prev, type, field)
+
+#define	list_for_each(p, head) \
+    for (p = (head)->next; p != (head); p = p->next)
+
+#define	list_for_each_safe(p, n, head) \
+    for (p = (head)->next, n = p->next; p != (head); p = n, n = p->next)
+
 struct hlist_node;
 
 struct hlist_head {
@@ -13,11 +34,6 @@ struct hlist_node {
 
 static inline void INIT_HLIST_HEAD(struct hlist_head *h) {
     h->first = NULL;
-}
-
-static inline void INIT_HLIST_NODE(struct hlist_node *n) {
-    n->next = NULL;
-    n->pprev = NULL;
 }
 
 static inline int hlist_empty(struct hlist_head *h) {
@@ -43,27 +59,6 @@ static inline void hlist_del(struct hlist_node *n)
         next->pprev = pprev;
     }
 }
-
-#define container_of(ptr, type, member) \
-    ((type *)((char *)(ptr) - (size_t)&(((type *)0)->member)))
-
-#define list_entry(ptr, type, member) \
-    container_of(ptr, type, member)
-
-#define hlist_for_each(pos, head) \
-    for (pos = (head)->first; pos; pos = pos->next)
-
-#define hlist_for_each_safe(pos, n, head) \
-    for (pos = (head)->first; pos && ({ n = pos->next; true; }); pos = n)
-
-#define	list_first_entry(ptr, type, field)  list_entry((ptr)->next, type, field)
-#define	list_last_entry(ptr, type, field)  list_entry((ptr)->prev, type, field)
-
-#define	list_for_each(p, head) \
-    for (p = (head)->next; p != (head); p = p->next)
-
-#define	list_for_each_safe(p, n, head) \
-    for (p = (head)->next, n = p->next; p != (head); p = n, n = p->next)
 
 struct list_head {
     struct list_head *next, *prev;
@@ -205,11 +200,7 @@ void lRUCachePut(LRUCache *obj, int key, int value)
             hlist_add_head(&cache->node, &obj->hhead[hash]);
         } else {
             cache = malloc(sizeof(LRUNode));
-            INIT_HLIST_NODE(&cache->node);
-            INIT_LIST_HEAD(&cache->link);
-            /* Add into hash list */
             hlist_add_head(&cache->node, &obj->hhead[hash]);
-            /* Add into double list */
             list_add(&cache->link, &obj->dhead);
             obj->count++;
         }
