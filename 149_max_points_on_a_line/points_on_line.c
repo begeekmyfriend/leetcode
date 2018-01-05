@@ -3,6 +3,18 @@
 #include <stdbool.h>
 #include <string.h>
 
+#define container_of(ptr, type, member) \
+    ((type *)((char *)(ptr) - (size_t)&(((type *)0)->member)))
+
+#define list_entry(ptr, type, member) \
+    container_of(ptr, type, member)
+
+#define hlist_for_each(pos, head) \
+    for (pos = (head)->first; pos; pos = pos->next)
+
+#define hlist_for_each_safe(pos, n, head) \
+    for (pos = (head)->first; pos && ({ n = pos->next; true; }); pos = n)
+
 struct hlist_node;
 
 struct hlist_head {
@@ -15,11 +27,6 @@ struct hlist_node {
 
 static inline void INIT_HLIST_HEAD(struct hlist_head *h) {
     h->first = NULL;
-}
-
-static inline void INIT_HLIST_NODE(struct hlist_node *n) {
-    n->next = NULL;
-    n->pprev = NULL;
 }
 
 static inline int hlist_empty(struct hlist_head *h) {
@@ -45,18 +52,6 @@ static inline void hlist_del(struct hlist_node *n)
         next->pprev = pprev;
     }
 }
-
-#define container_of(ptr, type, member) \
-    ((type *)((char *)(ptr) - (size_t)&(((type *)0)->member)))
-
-#define list_entry(ptr, type, member) \
-    container_of(ptr, type, member)
-
-#define hlist_for_each(pos, head) \
-    for (pos = (head)->first; pos; pos = pos->next)
-
-#define hlist_for_each_safe(pos, n, head) \
-    for (pos = (head)->first; pos && ({ n = pos->next; true; }); pos = n)
 
 struct Point {
     int x, y;

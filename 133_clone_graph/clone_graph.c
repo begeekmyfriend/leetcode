@@ -29,11 +29,6 @@ static inline void INIT_HLIST_HEAD(struct hlist_head *h) {
     h->first = NULL;
 }
 
-static inline void INIT_HLIST_NODE(struct hlist_node *n) {
-    n->next = NULL;
-    n->pprev = NULL;
-}
-
 static inline int hlist_empty(struct hlist_head *h) {
     return !h->first;
 }
