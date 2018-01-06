@@ -3,37 +3,30 @@
 #include <stdbool.h>
 #include <string.h>
 
-enum {
-    RET_FAILURE = -1,
-    RET_OK,
-    RET_IGNORE,
-};
-
 struct graph_node {
     int req_num;
     int reqs[15];
 };
 
-static int dfs(struct graph_node *courses, int id, bool *takens, bool *touched, int *order, int *count)
+static bool dfs(struct graph_node *courses, int id, bool *takens, bool *touched, int *order, int *count)
 {
     int i;
     if (touched[id]) {
-        return RET_IGNORE;
+        return true;
     } else if (takens[id]) {
-        return RET_FAILURE;
+        return false;
     } else {
         takens[id] = true;
         for (i = 0; i < courses[id].req_num; i++) {
-            int ret = dfs(courses, courses[id].reqs[i], takens, touched, order, count);
-            if (ret == RET_FAILURE) {
-                return ret;
+            if (!dfs(courses, courses[id].reqs[i], takens, touched, order, count)) {
+                return false;
             }
         }
         /* marked as available and no need to traverse next time */
         order[(*count)++] = id;
         touched[id] = true;
         takens[id] = false;
-        return RET_OK;
+        return true;
     }
 }
 
@@ -43,6 +36,10 @@ static struct graph_node courses[N];
 static bool takens[N];
 static bool touched[N];
 
+/**
+ * Return an array of size *returnSize.
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
 static int *findOrder(int numCourses, int** prerequisites, int prerequisitesRowSize, int prerequisitesColSize, int *returnSize)
 {
     int i;
@@ -58,7 +55,7 @@ static int *findOrder(int numCourses, int** prerequisites, int prerequisitesRowS
 
     *returnSize = 0;
     for (i = 0; i < numCourses; i++) {
-        if (dfs(courses, i, takens, touched, order, returnSize) < 0) {
+        if (!dfs(courses, i, takens, touched, order, returnSize)) {
             *returnSize = 0;
             return order;
         }

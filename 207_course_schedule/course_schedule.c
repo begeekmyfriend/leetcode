@@ -3,43 +3,36 @@
 #include <stdbool.h>
 #include <string.h>
 
-enum {
-    RET_FAILURE = -1,
-    RET_OK,
-    RET_IGNORE,
-};
-
 struct graph_node {
     int req_num;
     int reqs[15];
 };
 
-#define N 2000
-static struct graph_node courses[N];
-static bool takens[N];
-static bool touched[N];
-
-static int dfs(struct graph_node *courses, int id, bool *takens, bool *touched)
+static bool dfs(struct graph_node *courses, int id, bool *takens, bool *touched)
 {
     int i;
     if (touched[id]) {
-        return RET_IGNORE;
+        return true;
     } else if (takens[id]) {
-        return RET_FAILURE;
+        return false;
     } else {
         takens[id] = true;
         for (i = 0; i < courses[id].req_num; i++) {
-            int ret = dfs(courses, courses[id].reqs[i], takens, touched);
-            if (ret == RET_FAILURE) {
-                return ret;
+            if (!dfs(courses, courses[id].reqs[i], takens, touched)) {
+                return false;
             }
         }
         /* marked as available and no need to traverse next time */
         touched[id] = true;
         takens[id] = false;
-        return RET_OK;
+        return true;
     }
 }
+
+#define N 2000
+static struct graph_node courses[N];
+static bool takens[N];
+static bool touched[N];
 
 static bool canFinish(int numCourses, int** prerequisites, int prerequisitesRowSize, int prerequisitesColSize)
 {
@@ -55,7 +48,7 @@ static bool canFinish(int numCourses, int** prerequisites, int prerequisitesRowS
     }
 
     for (i = 0; i < numCourses; i++) {
-        if (dfs(courses, i, takens, touched) < 0) {
+        if (!dfs(courses, i, takens, touched)) {
             return false;
         }
     }
