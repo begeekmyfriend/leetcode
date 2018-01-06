@@ -51,6 +51,11 @@ static int** combinationSum(int* candidates, int candidatesSize, int target, int
 
 int main(int argc, char **argv)
 {
+    if (argc < 3) {
+        fprintf(stderr, "Usage: ./test target n1 n2...\n");
+        exit(-1);
+    }
+
     int i, j, count = 0;
     int target = atoi(argv[1]);
     int *nums = malloc((argc - 2) * sizeof(int));

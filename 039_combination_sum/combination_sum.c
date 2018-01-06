@@ -40,8 +40,8 @@ static int** combinationSum(int* candidates, int candidatesSize, int target, int
 
 int main(int argc, char **argv)
 {
-    if (argc <= 2) {
-        fprintf(stderr, "Usage: ./test target array...\n");
+    if (argc < 3) {
+        fprintf(stderr, "Usage: ./test target n1 n2...\n");
         exit(-1);
     }
 
