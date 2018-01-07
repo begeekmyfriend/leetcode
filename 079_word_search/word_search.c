@@ -37,7 +37,8 @@ static bool dfs(char *word, char **board, bool *used,
     return result;
 }
 
-static bool exist(char** board, int boardRowSize, int boardColSize, char* word) {
+static bool exist(char** board, int boardRowSize, int boardColSize, char* word)
+{
     int i, j;
     int len = strlen(word);
     if (len > boardRowSize * boardColSize) {
