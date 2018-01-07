@@ -29,14 +29,13 @@ static bool dfs(struct graph_node *courses, int id, bool *takens, bool *touched)
     }
 }
 
-#define N 2000
-static struct graph_node courses[N];
-static bool takens[N];
-static bool touched[N];
-
 static bool canFinish(int numCourses, int** prerequisites, int prerequisitesRowSize, int prerequisitesColSize)
 {
     int i;
+    bool *takens = malloc(numCourses);
+    bool *touched = malloc(numCourses);
+    struct graph_node *courses = malloc(numCourses * sizeof(*courses));
+
     memset(courses, 0, numCourses * sizeof(*courses));
     memset(takens, false, numCourses * sizeof(bool));
     memset(touched, false, numCourses * sizeof(bool));

@@ -30,12 +30,6 @@ static bool dfs(struct graph_node *courses, int id, bool *takens, bool *touched,
     }
 }
 
-#define N 2000
-static int order[N];
-static struct graph_node courses[N];
-static bool takens[N];
-static bool touched[N];
-
 /**
  * Return an array of size *returnSize.
  * Note: The returned array must be malloced, assume caller calls free().
@@ -43,6 +37,11 @@ static bool touched[N];
 static int *findOrder(int numCourses, int** prerequisites, int prerequisitesRowSize, int prerequisitesColSize, int *returnSize)
 {
     int i;
+    int *order = malloc(numCourses * sizeof(int));
+    bool *takens = malloc(numCourses);
+    bool *touched = malloc(numCourses);
+    struct graph_node *courses = malloc(numCourses * sizeof(*courses));
+
     memset(courses, 0, numCourses * sizeof(*courses));
     memset(takens, false, numCourses * sizeof(bool));
     memset(touched, false, numCourses * sizeof(bool));
