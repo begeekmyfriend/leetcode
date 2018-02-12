@@ -2,7 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-static void num2char(char **num, int bit, int n) {
+static void num2char(char **num, int bit, int n)
+{
     int i;
     char low, mid, high;
     char *p = *num;
@@ -61,7 +62,8 @@ static void num2char(char **num, int bit, int n) {
 
 static char roman_numeral[64];
 
-static char *intToRoman(int num) {
+static char *intToRoman(int num)
+{
     char *p = &roman_numeral[0];
     int thousand_bit = num / 1000;
     int hundred_bit = (num % 1000) / 100;

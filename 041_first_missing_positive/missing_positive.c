@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-static void swap(int *a, int *b)
+static inline void swap(int *a, int *b)
 {
     int tmp = *a;
     *a = *b;

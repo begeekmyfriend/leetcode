@@ -45,7 +45,8 @@ static int binary_search_end(int *a, int size, int target)
  ** Return an array of size *returnSize.
  ** Note: The returned array must be malloced, assume caller calls free().
  **/
-int* searchRange(int* nums, int numsSize, int target, int* returnSize) {
+static int* searchRange(int* nums, int numsSize, int target, int* returnSize)
+{
     int *range = malloc(2 * sizeof(int));
     *returnSize = 2;    
 

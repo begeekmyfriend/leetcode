@@ -1,7 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-static void rotate(int** matrix, int matrixRowSize, int matrixColSize) {
+static void rotate(int** matrix, int matrixRowSize, int matrixColSize)
+{
     int i, j;
     if (matrixRowSize != matrixColSize) {
         return;
@@ -32,8 +33,10 @@ int main(int argc, char **argv)
     for (i = 0; i < row_size; i++) {
         matrix[i] = malloc(col_size * sizeof(int));
         for (j = 0; j < col_size; j++) {
-            matrix[i][j] = count++;
+            matrix[i][j] = ++count;
+            printf("%d ", matrix[i][j]);
         }
+        printf("\n");
     }
 
     rotate(matrix, row_size, col_size);

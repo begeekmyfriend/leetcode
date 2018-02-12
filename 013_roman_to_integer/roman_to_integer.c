@@ -23,7 +23,8 @@ static int roman_to_integer(char c)
     }
 }
 
-int romanToInt (char *s) {
+int romanToInt (char *s)
+{
     int i, result = roman_to_integer(s[0]);
 
     for (i = 1; s[i] != '\0'; i++) {
@@ -39,6 +40,7 @@ int romanToInt (char *s) {
 
     return result;
 }
+
 int main(int argc, char **argv)
 {
     if (argc < 2) {

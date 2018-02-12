@@ -10,7 +10,7 @@ static inline int min(int a, int b)
 static int manacher(char *s, char output[])
 {
     int i, j;
-    char s2[1000] = { '\0' };
+    char s2[3000] = { '\0' };
 
     s2[0] = '$';
     for (i = 0; s[i] != '\0'; i++) {
@@ -21,7 +21,7 @@ static int manacher(char *s, char output[])
     int len = (i<<1)+2;
     s2[len] = '\0';
     
-    int p[1000] = { 0 }; // 以s2中某一点为中心的回文半径
+    int p[3000] = { 0 }; // 以s2中某一点为中心的回文半径
     int id = 0; // 回文的中心点
     int limit = 0; // 最长回文的右边界点
     int maxLen = 0; // 最大回文长度
@@ -67,7 +67,7 @@ static char *longestPalindrom(char *s)
         return s;
     }
 
-    char *palindrome = malloc(1000);
+    char *palindrome = malloc(2000);
     memset(palindrome, 0, sizeof(palindrome));
 
     int size = manacher(s, palindrome);

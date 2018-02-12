@@ -12,7 +12,8 @@ static int reverse(int x)
     return y;
 }
 
-static bool isPalindrome(int x) {
+static bool isPalindrome(int x)
+{
     if (x == 0) {
         return true;
     }

@@ -1,7 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-static int trap(int* height, int heightSize) {
+static int trap(int* height, int heightSize)
+{
     if (heightSize < 2) {
         return 0;
     }

@@ -67,7 +67,8 @@ static bool valid(char **board, int row, int col)
     return true;
 }
 
-bool isValidSudoku(char** board, int boardRowSize, int boardColSize) {
+static bool isValidSudoku(char** board, int boardRowSize, int boardColSize)
+{
     if (boardRowSize != 9 || boardColSize != 9) {
         return false;
     }

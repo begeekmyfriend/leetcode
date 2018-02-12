@@ -3,7 +3,8 @@
 #include <stdbool.h>
 #include <string.h>
 
-bool isMatch(char* s, char* p) {
+static bool isMatch(char* s, char* p)
+{
     if (*p == '\0') {
         return *s == '\0';
     }

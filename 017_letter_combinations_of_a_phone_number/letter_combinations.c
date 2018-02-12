@@ -6,7 +6,8 @@
  ** Return an array of size *returnSize.
  ** Note: The returned array must be malloced, assume caller calls free().
  **/
-char** letterCombinations(char* digits, int* returnSize) {
+static char** letterCombinations(char* digits, int* returnSize)
+{
     char *letter_matrix[10];
     letter_matrix[0] = "";
     letter_matrix[1] = " ";

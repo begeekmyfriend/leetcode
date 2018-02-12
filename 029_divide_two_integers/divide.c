@@ -2,7 +2,8 @@
 #include <stdlib.h>
 #include <limits.h>
 
-int divide(int dividend, int divisor) {
+int divide(int dividend, int divisor)
+{
     int sign = (float) dividend / divisor > 0 ? 1 : -1;
     unsigned int dvd = dividend > 0 ? dividend : -dividend;
     unsigned int dvs = divisor > 0 ? divisor : -divisor;

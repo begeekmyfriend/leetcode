@@ -2,7 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-static char* convert(char* s, int numRows) {
+static char* convert(char* s, int numRows)
+{
     if (numRows <= 1) return s;
 
     int len = strlen(s);
