@@ -26,9 +26,9 @@ static int myAtoi(char* str)
                 }
             }
             n = n * 10 + d;
-        } else if (*s == '-' && isdigit(*(s + 1))) {
+        } else if (*s == '-' && isdigit(*(s + 1)) && (n == 0)) {
             sign = 1;
-        } else if (*s == '+' && isdigit(*(s + 1))) {
+        } else if (*s == '+' && isdigit(*(s + 1)) && (n == 0)) {
             sign = 0;
         } else {
             break;
