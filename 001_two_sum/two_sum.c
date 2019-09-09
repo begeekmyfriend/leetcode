@@ -28,9 +28,9 @@ static int * twosum(int *nums, int numsSize, int target)
     while (i < j) {
         int diff = target - objs[i].val;
         if (diff > objs[j].val) {
-            while (++i < j && objs[i].val == objs[i - 1].val) {}
+            while (i++ < j && objs[i].val == objs[i + 1].val) {}
         } else if (diff < objs[j].val) {
-            while (--j > i && objs[j].val == objs[j + 1].val) {}
+            while (j-- > i && objs[j].val == objs[j - 1].val) {}
         } else {
             results[0] = objs[i].index;
             results[1] = objs[j].index;
