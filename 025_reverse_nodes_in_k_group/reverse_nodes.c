@@ -8,22 +8,27 @@ struct ListNode {
 
 static struct ListNode* reverseKGroup(struct ListNode* head, int k)
 {
-    int i, len = 0;
+    int len = 0;
     struct ListNode dummy;
-    struct ListNode *p = head;
     struct ListNode *prev = &dummy;
     dummy.next = head;
-    for (p = head; p != NULL; p = p->next) {
+    for (; head != NULL; head = head->next) {
         if (++len % k == 0) {
-            struct ListNode *begin = prev->next;
-            for (i = 1; i < k; i++) {
-                struct ListNode *next = begin->next;
-                begin->next = next->next;
-                next->next = prev->next;
-                prev->next = next;
+            /* t always the original first one */
+            struct ListNode *t = prev->next;
+            /* loop condition implicits the final state */
+            while (prev->next != head) {
+                /* the new segment head */
+                struct ListNode *h = t->next;
+                /* deletion */
+                t->next = h->next;
+                /* insertion */
+                h->next = prev->next;
+                prev->next = h;
             }
-            p = begin;
-            prev = p;
+            /* For iteration */
+            prev = t;
+            head = t;
         }
     }
     return dummy.next;
