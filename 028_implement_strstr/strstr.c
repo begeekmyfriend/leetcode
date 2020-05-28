@@ -74,32 +74,17 @@ int strStr(char *haystack, char *needle)
 
 static int strStr(char *haystack, char *needle)
 {
+    int i, j;
     unsigned int hlen = strlen(haystack);
     unsigned int nlen = strlen(needle);
 
-    if (nlen == 0) {
-        return 0;
-    }
-
     /* Brute force */
-    int i, j;
-    for (i = 0; i < hlen; i++) {
-        int found = 1;
-        if (haystack[i] == needle[0]) {
-	    for (j = 1; j < nlen; j++) {
-                if (i + j < hlen) {
-                    if (haystack[i + j] != needle[j]) {
-                        found = 0;
-                        break;
-                    }
-                } else {
-                    return -1;
-                }
-	    }
-	    if (found) {
-    		return i;
-    	    }
-	}
+    /* Corner condition: imagine nlen = 1 and it equals i < hlen */
+    for (i = 0; i < hlen - nlen + 1; i++) {
+        for (j = 0; j < nlen && haystack[i + j] == needle[j]; j++) {}
+	if (j == nlen) {
+    	    return i;
+        }
     }
 
     return -1;
