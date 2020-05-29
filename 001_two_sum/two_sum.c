@@ -11,7 +11,7 @@ static int compare(const void *a, const void *b)
     return ((struct object *) a)->val - ((struct object *) b)->val;
 }
 
-static int * twosum(int *nums, int numsSize, int target)
+static int * twosum(int *nums, int numsSize, int target, int *returnSize)
 {
     int i, j;
     struct object *objs = malloc(numsSize * sizeof(*objs));
@@ -21,19 +21,19 @@ static int * twosum(int *nums, int numsSize, int target)
     }
     qsort(objs, numsSize, sizeof(*objs), compare);
     
-    int count = 0;
     int *results = malloc(2 * sizeof(int));
     i = 0;
     j = numsSize - 1;
     while (i < j) {
-        int diff = target - objs[i].val;
-        if (diff > objs[j].val) {
-            while (++i < j && objs[i].val == objs[i - 1].val) {}
-        } else if (diff < objs[j].val) {
-            while (--j > i && objs[j].val == objs[j + 1].val) {}
+        int sum = objs[i].val + objs[j].val;
+        if (sum < target) {
+            i++;
+        } else if (sum > target) {
+            j--;
         } else {
             results[0] = objs[i].index;
             results[1] = objs[j].index;
+            *returnSize = 2;
             return results;
         }
     }

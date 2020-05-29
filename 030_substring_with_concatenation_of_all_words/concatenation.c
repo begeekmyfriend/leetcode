@@ -128,6 +128,7 @@ static int *findSubstring(char *s, char **words, int wordsSize, int *returnSize)
     for (i = 0; s[i + length] != '\0'; i++) {
         memset(fqs, 0, wordsSize * sizeof(int));
         for (j = 0; j < wordsSize; j++) {
+            /* concatenation */
             int index = indexes[i + j * len];
             if (index < 0 || ++fqs[index] > freqs[index]) {
                 break;

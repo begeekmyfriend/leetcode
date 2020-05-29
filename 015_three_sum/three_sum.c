@@ -9,11 +9,11 @@ static int compare(const void *a, const void *b)
 static void two_sum(int *nums, int low, int high, int target, int **results, int *count)
 {
     while (low < high) {
-        int diff = target - nums[low];
-        if (diff > nums[high]) {
-            while (++low < high && nums[low] == nums[low - 1]) {}
-        } else if (diff < nums[high]) {
-            while (--high > low && nums[high] == nums[high + 1]) {}
+        int sum = nums[low] + nums[high];
+        if (sum < target) {
+            low++;
+        } else if (sum > target) {
+            high--;
         } else {
             results[*count] = malloc(3 * sizeof(int));
             results[*count][0] = -target;
