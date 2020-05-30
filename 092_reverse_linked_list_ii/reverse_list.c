@@ -8,27 +8,25 @@ struct ListNode {
 
 static struct ListNode* reverseBetween(struct ListNode* head, int m, int n)
 {
-    int len = n - m + 1;
-    if (len == 1) {
-        return head;
-    }
-
+    int i;
     struct ListNode dummy;
-    struct ListNode *p = head;
     struct ListNode *prev = &dummy;
-    prev->next = p;
-    while (--m > 0) {
-        prev = p;
-        p = p->next;
+    prev->next = head;
+
+    for (i = 1; i < m; i++) {
+        prev = prev->next;
     }
 
-    struct ListNode *q = p->next;
-    while (--len > 0) {
+    struct ListNode *p = prev->next;
+    for (i = m; i < n; i++) {
+        struct ListNode *q = p->next;
+        /* deletion */
         p->next = q->next;
+        /* insertion */
         q->next = prev->next;
         prev->next = q;
-        q = p->next;
     }
+
     return dummy.next;
 }
 

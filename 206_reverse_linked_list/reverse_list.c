@@ -6,27 +6,39 @@ struct ListNode {
     struct ListNode *next;
 };
 
-static void recursive(struct ListNode *dummy, struct ListNode *prev, struct ListNode *p)
+static struct ListNode *recursive(struct ListNode *prev, struct ListNode *p)
 {
-    if (p != NULL) {
-        prev->next = p->next;
-        p->next = dummy->next;
-        dummy->next = p;
-        recursive(dummy, prev, prev->next);
+    if (p == NULL) {
+        return prev;
     }
+
+    struct ListNode *q = p->next;
+    p->next = prev;
+    return recursive(p, q);
 }
 
 static struct ListNode *reverseList(struct ListNode *head)
 {
-    if (head == NULL) {
-        return NULL;
+    return recursive(NULL, head);
+}
+
+
+/* Iteration */
+#if 0
+static struct ListNode *reverseList(struct ListNode *head)
+{
+    struct ListNode *prev = NULL;
+    struct ListNode *p = head;
+    while (p != NULL) {
+        struct ListNode *q = p->next;
+        p->next = prev;
+        prev = p;
+        p = q;
     }
 
-    struct ListNode dummy;
-    dummy.next = head;
-    recursive(&dummy, head, head->next);
-    return dummy.next;
+    return prev;
 }
+#endif
 
 int main(int argc, char **argv)
 {
