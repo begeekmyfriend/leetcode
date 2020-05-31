@@ -1,16 +1,19 @@
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-static inline int conflict(int *stack, int i, int j)
+
+
+static inline int conflict(int *stack, int row, int col)
 {
-    int k;
-    for (k = 0; k < i; k++) {
+    int i;
+    for (i = 0; i < row; i++) {
         /* If occupied or in one line */
-        if (j == stack[k] || abs(i - k) == abs(j - stack[k])) {
-            return 1;
+        if (col == stack[i] || abs(row - i) == abs(col - stack[i])) {
+            return true;
         }
     }
-    return 0;
+    return false;
 }
 
 static inline void push(int *stack, int row, int col)
@@ -36,7 +39,28 @@ static inline int top(int *stack, int n)
     return 0;
 }
 
+static void dfs(int n, int row, int *stack, int *count)
+{
+    int col;
+    if (row == n) {
+        (*count)++;
+    } else {
+        for (col = 0; col < n; col++) {
+            if (row == 0 || !conflict(stack, row, col)) {
+                stack[row] = col;
+                dfs(n, row + 1, stack, count);
+            }
+        }
+    }
+}
+
 int totalNQueens(int n) {
+#if 1
+    int count = 0;
+    int *stack = malloc(n * sizeof(int));
+    dfs(n, 0, stack, &count);
+    return count;
+#else
     int row = 0, col = 0, sum = 0, cap = 1;
     int *stack = malloc(n * sizeof(int));
     for (row = 0; row < n; row++) {
@@ -79,6 +103,7 @@ int totalNQueens(int n) {
         col = pop(stack, row);
         col++;
     }    
+#endif
 }
 
 int main(int argc, char **argv)

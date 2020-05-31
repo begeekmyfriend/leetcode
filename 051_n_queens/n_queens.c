@@ -1,18 +1,18 @@
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
 
-static inline int conflict(int *stack, int i, int j)
+static inline int conflict(int *stack, int row, int col)
 {
-    int k;
-    for (k = 0; k < i; k++) {
+    int i;
+    for (i = 0; i < row; i++) {
         /* If occupied or in one line */
-        if (j == stack[k] || abs(i - k) == abs(j - stack[k])) {
-            return 1;
+        if (col == stack[i] || abs(row - i) == abs(col - stack[i])) {
+            return true;
         }
     }
-    
-    return 0;
+    return false;
 }
 
 static inline void push(int *stack, int row, int col)
@@ -35,11 +35,10 @@ static inline int top(int *stack, int n)
             return row;
         }
     }
-
     return 0;
 }
 
-static char **solution(int *stack, int n)
+static char **solute(int *stack, int n)
 {
     int row, col;
     char **solution = malloc(n * sizeof(char *));
@@ -54,23 +53,50 @@ static char **solution(int *stack, int n)
     return solution;
 }
 
+static void dfs(int n, int row, int *stack, char ***solutions, int *count, int *col_sizes)
+{
+    int col;
+    if (row == n) {
+        solutions[*count] = solute(stack, n);
+        col_sizes[*count] = n;
+        (*count)++;
+    } else {
+        for (col = 0; col < n; col++) {
+            if (row == 0 || !conflict(stack, row, col)) {
+                stack[row] = col;
+                dfs(n, row + 1, stack, solutions, count, col_sizes);
+                continue;
+            }
+        }
+    }
+}
+
 /**
- ** Return an array of arrays of size *returnSize.
- ** Note: The returned array must be malloced, assume caller calls free().
- **/
-char*** solveNQueens(int n, int *returnSize) {
+ * Return an array of arrays of size *returnSize.
+ * The sizes of the arrays are returned as *returnColumnSizes array.
+ * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ */
+char *** solveNQueens(int n, int* returnSize, int** returnColumnSizes)
+{
     int row = 0, col = 0, sum = 0;
     char ***solutions = malloc(1000 * sizeof(char **));
-
+    *returnColumnSizes = malloc(1000 * sizeof(int));
     int *stack = malloc(n * sizeof(int));
+
+#if 1
+    *returnSize = 0;
+    dfs(n, 0, stack, solutions, returnSize, *returnColumnSizes);
+    return solutions;
+#else
     for (row = 0; row < n; row++) {
         stack[row] = -1;
     }
 
     if (n == 1) {
         stack[0] = 0;
-        solutions[0] = solution(stack, n);
+        solutions[0] = solute(stack, n);
         *returnSize = 1;
+        *returnColumnSizes[0] = 1;
         return solutions;
     }
 
@@ -82,7 +108,6 @@ char*** solveNQueens(int n, int *returnSize) {
                         /* No other positions in this row and therefore backtracking */
                         if (--row < 0) {
                             /* All solution provided */
-                            free(stack);
                             *returnSize = sum;
                             return solutions;
                         }
@@ -100,7 +125,9 @@ char*** solveNQueens(int n, int *returnSize) {
         /* Full stack, a new complete solution */
         row = top(stack, n);
         if (row == n - 1) {
-            solutions[sum++] = solution(stack, n);
+            solutions[sum] = solute(stack, n);
+            (*returnColumnSizes)[sum] = n;
+            sum++;
         }
 
         /* Move on to find if there are still other solutions */
@@ -109,6 +136,7 @@ char*** solveNQueens(int n, int *returnSize) {
     }
 
     assert(0);
+#endif
 }
 
 int main(int argc, char **argv)
@@ -121,7 +149,8 @@ int main(int argc, char **argv)
     }
 
     n = atoi(argv[1]);
-    char ***solutions = solveNQueens(n, &num_of_solution);
+    int *col_sizes;
+    char ***solutions = solveNQueens(n, &num_of_solution, &col_sizes);
     for (i = 0; i < num_of_solution; i++) {
         char **solution = solutions[i];
         for (row = 0; row < n; row++) {

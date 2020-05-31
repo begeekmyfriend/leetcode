@@ -1,2 +1,2 @@
 all:
-	gcc -O2 -o queen n_queens.c
+	gcc -O2 -o test n_queens.c
