@@ -1,34 +1,40 @@
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-static int factorial(int n)
-{
-    if (n == 0) {
-        return 0;
-    } else if (n == 1) {
-        return 1;
-    } else {
-        return n * factorial(n - 1);
-    }
-}
-
 static char* getPermutation(int n, int k)
 {
     int i;
-    int *permutation = malloc(n * sizeof(int));
+    char *result = malloc(n + 1);
+    bool *used = malloc(n * sizeof(bool));
+    memset(used, false, n * sizeof(bool));
+
+    int total = 1;
+    for (i = 1; i <= n; i++) {
+        total *= i; /* n! */
+    }    
+
+    k = k - 1; /* Begin with 0 */
     for (i = 0; i < n; i++) {
-        permutation[i] = i + 1;
+        /* Total elements in each group */
+        total /= (n - i);
+        int gid = k / total;
+        k %= total;
+
+        int x = -1;
+        int count = 0;
+        /* Search in the remaining numbers */
+        while (count <= gid) {
+            x = (x + 1) % n;
+            if (!used[x]) {
+                count++;
+            }
+        }
+        used[x] = true;
+        result[i] = x + 1 + '0';
     }
 
-    char *result = malloc(n + 1);
-    for (i = 0; i < n; i++) {
-        int fac = factorial(n - i - 1);
-        int j = k > 1 ? (k - 1) / fac : 0;
-        result[i] = permutation[j] + '0';
-        k -= j * fac;
-        memmove(permutation + j, permutation + j + 1, (n - j) * sizeof(int));
-    }
     result[n] = '\0';
     return result;
 }
