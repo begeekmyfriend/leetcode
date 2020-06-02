@@ -1,42 +1,27 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-static double find_kth(int a[], int alen, int b[], int blen, int k)  
-{  
-    /* Always assume that alen is equal or smaller than blen */ 
-    if (alen > blen) {
-        return find_kth(b, blen, a, alen, k);
-    }
-
-    if (alen == 0) {
-        return b[k - 1];
-    }
-
-    if (k == 1) {
-        return a[0] < b[0] ? a[0] : b[0];
-    }
-
-    /* Divide k into two parts */
-    int ia = k / 2 < alen ? k / 2 : alen;
-    int ib = k - ia;  
-    if (a[ia - 1] < b[ib - 1]) {
-        /* a[ia - 1] must be ahead of k-th */
-        return find_kth(a + ia, alen - ia, b, blen, k - ia);
-    } else if (a[ia - 1] > b[ib - 1]) {  
-        /* b[ib - 1] must be ahead of k-th */
-        return find_kth(a, alen, b + ib, blen - ib, k - ib);
-    } else {
-        return a[ia - 1];
-    }
-}
-
 static double findMedianSortedArrays(int* nums1, int nums1Size, int* nums2, int nums2Size)
 {
-    int half = (nums1Size + nums2Size) / 2;
-    if ((nums1Size + nums2Size) & 0x1) {
-        return find_kth(nums1, nums1Size, nums2, nums2Size, half + 1);
+    int sum = nums1Size + nums2Size;
+    int *nums = malloc(sizeof(int) * sum);
+    int i = 0, j = 0, k = 0;
+    int half = sum / 2 + 1;
+    while (k < half) {
+        int n;
+        if (i < nums1Size && j < nums2Size) {
+            n = (nums1[i] < nums2[j]) ? nums1[i++] : nums2[j++];
+        } else if (i < nums1Size) {
+            n = nums1[i++];
+        } else if (j < nums2Size) {
+            n = nums2[j++];
+        }
+        nums[k++] = n;
+    }
+    if (sum % 2) {
+        return nums[k-1];
     } else {
-        return (find_kth(nums1, nums1Size, nums2, nums2Size, half) + find_kth(nums1, nums1Size, nums2, nums2Size, half + 1)) / 2;
+        return (nums[k-1] + nums[k-2]) / 2.0;
     }
 }
 
