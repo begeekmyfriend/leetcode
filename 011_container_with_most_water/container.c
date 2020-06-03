@@ -9,13 +9,9 @@ static int maxArea(int* height, int heightSize)
         int area = (max - min) * (height[min] < height[max] ? height[min] : height[max]);
         area_max = area > area_max ? area : area_max;
         if (height[min] < height[max]) {
-            while (++min < max && height[min] <= height[min - 1]) {
-                continue;
-            }
+            min++;
         } else {
-            while (min < --max && height[max] <= height[max + 1]) {
-                continue;
-            }
+            max--;
         }
     }
     return area_max;

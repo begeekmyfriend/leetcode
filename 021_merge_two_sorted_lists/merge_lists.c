@@ -8,31 +8,25 @@ struct ListNode {
 
 static struct ListNode* mergeTwoLists(struct ListNode* l1, struct ListNode* l2)
 {
-    struct ListNode dummy, *tail = &dummy;
-    dummy.next = NULL;
+    struct ListNode dummy;
+    struct ListNode *prev = &dummy;
+    dummy.next = l1;
 
     while (l1 != NULL || l2 != NULL) {
-        struct ListNode *node = malloc(sizeof(*node));
-        node->next = NULL;
-        tail->next = node;
-        tail = node;
-        if (l1 != NULL) {
-            if (l2 != NULL) {
-                if (l1->val < l2->val) {
-                    node->val = l1->val;
-                    l1 = l1->next;
-                } else {
-                    node->val = l2->val;
-                    l2 = l2->next;
-                }
-            } else {
-                node->val = l1->val;
-                l1 = l1->next;
-            }
+        if (l1->val <= l2->val) {
+            prev = l1;
+            l1 = l1->next;
         } else {
-            node->val = l2->val;
-            l2 = l2->next;
+            struct ListNode *tmp = l2->next;
+            l2->next = l1;
+            prev->next = l2;
+            prev = l2;
+            l2 = tmp;
         }
+    }
+
+    if (l2 != NULL) {
+        prev->next = l2;
     }
 
     return dummy.next;
