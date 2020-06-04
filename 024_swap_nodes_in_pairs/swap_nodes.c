@@ -15,16 +15,17 @@ static struct ListNode* swapPairs(struct ListNode* head)
     dummy.next = head;
     struct ListNode *prev = &dummy;
     struct ListNode *p = dummy.next;
-    struct ListNode *next = p->next;
-    while (p != NULL && next != NULL) {
-        prev->next = next;
-        p->next = next->next;
-        next->next = p;
+
+    while (p != NULL && p->next != NULL) {
+        struct ListNode *q = p->next;
+        /* deletion */
+        p->next = q->next;
+        /* insertion */
+        q->next = p;
+        prev->next = q;
+        /* iteration */
         prev = p;
         p = p->next;
-        if (p != NULL) {
-           next = p->next;
-        }
     }
     return dummy.next;
 }
