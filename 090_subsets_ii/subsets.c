@@ -9,7 +9,7 @@ static inline int compare(const void *a, const void *b)
 }
 
 static void dfs(int *nums, int size, int start, int *buf, int level,
-                bool *used, int **sets, int *sizes, int *count)
+                bool *used, int **sets, int *count, int *sizes)
 {
     int i;
     sets[*count] = malloc(level * sizeof(int));
@@ -18,10 +18,12 @@ static void dfs(int *nums, int size, int start, int *buf, int level,
     (*count)++;
     for (i = start; i < size; i++) {
         if (!used[i]) {
-            if (i > 0 && !used[i - 1] && nums[i - 1] == nums[i]) continue;
+            if (i > 0 && !used[i - 1] && nums[i - 1] == nums[i]) {
+                continue;
+            }
             used[i] = true;
             buf[level] = nums[i];
-            dfs(nums, size, i + 1, buf, level + 1, used, sets, sizes, count);
+            dfs(nums, size, i + 1, buf, level + 1, used, sets, count, sizes);
             used[i] = false;
         }
     }
@@ -29,10 +31,10 @@ static void dfs(int *nums, int size, int start, int *buf, int level,
 
 /**
  ** Return an array of arrays of size *returnSize.
- ** The sizes of the arrays are returned as *columnSizes array.
+ ** The sizes of the arrays are returned as *returnColumnSizes array.
  ** Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
  **/
-static int** subsets(int* nums, int numsSize, int** columnSizes, int* returnSize)
+static int** subsets(int* nums, int numsSize, int* returnSize, int** returnColumnSizes)
 {
     qsort(nums, numsSize, sizeof(int), compare);
     int capacity = 5000;
@@ -40,9 +42,9 @@ static int** subsets(int* nums, int numsSize, int** columnSizes, int* returnSize
     int *buf = malloc(numsSize * sizeof(int));
     bool *used = malloc(numsSize);
     memset(used, false, numsSize);
-    *columnSizes = malloc(capacity * sizeof(int));
+    *returnColumnSizes = malloc(capacity * sizeof(int));
     *returnSize = 0;
-    dfs(nums, numsSize, 0, buf, 0, used, sets, *columnSizes, returnSize);
+    dfs(nums, numsSize, 0, buf, 0, used, sets, returnSize, *returnColumnSizes);
     return sets;
 }
 
@@ -60,7 +62,7 @@ int main(int argc, char **argv)
     }
     int *sizes;
     int count;
-    int **lists = subsets(nums, size, &sizes, &count);
+    int **lists = subsets(nums, size, &count, &sizes);
     for (i = 0; i < count; i++) {
         for (j = 0; j < sizes[i]; j++) {
             printf("%d ", lists[i][j]);

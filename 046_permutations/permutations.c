@@ -10,32 +10,42 @@ static void swap(int *a, int *b)
     *b = tmp;
 }
 
-static void dfs(int *nums, int size, int start, int **results, int *count)
+static void dfs(int *nums, int size, bool *used, int *stack,
+                int len, int **results, int *count, int *col_size)
 {
     int i;
-    if (start == size) {
+    if (len == size) {
         results[*count] = malloc(size * sizeof(int));
-        memcpy(results[*count], nums, size * sizeof(int));
+        memcpy(results[*count], stack, size * sizeof(int));
+        col_size[*count] = size;
         (*count)++;
     } else {
-        for (i = start; i < size; i++) {
-            swap(nums + start, nums + i);
-            dfs(nums, size, start + 1, results, count);
-            swap(nums + start, nums + i);
+        for (i = 0; i < size; i++) {
+            if (!used[i]) {
+                used[i] = true;
+                stack[len] = nums[i];
+                dfs(nums, size, used, stack, len + 1, results, count, col_size);
+                used[i] = false;
+            }
         }
     }
 }
 
 /**
- ** Return an array of arrays of size *returnSize.
- ** Note: The returned array must be malloced, assume caller calls free().
- **/
-static int **permute(int* nums, int numsSize, int* returnSize)
+ * Return an array of arrays of size *returnSize.
+ * The sizes of the arrays are returned as *returnColumnSizes array.
+ * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ */
+static int** permute(int* nums, int numsSize, int* returnSize, int** returnColumnSizes)
 {
     int count = 0, cap = 5000;
     int **results = malloc(cap * sizeof(int *));
+    bool *used = malloc(numsSize * sizeof(bool));
+    int *stack = malloc(numsSize * sizeof(int));
     *returnSize = 0;
-    dfs(nums, numsSize, 0, results, returnSize);
+    *returnColumnSizes = malloc(cap * sizeof(int));
+    memset(used, false, numsSize * sizeof(bool));
+    dfs(nums, numsSize, used, stack, 0, results, returnSize, *returnColumnSizes);
     return results;
 }
 
@@ -52,7 +62,8 @@ int main(int argc, char **argv)
         nums[i] = atoi(argv[i + 1]);
     }
 
-    int **lists = permute(nums, argc - 1, &count);
+    int *size;
+    int **lists = permute(nums, argc - 1, &count, &size);
     for (i = 0; i < count; i++) {
         for (j = 0; j < argc - 1; j++) {
             printf("%d", lists[i][j]);
