@@ -3,7 +3,7 @@
 #include <string.h>
 
 static void dfs(int *nums, int size, int start, int target, int *stack,
-                int len, int **results, int *column_sizes, int *count)
+                int len, int **results, int *count, int *column_sizes)
 {
     int i;
     if (target == 0) {
@@ -24,17 +24,17 @@ static void dfs(int *nums, int size, int start, int target, int *stack,
 
 /**
  ** Return an array of arrays of size *returnSize.
- ** The sizes of the arrays are returned as *columnSizes array.
- ** Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ ** The sizes of the arrays are returned as *returnColumnSizes array.
+ ** Note: Both returned array and *returnColumnSizes array must be malloced, assume caller calls free().
  **/
-static int** combinationSum(int* candidates, int candidatesSize, int target, int** columnSizes, int* returnSize)
+static int** combinationSum(int* candidates, int candidatesSize, int target, int* returnSize, int **returnColumnSizes)
 {
-    int cap = 100;
-    int *stack = malloc(target * sizeof(int));
+    int cap = 200;
+    int *stack = malloc(candidatesSize * sizeof(int));
     int **results = malloc(cap * sizeof(int *));
-    *columnSizes = malloc(cap * sizeof(int));
+    *returnColumnSizes = malloc(cap * sizeof(int));
     *returnSize = 0;
-    dfs(candidates, candidatesSize, 0, target, stack, 0, results, *columnSizes, returnSize);
+    dfs(candidates, candidatesSize, 0, target, stack, 0, results, returnSize, *returnColumnSizes);
     return results;
 }
 
@@ -53,7 +53,7 @@ int main(int argc, char **argv)
     }
 
     int *sizes;
-    int **lists = combinationSum(nums, argc - 2, target, &sizes, &count);
+    int **lists = combinationSum(nums, argc - 2, target, &count, &sizes);
     for (i = 0; i < count; i++) {
         for (j = 0; j < sizes[i]; j++) {
             printf("%d ", lists[i][j]);
