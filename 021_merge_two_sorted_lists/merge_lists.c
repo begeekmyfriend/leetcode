@@ -12,7 +12,7 @@ static struct ListNode* mergeTwoLists(struct ListNode* l1, struct ListNode* l2)
     struct ListNode *prev = &dummy;
     dummy.next = l1;
 
-    while (l1 != NULL || l2 != NULL) {
+    while (l1 != NULL && l2 != NULL) {
         if (l1->val <= l2->val) {
             prev = l1;
             l1 = l1->next;

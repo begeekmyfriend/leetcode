@@ -13,16 +13,19 @@ int* maxSlidingWindow(int* nums, int numsSize, int k, int* returnSize)
     int *results = malloc((numsSize - k + 1) * sizeof(int));
 
     for (i = 0; i < numsSize; i++) {
-        /* monotonous decreasing */
+        /* keep the elements in slide window monotonous decreasing */
         while (tail > head && nums[i] >= nums[indexes[tail - 1]]) {
+            /* squeeze out the previous smaller ones */
             tail--;
         }
-        indexes[tail++] = i;
 
+        /* Pipe: first in last out */
+        indexes[tail++] = i;
         if (indexes[head] <= i - k) {
             head++;
         }
 
+        /* k - 1 is the end of the first sliding window */
         if (i >= k - 1) {
             results[count++] = nums[indexes[head]];
         }
