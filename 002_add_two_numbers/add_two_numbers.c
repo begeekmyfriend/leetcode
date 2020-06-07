@@ -10,48 +10,50 @@ struct ListNode {
 
 static struct ListNode* addTwoNumbers(struct ListNode* l1, struct ListNode* l2)
 {
-    int carry_num = 0;
-    int first = 1;
-    struct ListNode *res = NULL;
-    struct ListNode *p = NULL;
-    struct ListNode *prev = p;
+    int carry = 0;
+    struct ListNode dummy;
+    struct ListNode *p = l1, *prev = &dummy;
 
-    while (l1 != NULL || l2 != NULL || carry_num) {
+    dummy.next = p;
+    while (l1 != NULL || l2 != NULL) {
         int sum = 0;
-        int last_carry = carry_num;
+        int last_carry = carry;
+
         if (l1 != NULL) {
+            if (p == NULL) {
+                /* p never be NULL */
+                prev->next = l1;
+                p = l1;
+            }
             sum += l1->val;
             l1 = l1->next;
         }
+
         if (l2 != NULL) {
+            if (p == NULL) {
+                /* p never be NULL */
+                prev->next = l2;
+                p = l2;
+            }
             sum += l2->val;
             l2 = l2->next;
         }
-        if (sum >= 10) {
-            sum -= 10;
-            carry_num = 1;
-        } else {
-            carry_num = 0;
-        }
-
-        p = malloc(sizeof(*p));
-        if (first) {
-             res = p;
-             first = 0;
-        }
-        p->val = sum + last_carry;
-        if (p->val >= 10) {
-            p->val -= 10;
-            carry_num = 1;
-        }
-        p->next = NULL;
-        if (prev != NULL) {
-             prev->next = p;
-        }
+        
+        sum += last_carry;
+        carry = sum / 10;
+        p->val = sum % 10;
         prev = p;
+        p = p->next;
     }
 
-    return res;
+    if (carry) {
+        p = malloc(sizeof(*p));
+        p->val = carry;
+        p->next = NULL;
+        prev->next = p;
+    }
+    
+    return dummy.next;
 }
 
 static struct ListNode *node_build(const char *digits)

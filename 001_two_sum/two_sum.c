@@ -47,9 +47,10 @@ int main(void)
     //int nums[] = {0,4,3,0};
     //int target = 0;
     int nums[] = { 3, 2, 3 };
-    int count = sizeof(nums) / sizeof(*nums);
+    int size = sizeof(nums) / sizeof(*nums);
     int target = 6;
-    int *indexes = twosum(nums, count, target);
+    int count = 0;
+    int *indexes = twosum(nums, size, target, &count);
     if (indexes != NULL) {
         printf("%d %d\n", indexes[0], indexes[1]);
     } else {
