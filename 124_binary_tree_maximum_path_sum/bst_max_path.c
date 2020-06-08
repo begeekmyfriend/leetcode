@@ -8,35 +8,36 @@ struct TreeNode {
     struct TreeNode *right;
 };
 
-static int partition(struct TreeNode *node, int *max)
+static inline int maximum(int a, int b)
 {
-    int left_max = 0;
-    int right_max = 0;
-
-    if (node->left != NULL) {
-        left_max = partition(node->left, max);
-    }
-
-    if (node->right != NULL) {
-        right_max = partition(node->right, max);
-    }
-
-    int sum = node->val + left_max + right_max;
-    if (sum > *max) {
-       *max = sum;
-    }
-
-    return node->val + (right_max > left_max ? right_max : left_max);
+    return a > b ? a : b;
 }
 
-static int maxPathSum(struct TreeNode* root)
+static int dfs(struct TreeNode *root, int *max)
 {
     if (root == NULL) {
         return 0;
     }
 
+    /* In case of negative node value */
+    int l = maximum(dfs(root->left, max), 0);
+    int r = maximum(dfs(root->right, max), 0);
+
+    int sum = root->val + l + r;
+    if (sum > *max) {
+       *max = sum;
+    }
+
+    /* The return value does not equal the sum value
+     * since we need to return path through the root node
+     */
+    return root->val + maximum(l, r);
+}
+
+static int maxPathSum(struct TreeNode* root)
+{
     int max = INT_MIN;
-    partition(root, &max);
+    dfs(root, &max);
     return max;
 }
 
