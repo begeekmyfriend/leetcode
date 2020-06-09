@@ -1,40 +1,37 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+
 static int longestValidParentheses(char* s)
 {
-    int cap = 8000, error = -1;
-    int length = 0, max_length = 0;
-    char *p = s;
+    int i, cap = 18000, invalid = -1;
+    int len = 0, max_len = 0;
     int *stack = malloc(cap * sizeof(int));
     int *top = stack;
 
-    while (*p != '\0') {
-        if (*p == '(') {
-            if (top + 1 - stack >= cap) {
-                cap *= 2;
-                stack = realloc(stack, cap * sizeof(int));
-            }
-            *top++ = p - s;
+    /* We only restore index of '(' since restrain of space */
+    for (i = 0; s[i] != '\0'; i++) {
+        if (s[i] == '(') {
+            *top++ = i;
         } else {
             if (top > stack) {
                 if (--top == stack) {
-                    /* The stack never keep ')' so we use 'error' to record index */
-                    length = p - (s + error);
+                    /* distancd of the latest ')' */
+                    len = i - invalid;
                 } else {
-                    /* The *(top - 1) is the index of the last kept '(' */
-                    length = p - (s + *(top - 1));
+                    /* distance of the remote '(' */
+                    len = i - *(top - 1);
                 }
-                if (length > max_length) {
-                    max_length = length;
+                if (len > max_len) {
+                    max_len = len;
                 }
             } else {
-                error = p - s;
+                /* record the index of last ')' but no push */
+                invalid = i;
             }
         }
-        p++;
     }
-    return max_length;
+    return max_len;
 }
 
 int main(int argc, char **argv)
