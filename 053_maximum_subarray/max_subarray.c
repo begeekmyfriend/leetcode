@@ -37,14 +37,16 @@ static int partition(int *nums, int lo, int hi)
 static int maxSubArray(int* nums, int numsSize)
 {
 #if 1
-    int i, len = 0, max = INT_MIN;
+    int i, sum = 0, max = INT_MIN;
     for (i = 0; i < numsSize; i++) {
-        len += nums[i];
-        /* Calculate maximum each time in loop */
-        max = len > max ? len : max;
-        if (len < 0) {
-            len = 0;
+        /* dp indicates the optimical result of nums[0...i]
+         * dp[i] = max(dp[i-1], 0) + nums[i] */
+        if (sum < 0) {
+            sum = nums[i];
+        } else {
+            sum += nums[i];
         }
+        max = sum > max ? sum : max;
     }
     return max;
 #else

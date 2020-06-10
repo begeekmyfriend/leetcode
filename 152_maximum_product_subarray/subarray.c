@@ -1,38 +1,38 @@
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 
+static inline int min(int a, int b)
+{
+    return a < b ? a : b;
+}
+
+static inline int max(int a, int b)
+{
+    return a > b ? a : b;
+}
+
 static int maxProduct(int* nums, int numsSize)
 {
-    if (numsSize == 0) {
-        return 0;
-    }
-
-    int i, global_max = nums[0], product;
-    int local_min = 1, local_max = 1;
+    int i, maximum = INT_MIN;
+    int dp_min = 1;
+    int dp_max = 1;
+    /* dp records the min or max result of subarray nums[0...i] */
     for (i = 0; i < numsSize; i++) {
-        if (nums[i] > 0) {
-            product = local_max * nums[i];
-            global_max = product > global_max ? product : global_max;
-            local_max *= nums[i];
-            local_min *= nums[i];
-        } else if (nums[i] < 0) {
-            product = local_min * nums[i];
-            global_max = product > global_max ? product : global_max;
-            int tmp = local_max;
-            local_max = product > 1 ? product : 1;
-            local_min = tmp * nums[i];
-        } else {
-            global_max = global_max > 0 ? global_max : 0;
-            local_max = 1;
-            local_min = 1;
-        }
+        int prev_min = dp_min;
+        int prev_max = dp_max;
+        dp_min = min(nums[i], min(prev_min * nums[i], prev_max * nums[i]));
+        dp_max = max(nums[i], max(prev_min * nums[i], prev_max * nums[i]));
+        maximum = max(dp_max, maximum);
     }
 
-    return global_max;
+    return maximum;
 }
 
 int main(int argc, char **argv)
 {
+
+
     int i, count = argc - 1;
     int *nums = malloc(count * sizeof(int));
     for (i = 0; i < count; i++) {
