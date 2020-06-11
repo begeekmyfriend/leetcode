@@ -3,7 +3,8 @@
 
 static int trailingZeroes(int n)
 {
-    return n == 0 ? 0 : trailingZeroes(n / 5);
+    /* As 10 = 2 * 5 so we just count how many fives in it */
+    return n == 0 ? 0 : n / 5 + trailingZeroes(n / 5);
 }
 
 int main(int argc, char **argv)
