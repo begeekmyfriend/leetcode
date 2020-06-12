@@ -9,20 +9,22 @@ static inline int max(int a, int b)
 
 static int rob(int* nums, int numsSize)
 {
+    if (numsSize == 0) {
+        return 0;
+    }
+
     int i;
-    int **money = malloc((numsSize + 1) * sizeof(int *));
-    for (i = 0; i < numsSize + 1; i++) {
-        money[i] = malloc(2 * sizeof(int));
-        memset(money[i], 0, 2 * sizeof(int));
+    int taken = nums[0];
+    int untaken = 0;
+    /* Record max profits of nums[0...i] respectively */
+    for (i = 1; i < numsSize; i++) {
+        int tmp_taken = taken;
+        int tmp_untaken = untaken;
+        taken = untaken + nums[i];
+        untaken = max(tmp_taken, tmp_untaken);
     }
 
-    for (i = 1; i <= numsSize; i++) {
-        int cash = nums[i - 1];
-        money[i][0] = max(money[i - 1][0], money[i - 1][1]);
-        money[i][1] = money[i - 1][0] + cash;
-    }
-
-    return max(money[numsSize][0], money[numsSize][1]);
+    return max(taken, untaken);
 }
 
 int main(int argc, char **argv)
