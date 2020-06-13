@@ -1,16 +1,21 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+static inline void swap(int *a, int *b)
+{
+    int tmp = *a;
+    *a = *b;
+    *b = tmp;
+}
+
 static void reverse(int *a, int size)
 {
-    int left = 0;
-    int right = size - 1;
-    while (left < right) {
-        int tmp = a[left];
-        a[left] = a[right];
-        a[right] = tmp;
-        left++;
-        right--;
+    int lo = 0;
+    int hi = size - 1;
+    while (lo < hi) {
+        swap(a + lo, a + hi);
+        lo++;
+        hi--;
     }
 }
 
@@ -20,24 +25,19 @@ static void nextPermutation(int* nums, int numsSize)
         return;
     }
 
-    int *p = nums + numsSize - 1;    
-    int *q = nums + numsSize - 1;
-
-    while (p != nums && *(p - 1) >= *p) {
-        p--;
+    int i = numsSize - 2;
+    while (i >= 0 && nums[i] >= nums[i + 1]) {
+        i--;
     }
 
-    if (p != nums) {
-        int n = *(p - 1);
-        while (*q <= n) {
-            q--;
+    if (i >= 0) {
+        int j = numsSize - 1;
+        while (j >= 0 && nums[j] <= nums[i]) {
+            j--;
         }
-
-        int tmp = *q;
-        *q = *(p - 1);
-        *(p - 1) = tmp;
+        swap(nums + i, nums + j);
     }
-    reverse(p, numsSize - (p - nums));
+    reverse(nums + i + 1, numsSize - i - 1);
 }
 
 int main(int argc, char **argv)
@@ -56,7 +56,7 @@ int main(int argc, char **argv)
     nextPermutation(nums, argc - 1);
 
     for (i = 0; i < argc - 1; i++) {
-        printf("%d", nums[i]);
+        printf("%d ", nums[i]);
     }
     putchar('\n');
 
