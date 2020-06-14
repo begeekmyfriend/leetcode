@@ -6,7 +6,8 @@ struct ListNode {
     struct ListNode *next;
 };
 
-static struct ListNode* rotateRight(struct ListNode* head, int k) {
+static struct ListNode* rotateRight(struct ListNode* head, int k)
+{
     if (head == NULL || k <= 0) {
         return head;
     }
@@ -14,33 +15,31 @@ static struct ListNode* rotateRight(struct ListNode* head, int k) {
     struct ListNode dummy;
     dummy.next = head;
     struct ListNode *prev = &dummy;
-    struct ListNode *last = &dummy;
     struct ListNode *p = head;
-    int count = k;
-    while (k > 0) {
-        if (p == NULL) {
-            int length = count - k;
-            prev = &dummy;
-            p = head;
-            k = count % length;
-            if (k == 0) break;
-        }
-        prev = p;
-        p = p->next;
-        k--;
-    }
-
+    int len = 0;
     while (p != NULL) {
-        last = last->next;
+        prev = p;
+        p = p->next;
+        len++;
+    }
+
+    struct ListNode *last = prev;
+    prev = &dummy;
+    p = head;
+    len = len - (k % len);
+    while (len-- > 0) {
         prev = p;
         p = p->next;
     }
 
-    if (last != &dummy) {
-        prev->next = head;
-        dummy.next = last->next;
-        last->next = NULL;
+    if (p != NULL) {
+        /* deletion */
+        prev->next = NULL;
+        /* insertion */
+        last->next = dummy.next;
+        dummy.next = p;
     }
+
     return dummy.next;
 }
 
@@ -59,13 +58,11 @@ int main(int argc, char **argv)
     for (i = 2; i < argc; i++) {
         p = malloc(sizeof(*p));
         int n = atoi(argv[i]);
-        printf("%d ", n);
         p->val = n;
         p->next = NULL;
         prev->next = p;
         prev = p;
     }
-    putchar('\n');
 
     list = rotateRight(dummy.next, atoi(argv[1]));
     for (p = list; p != NULL; p = p->next) {
