@@ -1,113 +1,52 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
-struct Interval {
-    int start;
-    int end;
-};
 
-static int binary_search(int *nums, int size, int target)
+static int compare(const void *a, const void *b)
 {
-    int low = -1;
-    int high = size;
-    while (low + 1 < high) {
-        int mid = low + (high - low) / 2;
-        if (target > nums[mid]) {
-            low = mid;
-        } else {
-            high = mid;
-        }
-    }
-    if (high == size || nums[high] != target) {
-        return -high - 1;
-    } else {
-        return high;
-    }
+    return ((int *) a)[0] - ((int *) b)[0];
 }
 
 /**
- ** Return an array of size *returnSize.
- ** Note: The returned array must be malloced, assume caller calls free().
- **/
-static struct Interval* insert(struct Interval* intervals, int intervalsSize, struct Interval newInterval, int* returnSize) {
-    struct Interval *p;
-    if (intervalsSize == 0) {
-        p = malloc(sizeof(*p));
-        p->start = newInterval.start;
-        p->end = newInterval.end;
-        *returnSize = 1;
-        return p;
-    }
-
-    int i, count;
-    int *nums = malloc(2 * intervalsSize * sizeof(int));
+ * Return an array of arrays of size *returnSize.
+ * The sizes of the arrays are returned as *returnColumnSizes array.
+ * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ */
+int** insert(int** intervals, int intervalsSize, int* intervalsColSize, int* newInterval, int newIntervalSize, int* returnSize, int** returnColumnSizes)
+{
+    int i, len = 0;
+    int *tmp = malloc((intervalsSize + 1) * 2 * sizeof(int));
     for (i = 0; i < intervalsSize; i++) {
-        nums[i * 2] = intervals[i].start;
-        nums[i * 2 + 1] = intervals[i].end;
+        tmp[i * 2] = intervals[i][0];
+        tmp[i * 2 + 1] = intervals[i][1];
     }
+    tmp[i * 2] = newInterval[0];
+    tmp[i * 2 + 1] = newInterval[1];
+    qsort(tmp, intervalsSize + 1, 2 * sizeof(int), compare);
 
-    int start0 = binary_search(nums, 2 * intervalsSize, newInterval.start);
-    int end0 = binary_search(nums, 2 * intervalsSize, newInterval.end);
-
-    int start1 = -1, end1 = -1;
-    int merge_start= -1, merge_end = -1;
-    if (start0 >= 0) {
-        merge_start = start0 / 2;
-    } else {
-        start1 = -start0 - 1;
-        merge_start = start1 / 2;
-    }
-
-    if (end0 >= 0) {
-        merge_end = end0 / 2;
-    } else {
-        end1 = -end0 - 1;
-        if (end1 % 2 == 0) {
-            merge_end = end1 / 2 > 0 ? end1 / 2 - 1 : 0;
-        } else {
-            merge_end = end1 / 2;
+    int **results = malloc((intervalsSize + 1) * sizeof(int *));
+    results[0] = malloc(2 * sizeof(int));
+    results[0][0] = tmp[0];
+    results[0][1] = tmp[1];
+    for (i = 1; i < intervalsSize + 1; i++) {
+        results[i] = malloc(2 * sizeof(int));
+        if (tmp[i * 2] > results[len][1]) {
+            len++;
+            results[len][0] = tmp[i * 2];
+            results[len][1] = tmp[i * 2 + 1];
+        } else if (tmp[i * 2 + 1] > results[len][1]) {
+            results[len][1] = tmp[i * 2 + 1];
         }
     }
-
-    if (merge_start == merge_end) {
-        if (start0 < 0 && end0 < 0 && start1 == end1 && start1 % 2 == 0) {
-            count = intervalsSize + 1;
-            p = malloc(count * sizeof(*p));
-            memcpy(p, intervals, merge_start * sizeof(*p));
-            p[merge_start] = newInterval;
-            memcpy(p + merge_start + 1, intervals + merge_start, (intervalsSize - merge_start) * sizeof(*p));
-        } else {
-            count = intervalsSize;
-            p = malloc(count * sizeof(*p));
-            memcpy(p, intervals, count * sizeof(*p));
-            if (start0 < 0 && start1 % 2 == 0) {
-                p[merge_start].start = newInterval.start;
-            }
-            if (end0 < 0 && end1 % 2 == 0) {
-                p[merge_end].end = newInterval.end;
-            }
-        }
-    } else {
-        count = intervalsSize - (merge_end - merge_start);
-        p = malloc(count * sizeof(*p));
-        memcpy(p, intervals, merge_start * sizeof(*p));
-        memcpy(p + merge_start, intervals + merge_end, (intervalsSize - merge_end) * sizeof(*p));
-        if (start0 < 0 && start1 % 2 == 0) {
-            p[merge_start].start = newInterval.start;
-        } else {
-            p[merge_start].start = intervals[merge_start].start;
-        }
-        if (end0 < 0 && end1 % 2 == 0) {
-            p[merge_start].end = newInterval.end;
-        } else {
-            p[merge_start].end = intervals[merge_end].end;
-        }
+    
+    len += 1;
+    *returnSize = len;
+    *returnColumnSizes = malloc(len * sizeof(int));
+    for (i = 0; i < len; i++) {
+        (*returnColumnSizes)[i] = 2;
     }
-
-    free(nums);
-    *returnSize = count;
-    return p;
+    
+    return results;
 }
 
 int main(int argc, char **argv)
@@ -117,23 +56,24 @@ int main(int argc, char **argv)
         exit(-1);
     }
 
-    struct Interval new_interv;
-    new_interv.start = atoi(argv[1]);
-    new_interv.end = atoi(argv[2]);
+    int new_interv[2];
+    new_interv[0] = atoi(argv[1]);
+    new_interv[1] = atoi(argv[2]);
 
     int i, count = 0;
-    struct Interval *intervals = malloc((argc - 3) / 2 * sizeof(struct Interval));
-    struct Interval *p = intervals;
-    for (i = 3; i < argc; i += 2) {
-        p->start = atoi(argv[i]);
-        p->end = atoi(argv[i + 1]);
-        p++;
+    int *size = malloc((argc - 3) / 2 * sizeof(int));
+    int **intervals = malloc((argc - 3) / 2 * sizeof(int *));
+    for (i = 0; i < (argc - 3) / 2; i++) {
+        intervals[i] = malloc(2 * sizeof(int));
+        intervals[i][0] = atoi(argv[i * 2 + 3]);
+        intervals[i][1] = atoi(argv[i * 2 + 4]);
     }
 
-    struct Interval *q = insert(intervals, (argc - 3) / 2, new_interv, &count);
+    int *col_sizes;
+    int **results = insert(intervals, (argc - 3) / 2, size, new_interv, 2, &count, &col_sizes);
     for (i = 0; i < count; i++) {
-        printf("[%d, %d]\n", q->start, q->end);
-        q++;
+        printf("[%d,%d]\n", results[i][0], results[i][1]);
     }
+
     return 0;
 }
