@@ -6,47 +6,48 @@ struct ListNode {
     struct ListNode *next;
 };
 
-static void reverse(struct ListNode *dummy)
-{
-    struct ListNode *prev = dummy->next;
-    if (prev != NULL) {
-        struct ListNode *p = prev->next;
-        while (p != NULL) {
-            prev->next = p->next;
-            p->next = dummy->next;
-            dummy->next = p;
-            p = prev->next;
-        }
-    }
-}
-
 static void reorderList(struct ListNode *head)
 {
-    if (head == NULL) {
+    if (head == NULL || head->next == NULL) {
         return;
     }
 
     int count = 0;
-    struct ListNode *p = head;
-    struct ListNode *q = p;
+    struct ListNode dummy;
+    struct ListNode *prev = &dummy;
+    struct ListNode *p, *q;
 
     /* locate half length */
-    for (; p != NULL; p = p->next) {
+    dummy.next = head;
+    for (p = head, q = head; q != NULL; q = q->next) {
         if ((++count & 0x1) == 0) {
-            q = q->next;
+            prev = p;
+            p = p->next;
         }
     }
 
     /* reverse latter half list */
-    reverse(q);
+    while (p->next != NULL) {
+        q = p->next;
+        /* deletion */
+        p->next = q->next;
+        /* insertion */
+        q->next = prev->next;
+        prev->next = q;
+    }
 
-    /* insert each element */
-    struct ListNode *r;
-    for (p = head, r = q->next; r != NULL; p = r->next, r = q->next) {
-        q->next = r->next;
-        r->next = p->next;
-        p->next = r;
-    } 
+    /* insert each element interleavingly */
+    struct ListNode *last = prev;
+    p = head;
+    while (p != last) {
+        q = last->next;
+        /* deletion */
+        last->next = q->next;
+        /* insertion */
+        q->next = p->next;
+        p->next = q;
+        p = q->next;
+    }
 }
 
 int main(int argc, char **argv)
