@@ -1,72 +1,51 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <limits.h>
 
 static char *minWindow(char *s, char *t)
 {
-    /*
-     * Declare two "hash map" for ASCII chars
-     * f[]: represents the char found in s
-     * m[]: stores the chars in t
-     */
-    int i, f[256], m[256], pat_len = 0;
-    memset(m, 0, sizeof(m));
-    memset(f, 0, sizeof(f));
-
-    /*
-     *  Go through t, and inital the m[] and f[]
-     *  Notes: duplicate char is allowed.
-     */
-    for (i = 0; t[i] != '\0'; i++) {
-        m[t[i]]++;
-        pat_len++;
+    int i, j, count[256] = { 0 };
+    int slen = strlen(s);
+    int tlen = strlen(t);
+    for (i = 0; i < tlen; i++) {
+        count[t[i]]++;
     }
 
-    int start =-1;
-    int size = INT_MAX;
-    int found = 0;
-    int begin = 0;
-    for (i = 0; s[i] != '\0'; i++) {
-        /* First, find the right side of the window which should be in t */
-        if (m[s[i]] > 0) {
-            /* if one char has been found enough times, then do not do found++ */
-            if (++f[s[i]] <= m[s[i]]) {
-                found++;
+    /* edges of sliding window */
+    int lo = 0, hi = 0;
+    int min_len = slen + 1;
+    int start = 0;
+    int chars_to_meet = tlen;
+    while (hi < slen) {
+        if (--count[s[hi++]] >= 0) {
+            /* pattern found */
+            chars_to_meet--;
+        }
+
+        while (chars_to_meet == 0) {
+            if (hi - lo < min_len) {
+                min_len = hi - lo;
+                start = lo;
             }
 
-            /* the right side of the window is confirmed as i */
-            /* The found counter will no more increase if the first right side of the window is confirmed,
-             * the next step run here can also be regarded as a new right side of a new window. */
-            if (found == pat_len) {
-                /* Then we need to find the left side of the window
-                 * 1) m[s[begin]] == 0 => Both left and right side should be found in t
-                 * 2) f[s[begin]] > m[s[begin]] => duplicate chars are more than excepted in the window so that we can even shrink the size. */
-                while (m[s[begin]] == 0 || f[s[begin]] > m[s[begin]]) {
-                    if (f[s[begin]] > m[s[begin]]) {
-                        f[s[begin]]--;
-                    }
-                    begin++;
-                }
-
-                /* Calculate the minimized window size */
-                if (size > i - begin + 1) {
-                    start = begin;
-                    size = i - begin + 1;
-                }
+            /* Chars with negative count are not included in the pattern string */
+            if (++count[s[lo++]] > 0) {
+                /* chars_to_meet == 1 */
+                chars_to_meet++;
             }
         }
     }
 
     char *result;
-    if (start >= 0 && size > 0) {
-        result = malloc(size + 1);
-        memcpy(result, s + start, size);
-        result[size] = '\0';
+    if (min_len <= slen) {
+        result = malloc(min_len + 1);
+        memcpy(result, s + start, min_len);
+        result[min_len] = '\0';
     } else {
         result = malloc(1);
         result[0] = '\0';
     }
+
     return result;
 }
 
