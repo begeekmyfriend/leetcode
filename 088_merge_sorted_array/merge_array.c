@@ -1,38 +1,21 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-static int binary_search(int *nums, int len, int target)
-{
-    int low = -1;
-    int high = len;
-    while (low + 1 < high) {
-        int mid = high - (high - low) / 2;
-        if (target > nums[mid]) {
-            low = mid;
-        } else {
-            high = mid;
-        }
-    }
-    if (high == len || nums[high] != target) {
-        return -high - 1;
-    } else {
-        return high;
-    }
-}
-
 static void merge(int* nums1, int m, int* nums2, int n)
 {
-    int i, j, len1 = m;
-    for (i = 0; i < n; i++) {
-        int index = binary_search(nums1, len1, nums2[i]);
-        if (index < 0) {
-            index = -index - 1;
+    int i = m - 1, j = n - 1, k = nums1Size - 1;
+    while (i >= 0 && j >= 0 && k >= 0) {
+        if (nums1[i] >= nums2[j]) {
+            nums1[k--] = nums1[i--];
+        } else {
+            nums1[k--] = nums2[j--];
         }
-        for (j = len1 - 1; j >= index; j--) {
-            nums1[j + 1] = nums1[j];
+    }
+
+    if (i == -1) {
+        while (j >= 0) {
+            nums1[k--] = nums2[j--];
         }
-        nums1[index] = nums2[i];
-        len1++;
     }
 }
 
