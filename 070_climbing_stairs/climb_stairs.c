@@ -21,11 +21,21 @@ static int dfs(int n, int *count)
 
 static int climbStairs(int n)
 {
+#if 0
     int *count = malloc((n + 1) * sizeof(int));
     memset(count, 0, (n + 1) * sizeof(int));
     count[1] = 1;
     count[2] = 2;
     return dfs(n, count);
+#else
+    int i, a = 1, b = 2, c;
+    for (i = 3; i <= n; i++) {
+        c = a + b;
+        a = b;
+        b = c;
+    }
+    return n == 1 ? a : (n == 2 ? b : c);
+#endif
 }
 
 int main(int argc, char **argv)

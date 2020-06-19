@@ -1,3 +1,4 @@
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -11,6 +12,10 @@ static double fast_pow(double x, int n)
 
 static double my_pow(double x, int n)
 {
+    if (n == INT_MIN) {
+        double t = 1 / fast_pow(x, -(n / 2));
+        return t * t;
+    }
     return n < 0 ? 1 / fast_pow(x, -n) : fast_pow(x, n);
 }
 
