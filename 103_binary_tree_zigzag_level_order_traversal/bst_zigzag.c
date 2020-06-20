@@ -133,10 +133,10 @@ static void queue(struct list_head *parents, struct list_head *children, int rev
 
 /**
  ** Return an array of arrays of size *returnSize.
- ** The sizes of the arrays are returned as *columnSizes array.
+ ** The sizes of the arrays are returned as *returnColumnSizes array.
  ** Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
  **/
-static int** zigzagLevelOrder(struct TreeNode* root, int** columnSizes, int* returnSize)
+static int** zigzagLevelOrder(struct TreeNode* root, int* returnSize, int** returnColumnSizes)
 {
     if (root == NULL) {
         *returnSize = 0;
@@ -151,8 +151,8 @@ static int** zigzagLevelOrder(struct TreeNode* root, int** columnSizes, int* ret
     INIT_LIST_HEAD(&q1);
 
     int **results = malloc(BST_MAX_LEVEL * sizeof(int *));
-    *columnSizes = malloc(BST_MAX_LEVEL * sizeof(int));
-    memset(*columnSizes, 0, BST_MAX_LEVEL * sizeof(int));
+    *returnColumnSizes = malloc(BST_MAX_LEVEL * sizeof(int));
+    memset(*returnColumnSizes, 0, BST_MAX_LEVEL * sizeof(int));
 
     int level = 0;
     struct bfs_node *new = node_new(&free_list, root);
@@ -160,9 +160,9 @@ static int** zigzagLevelOrder(struct TreeNode* root, int** columnSizes, int* ret
 
     while (!list_empty(&q0) || !list_empty(&q1)) {
         if (level & 0x1) {
-            queue(&q1, &q0, 1, &free_list, results, *columnSizes, level);
+            queue(&q1, &q0, 1, &free_list, results, *returnColumnSizes, level);
         } else {
-            queue(&q0, &q1, 0, &free_list, results, *columnSizes, level);
+            queue(&q0, &q1, 0, &free_list, results, *returnColumnSizes, level);
         }
         level++;
     }
@@ -223,7 +223,7 @@ int main(void)
     node2[3].right = NULL;
 
     int i, j, count = 0, *col_sizes;
-    int **lists = zigzagLevelOrder(&root, &col_sizes, &count);
+    int **lists = zigzagLevelOrder(&root, &count, &col_sizes);
     for (i = 0; i < count; i++) {
         for (j = 0; j < col_sizes[i]; j++) {
             printf("%d ", lists[i][j]);
