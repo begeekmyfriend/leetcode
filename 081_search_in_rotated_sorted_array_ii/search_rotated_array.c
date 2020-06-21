@@ -2,51 +2,37 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-static int binary_search(int *nums, int size, int target)
-{
-    int low = -1;
-    int high = size;
-    while (low + 1 < high) {
-        int mid = low + (high - low) / 2;
-        if (target > nums[mid]) {
-            low = mid;
-        } else {
-            high = mid;
-        }
-    }
-    if (high == size || nums[high] != target) {
-        return -1;
-    } else {
-        return high;
-    }
-}
 
 static bool search(int* nums, int numsSize, int target)
 {
-    if (numsSize <= 0) {
-        return false;
-    }
+    int lo = 0;
+    int hi = numsSize - 1;
+    while (lo <= hi) {
+        int mid = lo + (hi - lo) / 2;
+        if (nums[mid] == target) {
+            return true;
+        }
 
-    if (numsSize == 1) {
-        return target == nums[0];
-    }
-
-    int i;
-    for (i = 1; i < numsSize; i++) {
-        if (nums[i] < nums[i - 1]) {
-            break;
+        if (nums[lo] == nums[mid] && nums[mid] == nums[hi]) {
+            /* Not sure which side contains the peak value, reduce search range */
+            lo++;
+            hi--;
+        } else if (nums[lo] <= nums[mid]) {  /* lo might be equal to mid */
+            if (nums[lo] <= target && target < nums[mid]) {
+                hi = mid - 1;
+            } else {
+                lo = mid + 1;
+            }
+        } else {
+            if (nums[mid] < target && target <= nums[hi]) {
+                lo = mid + 1;
+            } else {
+                hi = mid - 1;
+            }
         }
     }
 
-    if (i == 0) {
-        return binary_search(nums, numsSize, target) >= 0;
-    } else if (target >= nums[0]) {
-        return binary_search(nums, i, target) >= 0;
-    } else if (target <= nums[numsSize - 1]) {
-        return binary_search(nums + i, numsSize - i, target) >= 0;
-    } else {
-        return -1;
-    }
+    return false;
 }
 
 int main(int argc, char **argv)
