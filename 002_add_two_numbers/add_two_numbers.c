@@ -20,25 +20,20 @@ static struct ListNode* addTwoNumbers(struct ListNode* l1, struct ListNode* l2)
         int last_carry = carry;
 
         if (l1 != NULL) {
-            if (p == NULL) {
-                /* p never be NULL */
-                prev->next = l1;
-                p = l1;
-            }
             sum += l1->val;
             l1 = l1->next;
         }
 
         if (l2 != NULL) {
             if (p == NULL) {
-                /* p never be NULL */
+                /* l2 longer than l1 */
                 prev->next = l2;
                 p = l2;
             }
             sum += l2->val;
             l2 = l2->next;
         }
-        
+
         sum += last_carry;
         carry = sum / 10;
         p->val = sum % 10;
