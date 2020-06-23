@@ -20,7 +20,11 @@ static void dfs(int *nums, int size, bool *used, int *stack,
     } else {
         for (i = 0; i < size; i++) {
             if (!used[i]) {
-                if (i > 0 && nums[i] == nums[i - 1] && !used[i - 1]) continue;
+                if (i > 0 && nums[i] == nums[i - 1] && !used[i - 1]) {
+                    /* Forbid same elements on same level */
+                    /* Used marks allow same elements in different levels */
+                    continue;
+                }
                 used[i] = true;
                 stack[len] = nums[i];
                 dfs(nums, size, used, stack, len + 1, results, count, col_size);
@@ -33,7 +37,7 @@ static void dfs(int *nums, int size, bool *used, int *stack,
 /**
  * Return an array of arrays of size *returnSize.
  * The sizes of the arrays are returned as *returnColumnSizes array.
- * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ * Note: Both returned array and *returnColumnSizes array must be malloced, assume caller calls free().
  */
 static int **permute(int* nums, int numsSize, int* returnSize, int **returnColumnSize)
 {

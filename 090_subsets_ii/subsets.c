@@ -19,10 +19,13 @@ static void dfs(int *nums, int size, int start, int *buf, int level,
     for (i = start; i < size; i++) {
         if (!used[i]) {
             if (i > 0 && !used[i - 1] && nums[i - 1] == nums[i]) {
+                /* Forbid same elements on same level */
+                /* Used marks allow same elements in different levels */
                 continue;
             }
             used[i] = true;
             buf[level] = nums[i];
+            /* i + 1 limits the selecting range in following levels */
             dfs(nums, size, i + 1, buf, level + 1, used, sets, count, sizes);
             used[i] = false;
         }

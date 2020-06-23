@@ -20,9 +20,14 @@ static void dfs(int *nums, int size, int start, int target, int *solution, int l
     } else if (target > 0) {
         for (i = start; i < size; i++) {
             if (!used[i]) {
-                if (i > 0 && !used[i - 1] && nums[i - 1] == nums[i]) continue;
+                if (i > 0 && !used[i - 1] && nums[i - 1] == nums[i]) {
+                    /* Forbid same elements in same level */
+                    /* Used marks allow same elements in different levels */
+                    continue;
+                }
                 used[i] = true;
                 solution[len] = nums[i];
+                /* i + 1 limits the selecting range in following levels */
                 dfs(nums, size, i + 1, target - nums[i], solution, len + 1, used, results, count, column_sizes);
                 used[i] = false;
             }

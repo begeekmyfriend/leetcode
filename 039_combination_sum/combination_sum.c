@@ -13,9 +13,6 @@ static void dfs(int *nums, int size, int start, int target, int *stack,
         (*count)++;
     } else if (target > 0) {
         for (i = start; i < size; i++) {
-            if (i > 0 && nums[i] == nums[i - 1]) {
-                continue;
-            }
             stack[len] = nums[i];
             dfs(nums, size, i, target - nums[i], stack, len + 1, results, column_sizes, count);
         }
