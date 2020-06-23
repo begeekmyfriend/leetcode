@@ -1,27 +1,29 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+
 struct ListNode {
     int val;
     struct ListNode *next;
 };
 
-struct ListNode* deleteDuplicates(struct ListNode* head) {
+struct ListNode* deleteDuplicates(struct ListNode* head)
+{
     struct ListNode dummy;
-    struct ListNode *p, *next, *prev;
+    struct ListNode *p, *q, *prev;
     prev = &dummy;
     dummy.next = head;
-    p = next = head;
+    p = q = head;
     while (p != NULL) {
-        while (next != NULL && next->val == p->val) {
-            next = next->next;
+        while (q != NULL && q->val == p->val) {
+            q = q->next;
         }
-        if (p->next == next) {
+        if (p->next == q) {
             prev = p;
         } else {
-            prev->next = next;
+            prev->next = q;
         }
-        p = next;
+        p = q;
     }
     return dummy.next;
 }
