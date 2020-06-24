@@ -9,14 +9,17 @@ static int removeDuplicates(int* nums, int numsSize)
 
     int i;
     int len = 0;
-    int count = 0;
+    int count = 1;
     for (i = 1; i < numsSize; i++) {
+        /* Find the start position to be replaced */
         if (nums[len] == nums[i]) {
             if (count < 2) {
                 count++;
+                /* Replace in each iteration */
                 nums[++len] = nums[i];
             }
         } else {
+            /* Here there are more than 2 duplicates */
             count = 1;
             nums[++len] = nums[i];
         }

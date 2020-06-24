@@ -12,20 +12,17 @@ static void dfs(struct TreeNode *node, int sum, int *stack, int len, int **resul
 {
     if (node == NULL) {
         return;
-    }
-
-    sum -= node->val;
-    if (node->left == NULL && node->right == NULL && sum == 0) {
+    } else if (node->left == NULL && node->right == NULL && sum == node->val) {
         results[*count] = malloc((len + 1) * sizeof(int));
         memcpy(results[*count], stack, len * sizeof(int));
         results[*count][len] = node->val;
         sizes[*count] = len + 1;
         (*count)++;
-        return;
+    } else {
+        stack[len] = node->val;
+        dfs(node->left, sum - node->val, stack, len + 1, results, sizes, count);
+        dfs(node->right, sum - node->val, stack, len + 1, results, sizes, count);
     }
-    stack[len] = node->val;
-    dfs(node->left, sum, stack, len + 1, results, sizes, count);
-    dfs(node->right, sum, stack, len + 1, results, sizes, count);
 }
 
 static int **pathSum(struct TreeNode *root, int sum, int **columnSizes, int *returnSize)

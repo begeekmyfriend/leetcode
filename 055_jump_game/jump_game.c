@@ -14,6 +14,7 @@ static bool canJump(int* nums, int numsSize)
         if (pos < i || pos >= numsSize - 1) {
             break;
         }
+        /* if all positive number it always can arrive. */
         pos = max(i + nums[i], pos);
     }
 

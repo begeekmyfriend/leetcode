@@ -16,11 +16,13 @@ static struct TreeNode* lowestCommonAncestor(struct TreeNode* root, struct TreeN
 
     struct TreeNode *l = lowestCommonAncestor(root->left, p, q);
     if (l != NULL && l != p && l != q) {
+        /* both p and q in left subtree: l->left != NULL && l->right != NULL */
         return l;
     }
 
     struct TreeNode *r = lowestCommonAncestor(root->right, p, q);
     if (r != NULL && r != p && r != q) {
+        /* both p and q in right subtree: r->left != NULL && r->right != NULL */
         return r;
     }
 

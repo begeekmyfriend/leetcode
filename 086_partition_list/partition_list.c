@@ -6,29 +6,37 @@ struct ListNode {
     struct ListNode *next;
 };
 
-struct ListNode* partition(struct ListNode* head, int x) {
+struct ListNode* partition(struct ListNode* head, int x)
+{
     struct ListNode dummy;
-    struct ListNode *p = NULL, *start = &dummy, *pivot;    
+    struct ListNode *prev1 = &dummy, *pivot;    
+
     dummy.next = head;
     for (pivot = head; pivot != NULL; pivot = pivot->next) {
         if (pivot->val >= x) {
-            /* start->next == pivot */
             break;
         }
-        start = pivot;
+        prev1 = pivot;
     }
 
-    struct ListNode *prev;
-    for (p = pivot; p != NULL; p = p->next) {
+    struct ListNode *p = pivot->next;
+    struct ListNode *prev2 = pivot;
+    while (p != NULL) {
         if (p->val < x) {
-            prev->next = p->next;
-            p->next = start->next;
-            start->next = p;
-            start = p;
-            p = prev;
+            /* deletion */
+            prev2->next = p->next;
+            /* insertion */
+            p->next = prev1->next;
+            prev1->next = p;
+            /* iteration */
+            prev1 = p;
+            p = prev2->next;
+        } else {
+            prev2 = p;
+            p = p->next;
         }
-        prev = p;
     }
+
     return dummy.next;
 }
 

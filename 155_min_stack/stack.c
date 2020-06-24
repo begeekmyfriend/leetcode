@@ -27,6 +27,7 @@ static void minStackPush(MinStack* const obj, const int x)
 static void minStackPop(MinStack* const obj)
 {
     int i;
+    /* We records min index but not min value to save unnecessary operation */
     if (--obj->num == obj->min_idx) {
         int min_idx = 0;
         for (i = 1; i < obj->num; i++) {

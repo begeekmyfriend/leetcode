@@ -41,6 +41,12 @@ static int maximalSquare(char** matrix, int matrixRowSize, int matrixColSize)
             max_len = max(max_len, lens[i][j]);
         }
     }
+    for (i = 0; i < matrixRowSize; i++) {
+        for (j = 0; j < matrixColSize; j++) {
+            printf("%d ", lens[i][j]);
+        }
+        printf("\n");
+    }
     return max_len * max_len;
 }
 

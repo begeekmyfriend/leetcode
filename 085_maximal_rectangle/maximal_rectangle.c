@@ -11,32 +11,32 @@ static inline int max(int a, int b)
 static int area_calc(int *heights, int size)
 {
     int *indexes = malloc(size * sizeof(int));
-    int *left = malloc(size * sizeof(int));
-    int *right = malloc(size * sizeof(int));
+    int *lhist = malloc(size * sizeof(int));
+    int *rhist = malloc(size * sizeof(int));
 
     int i, pos = 0;
     for (i = 0; i < size; i++) {
-        /* monotonous increasing stack */
+        /* squeeze to keep monotonous increasing histograms */
         while (pos > 0 && heights[indexes[pos - 1]] >= heights[i]) {
             pos--;
         }
-        left[i] = pos == 0 ? -1 : indexes[pos - 1];
+        lhist[i] = pos == 0 ? -1 : indexes[pos - 1];
         indexes[pos++] = i;
     }
 
     pos = 0;
     for (i = size - 1; i >= 0; i--) {
-        /* monotonous increasing stack */
+        /* squeeze to keep monotonous increasing histograms */
         while (pos > 0 && heights[indexes[pos - 1]] >= heights[i]) {
             pos--;
         }
-        right[i] = pos == 0 ? size : indexes[pos - 1];
+        rhist[i] = pos == 0 ? size : indexes[pos - 1];
         indexes[pos++] = i;
     }
 
     int max_area = 0;
     for (i = 0; i < size; i++) {
-        int area = heights[i] * (right[i] - left[i] - 1);
+        int area = heights[i] * (rhist[i] - lhist[i] - 1);
         max_area = max(area, max_area);
     }
 

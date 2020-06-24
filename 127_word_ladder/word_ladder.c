@@ -142,11 +142,13 @@ static int ladderLength(char* beginWord, char* endWord, char** wordList, int wor
         hlist_add_head(&node->node, &hhead[hash]);
     }
 
+    /* FIFO */
     INIT_LIST_HEAD(&queue);
     struct word_node *first = malloc(sizeof(*node));
     first->word = beginWord;
     first->step = 1;
 
+    /* BFS with FIFO for shortest path */
     while (strcmp(first->word, endWord)) {
         strcpy(word, first->word);
         for (i = 0; i < len; i++) {

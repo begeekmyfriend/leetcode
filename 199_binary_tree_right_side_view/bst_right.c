@@ -76,6 +76,7 @@ struct bfs_node {
 
 static struct bfs_node *node_new(struct list_head *free_list, struct TreeNode *node)
 {
+    /* Reusage in free node pool */
     struct bfs_node *new;
     if (list_empty(free_list)) {
         new = malloc(sizeof(*new));
@@ -87,8 +88,8 @@ static struct bfs_node *node_new(struct list_head *free_list, struct TreeNode *n
     return new;
 }
 
-static void queue(struct list_head *parents, struct list_head *children,
-                  struct list_head *free_list, int *results, int *count)
+static void bfs(struct list_head *parents, struct list_head *children,
+                struct list_head *free_list, int *results, int *count)
 {
     struct list_head *p, *n;
     list_for_each(p, parents) {
@@ -141,11 +142,12 @@ static int* rightSideView(struct TreeNode* root, int* returnSize)
     struct bfs_node *new = node_new(&free_list, root);
     list_add_tail(&new->link, &q0);
 
+    /* Interleaving parent and children FIFO queues */
     while (!list_empty(&q0) || !list_empty(&q1)) {
         if (level & 0x1) {
-            queue(&q1, &q0, &free_list, results, returnSize);
+            bfs(&q1, &q0, &free_list, results, returnSize);
         } else {
-            queue(&q0, &q1, &free_list, results, returnSize);
+            bfs(&q0, &q1, &free_list, results, returnSize);
         }
         level++;
     }

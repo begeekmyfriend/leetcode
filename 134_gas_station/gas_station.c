@@ -4,6 +4,10 @@
 static int canCompleteCircuit(int* gas, int gasSize, int* cost, int costSize)
 {
     int i, j, store = 0, start = -1;
+
+    /* the solution(start) is guaranteed to be
+     * unique for the purpose of this problem
+     */
     for (i = 0; i < gasSize; i++) {
         if (start < 0) {
             start = i;
@@ -14,14 +18,15 @@ static int canCompleteCircuit(int* gas, int gasSize, int* cost, int costSize)
             start = -1;
         }
     }
-    if (start > 0) {
-        for (i = 0; i < start; i++) {
-            store += gas[i] - cost[i];
-            if (store < 0) {
-                return -1;
-            }
+
+    /* if start == -1 just return */
+    for (i = 0; i < start; i++) {
+        store += gas[i] - cost[i];
+        if (store < 0) {
+            return -1;
         }
     }
+
     return start;
 }
 

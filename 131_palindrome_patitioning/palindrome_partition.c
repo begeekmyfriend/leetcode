@@ -21,7 +21,7 @@ static void collect(char *s, int len, int low, int high, struct palindrome *resu
 
 static void dfs(struct palindrome *pal_set, int num, int start,
                 char *s, int len, struct palindrome **stack, int size,
-                char ***results, int *col_sizes, int *count)
+                char ***results, int *count, int *col_sizes)
 {
     int i;
     if (size > 0 && stack[size - 1]->high == len - 1) {
@@ -40,7 +40,7 @@ static void dfs(struct palindrome *pal_set, int num, int start,
             if ((size == 0 && pal_set[i].low == 0) ||
                 (size > 0 && stack[size - 1]->high + 1 == pal_set[i].low)) {
                 stack[size] = &pal_set[i];
-                dfs(pal_set, num, i + 1, s, len, stack, size + 1, results, col_sizes, count);
+                dfs(pal_set, num, i + 1, s, len, stack, size + 1, results, count, col_sizes);
             }
         }
     }
@@ -48,10 +48,10 @@ static void dfs(struct palindrome *pal_set, int num, int start,
 
 /**
  ** Return an array of arrays of size *returnSize.
- ** The sizes of the arrays are returned as *columnSizes array.
+ ** The sizes of the arrays are returned as *returnColumnSizes array.
  ** Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
  **/
-static char ***partition(char* s, int** columnSizes, int* returnSize)
+static char ***partition(char* s, int* returnSize, int** returnColumnSizes)
 {
     int len = strlen(s);
     if (len == 0) {
@@ -68,8 +68,8 @@ static char ***partition(char* s, int** columnSizes, int* returnSize)
 
     char ***results = malloc(cap * sizeof(char **));
     struct palindrome **stack = malloc(count * sizeof(*stack));
-    *columnSizes = malloc(cap * sizeof(int));
-    dfs(pal_set, count, 0, s, len, stack, 0, results, *columnSizes, returnSize);
+    *returnColumnSizes = malloc(cap * sizeof(int));
+    dfs(pal_set, count, 0, s, len, stack, 0, results, returnSize, *returnColumnSizes);
     return results;
 }
 
@@ -82,7 +82,7 @@ int main(int argc, char **argv)
 
     int i, j, count = 0;
     int *col_sizes;
-    char ***lists = partition(argv[1], &col_sizes, &count);
+    char ***lists = partition(argv[1], &count, &col_sizes);
     for (i = 0; i < count; i++) {
         char **list = lists[i];
         for (j = 0; j < col_sizes[i]; j++) {

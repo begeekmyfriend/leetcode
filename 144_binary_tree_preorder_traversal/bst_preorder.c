@@ -11,7 +11,8 @@ struct TreeNode {
  ** Return an array of size *returnSize.
  ** Note: The returned array must be malloced, assume caller calls free().
  **/
-static int* preorderTraversal(struct TreeNode* root, int* returnSize) {
+static int* preorderTraversal(struct TreeNode* root, int* returnSize)
+{
     if (root == NULL) {
         return NULL;
     }
@@ -22,8 +23,12 @@ static int* preorderTraversal(struct TreeNode* root, int* returnSize) {
     struct TreeNode **top = stack;
     struct TreeNode *node = root;
 
+    /* node != NULL condition is just for the first iteration and
+     * never push NULL into the stack
+     */
     while (node != NULL || top != stack) {
         if (node == NULL) {
+            /* pop up */
             node = *--top;
         }
 

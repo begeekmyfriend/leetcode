@@ -1,5 +1,33 @@
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+
+#if 0
+static inline max(int a, int b)
+{
+    return a > b ? a : b;
+}
+
+static int maxProfit(int* prices, int pricesSize)
+{
+    int i;
+    int s1 = INT_MIN; /* first buy state */
+    int s2 = 0;       /* first sell state */
+    int s3 = INT_MIN; /* second buy state */
+    int s4 = 0;       /* second sell state */
+
+    for (i = 0; i < pricesSize; i++) {
+        /* state transition */
+        s1 = max(s1, 0 - prices[i]);
+        s2 = max(s2, s1 + prices[i]);
+        s3 = max(s3, s2 - prices[i]);
+        s4 = max(s4, s3 + prices[i]);
+    }
+
+    return max(s2, s4);
+}
+#else
 
 static int maxProfit(int* prices, int pricesSize)
 {
@@ -9,6 +37,7 @@ static int maxProfit(int* prices, int pricesSize)
 
     int i, tmp, diff = 0, min = prices[0];
     int *left_profit = malloc(pricesSize * sizeof(int));
+    left_profit[0] = 0;
     for (i = 1; i < pricesSize; i++) {
         if (prices[i] < min) {
             min = prices[i];
@@ -35,6 +64,7 @@ static int maxProfit(int* prices, int pricesSize)
 
     return total;
 }
+#endif
 
 int main(int argc, char **argv)
 {

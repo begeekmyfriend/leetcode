@@ -1,24 +1,22 @@
 #include <stdio.h>
 #include <stdlib.h>
 
- struct TreeNode {
-     int val;
-     struct TreeNode *left;
-     struct TreeNode *right;
- };
+struct TreeNode {
+    int val;
+    struct TreeNode *left;
+    struct TreeNode *right;
+};
 
 static void traverse(struct TreeNode *node, int *result, int *count)
 {
-    if (node->left != NULL) {
-        traverse(node->left, result, count);
+    if (node == NULL) {
+        return;
     }
-    
+
+    traverse(node->left, result, count);
     result[*count] = node->val;
     (*count)++;
-    
-    if (node->right != NULL) {
-        traverse(node->right, result, count);
-    }    
+    traverse(node->right, result, count);
 }
 
 /**

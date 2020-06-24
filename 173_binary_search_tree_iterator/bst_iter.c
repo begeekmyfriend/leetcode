@@ -8,70 +8,48 @@ struct TreeNode {
     struct TreeNode *right;
 };
 
-struct ListNode {
-    int val;
-    struct ListNode *next;
-};
+typedef struct {
+    int size;
+    int index;
+    int nums[10000];
+} BSTIterator;
 
-struct BSTIterator {
-    struct ListNode dummy;
-    struct ListNode *p;
-};
-
-static void bst_iter_generater(struct TreeNode *node, struct BSTIterator *iter)
+static void dfs(struct TreeNode* root, BSTIterator *obj)
 {
-    if (node->left != NULL) {
-        bst_iter_generater(node->left, iter);
+    if (root == NULL) {
+        return;
     }
 
-    struct ListNode *new = malloc(sizeof(*new));
-    new->val = node->val;
-    new->next = NULL;
-    if (iter->p != NULL) {
-        iter->p->next = new;
-    } else {
-        iter->dummy.next = new;
-    }
-    iter->p = new;
-
-    if (node->right != NULL) {
-        bst_iter_generater(node->right, iter);
-    }
+    dfs(root->left, obj);
+    obj->nums[obj->size++] = root->val;
+    dfs(root->right, obj);
 }
 
 static struct BSTIterator *bstIteratorCreate(struct TreeNode *root)
 {
-    struct BSTIterator *iter = malloc(sizeof(*iter));
-    if (root != NULL) {
-        iter->p = NULL;
-        bst_iter_generater(root, iter);
-    }
-    iter->p = &iter->dummy;
+    struct BSTIterator *obj = malloc(sizeof(*obj));
+    obj->index = 0;
+    obj->size = 0;
+    dfs(root, obj);
     return iter;
 }
 
 /** @return whether we have a next smallest number */
-static bool bstIteratorHasNext(struct BSTIterator *iter)
+static bool bstIteratorHasNext(struct BSTIterator *obj)
 {
-    return iter->p->next != NULL;
+    return obj->index < obj->size;
 }
 
 /** @return the next smallest number */
-static int bstIteratorNext(struct BSTIterator *iter)
+static int bstIteratorNext(struct BSTIterator *obj)
 {
-    iter->p = iter->p->next;
-    return iter->p->val;
+    return obj->nums[obj->index++];
 }
 
 /** Deallocates memory iteriously allocated for the iterator */
-static void bstIteratorFree(struct BSTIterator *iter)
+static void bstIteratorFree(struct BSTIterator *obj)
 {
-    iter->p = iter->dummy.next;
-    while (iter->p != NULL) {
-        iter->dummy.next = iter->p->next;
-        free(iter->p);
-        iter->p = iter->dummy.next;
-    }
+    free(obj);
 }
 
 int main(void)

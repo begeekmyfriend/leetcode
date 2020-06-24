@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <limits.h>
 
 static int calculateMinimumHP(int** dungeon, int dungeonRowSize, int dungeonColSize)
 {
@@ -10,15 +9,25 @@ static int calculateMinimumHP(int** dungeon, int dungeonRowSize, int dungeonColS
         dp[i] = malloc(dungeonColSize * sizeof(int));
     }
 
-    for (i = dungeonRowSize - 1; i >= 0; i--) {
-        for (j = dungeonColSize - 1; j >= 0; j--) {
-            if (i == dungeonRowSize - 1 && j == dungeonColSize - 1) {
-                dp[i][j] = 1 - dungeon[i][j] > 1 ? 1 - dungeon[i][j] : 1;
-            } else {
-                int hp1 = i == dungeonRowSize - 1 ? INT_MAX : (dp[i + 1][j] - dungeon[i][j] > 1 ? dp[i + 1][j] - dungeon[i][j] : 1);
-                int hp2 = j == dungeonColSize - 1 ? INT_MAX : (dp[i][j + 1] - dungeon[i][j] > 1 ? dp[i][j + 1] - dungeon[i][j] : 1);
-                dp[i][j] = hp1 < hp2 ? hp1 : hp2;
-            }
+    int hp = 1 - dungeon[dungeonRowSize - 1][dungeonColSize - 1];
+    dp[dungeonRowSize - 1][dungeonColSize - 1] = hp >= 1 ? hp : 1;
+    for (i = dungeonRowSize - 2; i >= 0; i--) {
+        hp = dp[i + 1][dungeonColSize - 1] - dungeon[i][dungeonColSize - 1];
+        dp[i][dungeonColSize - 1] = hp >= 1 ? hp : 1;
+    }
+
+    for (i = dungeonColSize - 2; i >= 0; i--) {
+        hp = dp[dungeonRowSize - 1][i + 1] - dungeon[dungeonRowSize - 1][i];
+        dp[dungeonRowSize - 1][i] = hp >= 1 ? hp : 1;
+    }
+
+    for (i = dungeonRowSize - 2; i >= 0; i--) {
+        for (j = dungeonColSize - 2; j >= 0; j--) {
+            int hp_r = dp[i][j + 1] - dungeon[i][j];
+            int hp_d = dp[i + 1][j] - dungeon[i][j];
+            hp_r = hp_r >= 1 ? hp_r : 1;
+            hp_d = hp_d >= 1 ? hp_d : 1;
+            dp[i][j] = hp_r < hp_d ? hp_r : hp_d;
         }
     }
 

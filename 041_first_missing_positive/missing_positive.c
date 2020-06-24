@@ -16,7 +16,9 @@ static int firstMissingPositive(int* nums, int numsSize)
 
     int i = 0;
     while (i < numsSize) {
-        if (nums[i] != i + 1 && nums[i] > 0 && nums[i] <= numsSize && nums[i] != nums[nums[i] - 1]) {
+        /* nums[i] should be i+1 and nums[nums[i] - 1] should be nums[i] */
+        if (nums[i] != i + 1 && nums[i] > 0 && nums[i] <= numsSize && nums[nums[i] - 1] != nums[i]) {
+            /* nums[nums[i] - 1] <- nums[i] */
             swap(nums + i, nums + nums[i] - 1);
         } else {
             i++;

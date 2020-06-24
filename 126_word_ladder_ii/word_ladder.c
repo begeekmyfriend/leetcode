@@ -150,10 +150,10 @@ static void parent_add(struct word_tree *parent, struct word_tree *child)
 
 /**
  ** Return an array of arrays of size *returnSize.
- ** The sizes of the arrays are returned as *columnSizes array.
- ** Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ ** The sizes of the arrays are returned as *returnColumnSizes array.
+ ** Note: Both returned array and *returnColumnSizes array must be malloced, assume caller calls free().
  **/
-static char*** findLadders(char* beginWord, char* endWord, char** wordList, int wordListSize, int** columnSizes, int* returnSize)
+static char*** findLadders(char* beginWord, char* endWord, char** wordList, int wordListSize, int* returnSize, int** returnColumnSizes)
 {
     int i, j, k;
     int len = strlen(beginWord);
@@ -180,9 +180,11 @@ static char*** findLadders(char* beginWord, char* endWord, char** wordList, int 
         hlist_add_head(&node->node, &hhead[hash]);
     }
 
+    /* FIFO */
     struct list_head *p, queue;
     INIT_LIST_HEAD(&queue);
 
+    /* Build tree structure for BFS */
     struct word_tree *root = malloc(sizeof(*root));
     root->word = beginWord;
     root->step = 1;
@@ -196,6 +198,7 @@ static char*** findLadders(char* beginWord, char* endWord, char** wordList, int 
         node->step = 1;
     }
 
+    /* BFS with FIFO for shortest path */
     struct word_tree *first = root;
     while (strcmp(first->word, endWord)) {
         strcpy(word, first->word);
@@ -211,6 +214,7 @@ static char*** findLadders(char* beginWord, char* endWord, char** wordList, int 
                         struct word_tree *w = list_entry(p, struct word_tree, sibling);
                         if (!strcmp(w->word, node->word)) {
                             enqueue = 0;
+                            /* record the parant relation */
                             parent_add(first, w);
                             break;
                         }
@@ -279,9 +283,9 @@ static char*** findLadders(char* beginWord, char* endWord, char** wordList, int 
         }
     }
 
-    *columnSizes = malloc(i * sizeof(int));
+    *returnColumnSizes = malloc(i * sizeof(int));
     for (j = 0; j < i; j++) {
-        (*columnSizes)[j] = size;
+        (*returnColumnSizes)[j] = size;
     }
     *returnSize = i;
     return results;
@@ -295,7 +299,7 @@ int main(int argc, char **argv)
     }
 
     int i, j, *sizes, count = 0;
-    char ***lists = findLadders(argv[1], argv[2], argv + 3, argc - 3, &sizes, &count);
+    char ***lists = findLadders(argv[1], argv[2], argv + 3, argc - 3, &count, &sizes);
     for (i = 0; i < count; i++) {
         for (j = 0; j < sizes[i]; j++) {
             printf("%s ", lists[i][j]);

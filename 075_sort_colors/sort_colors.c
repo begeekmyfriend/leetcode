@@ -9,49 +9,38 @@ static inline void swap(int *a, int *b)
     *b = tmp;
 }
 
-/*
- * RED = 0
- * WHITE = 1
- * BLUE = 2
- */
 static void sortColors(int* nums, int numsSize)
 {
-    int i = 0, j = numsSize - 1;
-    while (i < j) {
-        while (nums[i] == 0 && i < j) {
-            i++;
+    int i, j = 0;
+    for (i = 0; i < numsSize; i++) {
+        if (nums[i] == 0) {
+            swap(nums + j, nums + i);
+            j++;
         }
-        while (nums[j] != 0 && j > i) {
-            j--;
-        }
-        swap(nums + i, nums + j);
     }
-    j = numsSize - 1;
-    while (i < j) {
-        while (nums[i] == 1 && i < j) {
-            i++;
+
+    for (i = j; i < numsSize; i++) { 
+        if (nums[i] == 1) {
+            swap(nums + j, nums + i);
+            j++;
         }
-        while (nums[j] != 1 && j > i) {
-            j--;
-        }
-        swap(nums + i, nums + j);
     }
 }
 
 int main(int argc, char **argv)
 {
-    if (argc != 2) {
-        fprintf(stderr, "Usage: ./test colors\n");
+    if (argc < 2) {
+        fprintf(stderr, "Usage: ./test 2 0 2 1 1 0\n");
         exit(-1);
     }
-    int i, count = strlen(argv[1]);
+    int i, count = argc - 1;
     int *nums = malloc(count * sizeof(int));
     for (i = 0; i < count; i++) {
-        nums[i] = argv[1][i] - '0';
+        nums[i] = atoi(argv[i + 1]);
     }
     sortColors(nums, count);
     for (i = 0; i < count; i++) {
-        printf("%d", nums[i]);
+        printf("%d ", nums[i]);
     }
     printf("\n");
     return 0;
