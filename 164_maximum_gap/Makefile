@@ -1,2 +1,2 @@
 all:
-	gcc -O2 -o test max_gap.c
+	gcc -O1 -o test max_gap.c

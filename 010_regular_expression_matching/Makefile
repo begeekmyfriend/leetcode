@@ -1,2 +1,2 @@
 all:
-	gcc -O2 -o test regular_expression.c
+	gcc -O1 -o test regular_expression.c

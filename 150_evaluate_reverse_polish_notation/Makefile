@@ -1,2 +1,2 @@
 all:
-	gcc -O2 -o test eval_rpn.c
+	gcc -O1 -o test eval_rpn.c

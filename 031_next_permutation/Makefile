@@ -1,2 +1,2 @@
 all:
-	gcc -O2 -o test next_permutation.c
+	gcc -O1 -o test next_permutation.c

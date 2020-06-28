@@ -1,2 +1,2 @@
 all:
-	gcc -O2 -o test remove_end.c
+	gcc -O1 -o test remove_end.c

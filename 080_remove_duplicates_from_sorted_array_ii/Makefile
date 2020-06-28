@@ -1,2 +1,2 @@
 all:
-	gcc -O2 -o test rm_dups.c
+	gcc -O1 -o test rm_dups.c

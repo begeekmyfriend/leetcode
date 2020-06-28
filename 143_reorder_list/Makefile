@@ -1,2 +1,2 @@
 all:
-	gcc -O2 -o test reorder_list.c
+	gcc -O1 -o test reorder_list.c

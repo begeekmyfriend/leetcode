@@ -1,2 +1,2 @@
 all:
-	gcc -O2 -o roman_numeral roman_numeral.c
+	gcc -O1 -o roman_numeral roman_numeral.c

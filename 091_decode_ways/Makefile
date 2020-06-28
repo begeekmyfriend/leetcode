@@ -1,2 +1,2 @@
 all:
-	gcc -O2 -o test decode_ways.c
+	gcc -O1 -o test decode_ways.c

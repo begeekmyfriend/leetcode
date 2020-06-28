@@ -1,2 +1,2 @@
 all:
-	gcc -O2 -o test surrounded_regions.c
+	gcc -O1 -o test surrounded_regions.c

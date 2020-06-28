@@ -1,2 +1,2 @@
 all:
-	gcc -O2 -o test pascal_triangle.c
+	gcc -O1 -o test pascal_triangle.c

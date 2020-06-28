@@ -1,2 +1,2 @@
 all:
-	gcc -O2 -o test candy.c
+	gcc -O1 -o test candy.c

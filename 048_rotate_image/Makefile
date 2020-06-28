@@ -1,2 +1,2 @@
 all:
-	gcc -O2 -o test rotate.c
+	gcc -O1 -o test rotate.c

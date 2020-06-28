@@ -1,2 +1,2 @@
 all:
-	gcc -O2 -o test sort_list.c
+	gcc -O1 -o test sort_list.c

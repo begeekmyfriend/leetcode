@@ -1,2 +1,2 @@
 all:
-	gcc -O2 -o test and.c
+	gcc -O1 -o test and.c

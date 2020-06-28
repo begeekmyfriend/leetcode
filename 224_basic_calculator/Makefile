@@ -1,2 +1,2 @@
 all:
-	gcc -O2 -o test calculator.c
+	gcc -O1 -o test calculator.c

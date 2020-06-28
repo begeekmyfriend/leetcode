@@ -1,2 +1,2 @@
 all:
-	gcc -O2 -o test spiral_matrix.c
+	gcc -O1 -o test spiral_matrix.c

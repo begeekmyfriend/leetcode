@@ -1,2 +1,2 @@
 all:
-	gcc -O2 -o test reverse_nodes.c
+	gcc -O1 -o test reverse_nodes.c

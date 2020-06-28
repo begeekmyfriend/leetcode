@@ -1,2 +1,2 @@
 all:
-	gcc -O2 -o test dungeon.c
+	gcc -O1 -o test dungeon.c

@@ -1,2 +1,2 @@
 all:
-	gcc -O2 -o test unique_path.c
+	gcc -O1 -o test unique_path.c

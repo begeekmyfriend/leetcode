@@ -1,2 +1,2 @@
 all:
-	gcc -O2 -o test insert_position.c
+	gcc -O1 -o test insert_position.c

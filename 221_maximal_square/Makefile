@@ -1,2 +1,2 @@
 all:
-	gcc -O2 -o test maximal_square.c
+	gcc -O1 -o test maximal_square.c

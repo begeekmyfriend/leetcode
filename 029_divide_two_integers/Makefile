@@ -1,2 +1,2 @@
 all:
-	gcc -O2 -o test divide.c
+	gcc -O1 -o test divide.c

@@ -1,2 +1,2 @@
 all:
-	gcc -O2 -o test intersection.c
+	gcc -O1 -o test intersection.c

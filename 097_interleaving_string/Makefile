@@ -1,2 +1,2 @@
 all:
-	gcc -O2 -o test interleaving_string.c
+	gcc -O1 -o test interleaving_string.c

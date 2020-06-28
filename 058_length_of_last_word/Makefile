@@ -1,2 +1,2 @@
 all:
-	gcc -O2 -o test word_length.c
+	gcc -O1 -o test word_length.c

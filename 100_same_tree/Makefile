@@ -1,2 +1,2 @@
 all:
-	gcc -O2 -o test same_tree.c
+	gcc -O1 -o test same_tree.c

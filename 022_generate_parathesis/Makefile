@@ -1,2 +1,2 @@
 all:
-	gcc -O2 -o test parenthesis.c
+	gcc -O1 -o test parenthesis.c

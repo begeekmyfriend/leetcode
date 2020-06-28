@@ -1,2 +1,2 @@
 all:
-	gcc -O2 -o test search_rotated_array.c
+	gcc -O1 -o test search_rotated_array.c

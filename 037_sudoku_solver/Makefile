@@ -1,2 +1,2 @@
 all:
-	gcc -O2 -o test sudoku_solver.c
+	gcc -O1 -o test sudoku_solver.c

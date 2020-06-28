@@ -1,2 +1,2 @@
 all:
-	gcc -O2 -o test missing_positive.c
+	gcc -O1 -o test missing_positive.c

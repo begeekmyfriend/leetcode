@@ -1,2 +1,2 @@
 all:
-	gcc -O2 -o test shortest_palindrome.c
+	gcc -O1 -o test shortest_palindrome.c

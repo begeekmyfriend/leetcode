@@ -1,2 +1,2 @@
 all:
-	gcc -O2 -o test add_binary.c
+	gcc -O1 -o test add_binary.c

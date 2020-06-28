@@ -1,2 +1,2 @@
 all:
-	gcc -O2 -o test recover_bst.c
+	gcc -O1 -o test recover_bst.c

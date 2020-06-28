@@ -1,2 +1,2 @@
 all:
-	gcc -O2 -o test rect_in_histogram.c
+	gcc -O1 -o test rect_in_histogram.c

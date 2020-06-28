@@ -1,2 +1,2 @@
 all:
-	gcc -O2 -o test minimum_path_sum.c
+	gcc -O1 -o test minimum_path_sum.c

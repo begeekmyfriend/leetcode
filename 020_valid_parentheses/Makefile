@@ -1,2 +1,2 @@
 all:
-	gcc -O2 -o test valid_parentheses.c
+	gcc -O1 -o test valid_parentheses.c
