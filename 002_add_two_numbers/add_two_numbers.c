@@ -17,7 +17,6 @@ static struct ListNode* addTwoNumbers(struct ListNode* l1, struct ListNode* l2)
     dummy.next = p;
     while (l1 != NULL || l2 != NULL) {
         int sum = 0;
-        int last_carry = carry;
 
         if (l1 != NULL) {
             sum += l1->val;
@@ -34,7 +33,7 @@ static struct ListNode* addTwoNumbers(struct ListNode* l1, struct ListNode* l2)
             l2 = l2->next;
         }
 
-        sum += last_carry;
+        sum += carry;
         carry = sum / 10;
         p->val = sum % 10;
         prev = p;

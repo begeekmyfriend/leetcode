@@ -1,14 +1,33 @@
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>
 
+
 static int myAtoi(char* str)
 {
     char *s;
-    int n = 0, sign = 0;
+    long n = 0;
+    int sign = 0;
 
     while (*str == ' ' || *str == '\t') {
         str++;
+    }
+
+    if (*str == '-') {
+        if (isdigit(*++str)) {
+            sign = 1;
+        } else {
+            return 0;
+        }
+    }
+
+    if (*str == '+') {
+        if (isdigit(*++str)) {
+            sign = 0;
+        } else {
+            return 0;
+        }
     }
 
     for (s = str; *s != '\0'; s++) {
@@ -26,10 +45,6 @@ static int myAtoi(char* str)
                 }
             }
             n = n * 10 + d;
-        } else if (*s == '-' && isdigit(*(s + 1)) && (n == 0)) {
-            sign = 1;
-        } else if (*s == '+' && isdigit(*(s + 1)) && (n == 0)) {
-            sign = 0;
         } else {
             break;
         }

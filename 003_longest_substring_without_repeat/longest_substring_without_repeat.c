@@ -15,10 +15,10 @@ static int lengthOfLongestSubstring(char *s)
             len++;
         } else {
             if (index - offset[*s] > len) {
-                /* not include in substring, go on increasing */
+                /* not included in sliding window, go on increasing */
                 len++;
             } else {
-                /* count from scratch */
+                /* repetition in sliding window, count from scratch */
 	        len = index - offset[*s];
             }
         }

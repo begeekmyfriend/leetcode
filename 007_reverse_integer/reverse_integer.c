@@ -2,20 +2,24 @@
 #include <stdlib.h>
 #include <limits.h>
 
+
 static int reverse(int x)
 {
-    int y = 0;
+    int n = 0;
     while (x != 0) {
-        int n = x % 10;
-        // Checking the over/underflow.
-        // Actually, it should be y>(INT_MAX-n)/10, but n/10 is 0, so omit it.
-        if (y > INT_MAX / 10 || y < INT_MIN / 10) {
+        int r = x % 10;
+        /* Checking the over/underflow. */
+        if (n > INT_MAX / 10 || (n == INT_MAX / 10 && r > 7)) {
             return 0;
         }
-        y = y * 10 + n;
+        if (n < INT_MIN / 10 || (n == INT_MIN / 10 && r < -8)) {
+            return 0;
+        }
+
+        n = n * 10 + r;
         x /= 10;
     }
-    return y;
+    return n;
 }
 
 #define TEST(n, e)  printf("%12d  =>  %-12d  %s!\n",  n, reverse(n),  e == reverse(n)?"passed":"failed")
