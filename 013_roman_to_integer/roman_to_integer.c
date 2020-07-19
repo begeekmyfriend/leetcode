@@ -19,20 +19,21 @@ static int roman_to_integer(char c)
     case 'M':  
         return 1000;  
     default:
-        return;
+        return 0;
     }
 }
 
 int romanToInt (char *s)
 {
-    int i, result = roman_to_integer(s[0]);
+    int i, curr = roman_to_integer(s[0]);
+    int result = curr;
 
     for (i = 1; s[i] != '\0'; i++) {
-        int prev = roman_to_integer(s[i - 1]);
-        int curr = roman_to_integer(s[i]);
-        //if left<right such as : IV(4), XL(40), IX(9) ...
+        int prev = curr;
+        curr = roman_to_integer(s[i]);
+        /* left < right : IV(4), XL(40), IX(9) ... */
         if (prev < curr) {
-            result = result - prev + (curr - prev);
+            result -= prev - (curr - prev);
         } else {
             result += curr;
         }

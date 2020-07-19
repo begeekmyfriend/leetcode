@@ -8,7 +8,9 @@ struct ListNode {
  
 static struct ListNode* removeNthFromEnd(struct ListNode* head, int n)
 {
-    if (n < 1) return NULL;
+    if (n == 0) {
+        return NULL;
+    }
 
     struct ListNode *p, *prev, dummy;
     dummy.next = head;
@@ -27,6 +29,7 @@ static struct ListNode* removeNthFromEnd(struct ListNode* head, int n)
     if (tmp == head) {
         head = tmp->next;
     }
+
     return head;
 }
 

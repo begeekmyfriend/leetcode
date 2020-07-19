@@ -41,7 +41,7 @@ static int** threeSum(int* nums, int numsSize, int* returnSize)
     *returnSize = 0;
     int i, j, capacity = 50000;
     int **results = malloc(capacity * sizeof(int *));
-    for (i = 0; i < numsSize; i++) {
+    for (i = 0; i < numsSize - 2; i++) {
         if (i == 0 || i > 0 && nums[i] != nums[i - 1]) {
             two_sum(nums, i + 1, numsSize - 1, -nums[i], results, returnSize);
         }
