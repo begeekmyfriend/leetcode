@@ -4,34 +4,38 @@
 
 int divide(int dividend, int divisor)
 {
-    int sign = (float) dividend / divisor > 0 ? 1 : -1;
-    unsigned int dvd = dividend > 0 ? dividend : -dividend;
-    unsigned int dvs = divisor > 0 ? divisor : -divisor;
-    unsigned int bit_num[33];
-    unsigned int i = 0;
-    long long d = dvs;
-
-    bit_num[i] = d;
-    while (d <= dvd) {
-        bit_num[++i] = d = d << 1;
+    int signal = 1;
+    unsigned int dvd = dividend;
+    if (dividend < 0) {
+        signal *= -1;
+        dvd = ~dvd + 1;
     }
-    i--;
 
-    unsigned int result = 0;
+    unsigned int dvs = divisor;
+    if (divisor < 0) {
+        signal *= -1;
+        dvs = ~dvs + 1;
+    }
+
+    int shift = 0;
+    while (dvd > dvs << shift) {
+        shift++;
+    }
+
+    unsigned int res = 0;
     while (dvd >= dvs) {
-        if (dvd >= bit_num[i]) {
-            dvd -= bit_num[i];
-            result += (1<<i);
-        } else {
-            i--;
+        while (dvd < dvs << shift) {
+            shift--;
         }
+        res |= (unsigned int) 1 << shift;
+        dvd -= dvs << shift;
     }
 
-    //becasue need to return `int`, so we need to check it is overflowed or not.
-    if (result > INT_MAX && sign > 0) {
+    if (signal == 1 && res >= INT_MAX) {
         return INT_MAX;
+    } else {
+        return res * signal;
     }
-    return (int) result * sign;
 }
 
 int main(int argc, char **argv)

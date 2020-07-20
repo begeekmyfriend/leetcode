@@ -7,13 +7,11 @@ static int removeDuplicates(int* nums, int numsSize)
         return numsSize;
     }
 
-    int i = 0, j, count = 1;
-    while (i < numsSize) {
-        for (j = i + 1; j < numsSize && nums[i] == nums[j]; j++) {}
-        if (j < numsSize) {
-            nums[count++] = nums[j];
+    int i, count = 1;
+    for (i = 1; i < numsSize; i++) {
+        if (nums[i - 1] != nums[i]) {
+            nums[count++] = nums[i];
         }
-        i = j;
     }
 
     return count;
