@@ -118,7 +118,7 @@ static int *findSubstring(char *s, char **words, int wordsSize, int *returnSize)
     char *word = malloc(len + 1);
     word[len] = '\0';
     int *indexes = malloc(cap * sizeof(int));
-    for (i = 0; s[i] != '\0'; i++) {
+    for (i = 0; s[i + len - 1] != '\0'; i++) {
         memcpy(word, s + i, len);
         indexes[i] = find(word, heads, hash_size);
     }
