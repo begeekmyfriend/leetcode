@@ -2,6 +2,11 @@
 #include <stdlib.h>
 
 
+static inline int max(int a, int b)
+{
+    return a > b ? a : b;
+}
+
 static int longestValidParentheses(char* s)
 {
     int i, cap = 18000, invalid = -1;
@@ -16,17 +21,14 @@ static int longestValidParentheses(char* s)
         } else {
             if (top > stack) {
                 if (--top == stack) {
-                    /* distancd of the latest ')' */
-                    len = i - invalid;
+                    /* locate the remote ')' */
+                    max_len = max(i - invalid, max_len);
                 } else {
-                    /* distance of the remote '(' */
-                    len = i - *(top - 1);
-                }
-                if (len > max_len) {
-                    max_len = len;
+                    /* locate the remote '(' */
+                    max_len = max(i - *(top - 1), max_len);
                 }
             } else {
-                /* record the index of last ')' but no push */
+                /* record the index of the remote ')' and no push */
                 invalid = i;
             }
         }
