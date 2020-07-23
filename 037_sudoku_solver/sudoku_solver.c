@@ -3,118 +3,85 @@
 #include <stdbool.h>
 #include <string.h>
 
-struct stack {
-    int row;
-    int col;
-    int value;
-};
-
-static bool valid(char **board, int row, int col)
+static bool valid(int num, int row, int col, int index,
+                  bool **rows, bool **cols, bool **boxes)
 {
-    int i, j, k;
-    char mark[10];
+    return !rows[row][num] && !cols[col][num] && !boxes[index][num];
+}
 
-    for (i = 0; i <= row; i++) {
-        memset(mark, 0, 10);
-        /* check row validity */
-        for (j = 0; j < 9; j++) {
-            if (board[i][j] != '.') {
-                int index = board[i][j] - '0';
-                if (mark[index]) {
-                    return false;
-                } else {
-                    mark[index] = 1;
-                }
-            }
-        }
-    }
-
-    /* check column validity */
-    for (i = 0; i <= col; i++) {
-        memset(mark, 0, 10);
-        for (j = 0; j < 9; j++) {
-            if (board[j][i] != '.') {
-                int index = board[j][i] - '0';
-                if (mark[index]) {
-                    return false;
-                } else {
-                    mark[index] = 1;
-                }
-            }
-        }
-    }
-
-    /* check sub-box validity */
-    int count = row / 3 * 3 + col / 3 + 1;
-    for (k = 0; k < count; k++) {
-        int sr = k / 3 * 3;
-        int sc = (k % 3) * 3;
-        memset(mark, 0, 10);
-        for (i = sr; i < sr + 3; i++) {
-            for (j = sc; j < sc + 3; j++) {
-                if (board[i][j] != '.') {
-                    int index = board[i][j] - '0';
-                    if (mark[index]) {
-                        return false;
-                    } else {
-                        mark[index] = 1;
+static bool dfs(char** board, int size, bool **rows, bool **cols, bool **boxes)
+{
+    if (size == 9 * 9) {
+        return true;
+    } else {
+        int i;
+        bool ok = false;
+        int row = size / 9;
+        int col = size % 9;
+        int index = row / 3 * 3 + col / 3;
+        if (board[row][col] == '.') {
+            for (i = 1; i <= 9; i++) {
+                if (valid(i, row, col, index, rows, cols, boxes)) {
+                    /* lock this grid as well as the number */
+                    board[row][col] = i + '0';
+                    rows[row][i] = true;
+                    cols[col][i] = true;
+                    boxes[index][i] = true;
+                    ok = dfs(board, size + 1, rows, cols, boxes);
+                    if (!ok) {
+                        /* release this grid as well as the number */
+                        rows[row][i] = false;
+                        cols[col][i] = false;
+                        boxes[index][i] = false;
+                        board[row][col] = '.';
                     }
                 }
             }
+        } else {
+            ok = dfs(board, size + 1, rows, cols, boxes);
         }
+        return ok;
     }
-
-    return true;
 }
 
-static void solveSudoku(char** board, int boardRowSize, int boardColSize)
+void solveSudoku(char** board, int boardSize, int *boardColSize)
 {
-    if (boardRowSize != 9 || boardColSize != 9) {
-        return;
+    int i, j;
+    bool **rows = malloc(boardSize * sizeof(bool *));
+    bool **cols = malloc(boardSize * sizeof(bool *));
+    bool **boxes = malloc(boardSize * sizeof(bool *));
+
+    for (i = 0; i < boardSize; i++) {
+        rows[i] = malloc(10 * sizeof(bool));
+        cols[i] = malloc(10 * sizeof(bool));
+        boxes[i] = malloc(10 * sizeof(bool));
+        memset(rows[i], false, 10 * sizeof(bool));
+        memset(cols[i], false, 10 * sizeof(bool));
+        memset(boxes[i], false, 10 * sizeof(bool));
     }
 
-    int i = 0, j = 0, k = 1, num = 0;
-    struct stack stack[81];
-
-    while (i < boardRowSize) {
-        if (board[i][j] == '.') {
-            while (k <= 9) {
-                board[i][j] = k + '0';
-                if (valid(board, i, j)) {
-                    stack[num].row = i;
-                    stack[num].col = j;
-                    stack[num].value = k;
-                    num++;
-                    k = 1;
-                    break;
-                }
-                k++;
+    /* Mark whether the grid is available for the number */
+    for (i = 0; i < boardSize; i++) {
+        for (j = 0; j < boardColSize[i]; j++) {
+            if (board[i][j] != '.') {
+                int num = board[i][j] - '0';
+                int index = i / 3 * 3 + j / 3;
+                rows[i][num] = true;
+                cols[j][num] = true;
+                boxes[index][num] = true;
             }
-            if (k == 10) {
-                if (num == 0) {
-                    return;
-                }                
-                board[i][j] = '.';
-                --num;
-                i = stack[num].row;
-                j = stack[num].col;
-                k = stack[num].value + 1;
-                board[i][j] = '.';
-                continue;
-            }
-        }
-        /* next row */
-        if (++j == boardColSize) {
-            j = 0;
-            i++;
         }
     }
+
+    dfs(board, 0, rows, cols, boxes);
 }
 
 int main(void)
 {
     int i, j;
     char **board = malloc(9 * sizeof(char *));
+    int *col_sizes = malloc(9 * sizeof(int));
+
     board[0] = malloc(10);
     board[0][0] = '5';
     board[0][1] = '3';
@@ -126,6 +93,7 @@ int main(void)
     board[0][7] = '.';
     board[0][8] = '.';
     board[0][9] = '\0';
+    col_sizes[0] = 9;
 
     board[1] = malloc(10);
     board[1][0] = '6';
@@ -138,6 +106,7 @@ int main(void)
     board[1][7] = '.';
     board[1][8] = '.';
     board[1][9] = '\0';
+    col_sizes[1] = 9;
 
     board[2] = malloc(10);
     board[2][0] = '.';
@@ -150,6 +119,7 @@ int main(void)
     board[2][7] = '6';
     board[2][8] = '.';
     board[2][9] = '\0';
+    col_sizes[2] = 9;
 
     board[3] = malloc(10);
     board[3][0] = '8';
@@ -162,6 +132,7 @@ int main(void)
     board[3][7] = '.';
     board[3][8] = '3';
     board[3][9] = '\0';
+    col_sizes[3] = 9;
 
     board[4] = malloc(10);
     board[4][0] = '4';
@@ -174,6 +145,7 @@ int main(void)
     board[4][7] = '.';
     board[4][8] = '1';
     board[4][9] = '\0';
+    col_sizes[4] = 9;
 
     board[5] = malloc(10);
     board[5][0] = '7';
@@ -186,6 +158,7 @@ int main(void)
     board[5][7] = '.';
     board[5][8] = '6';
     board[5][9] = '\0';
+    col_sizes[5] = 9;
 
     board[6] = malloc(10);
     board[6][0] = '.';
@@ -198,6 +171,7 @@ int main(void)
     board[6][7] = '8';
     board[6][8] = '.';
     board[6][9] = '\0';
+    col_sizes[6] = 9;
 
     board[7] = malloc(10);
     board[7][0] = '.';
@@ -210,6 +184,7 @@ int main(void)
     board[7][7] = '.';
     board[7][8] = '5';
     board[7][9] = '\0';
+    col_sizes[7] = 9;
 
     board[8] = malloc(10);
     board[8][0] = '.';
@@ -222,6 +197,7 @@ int main(void)
     board[8][7] = '7';
     board[8][8] = '9';
     board[8][9] = '\0';
+    col_sizes[8] = 9;
 
     for (i = 0; i < 9; i++) {
         for (j = 0; j < 9; j++) {
@@ -230,12 +206,14 @@ int main(void)
         printf("\n");
     }
     printf("\n");
-    solveSudoku(board, 9, 9);
+
+    solveSudoku(board, 9, col_sizes);
     for (i = 0; i < 9; i++) {
         for (j = 0; j < 9; j++) {
             printf("%c ", board[i][j]);
         }
         printf("\n");
     }
-    return;
+
+    return 0;
 }

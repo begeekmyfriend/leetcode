@@ -1,43 +1,43 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-static int binary_search_start(int *a, int size, int target)
+static int binary_search_begin(int *a, int size, int target)
 {
-    int low = -1;
-    int high = size;
-    while (low + 1 < high) {
-        int mid = low + (high - low) / 2;
+    int lo = -1;
+    int hi = size;
+    while (lo + 1 < hi) {
+        int mid = lo + (hi - lo) / 2;
         if (target > a[mid]) {
-            low = mid;
+            lo = mid;
         } else {
-            high = mid;
+            hi = mid;
         }
     }
 
-    if (high == size || a[high] != target) {
+    if (hi == size || a[hi] != target) {
         return -1;
     } else {
-        return high;
+        return hi;
     }
 }
 
 static int binary_search_end(int *a, int size, int target)
 {
-    int low = -1;
-    int high = size;
-    while (low + 1 < high) {
-        int mid = low + (high - low) / 2;
+    int lo = -1;
+    int hi = size;
+    while (lo + 1 < hi) {
+        int mid = lo + (hi - lo) / 2;
         if (target < a[mid]) {
-            high = mid;
+            hi = mid;
         } else {
-            low = mid;
+            lo = mid;
         }
     }
 
-    if (low == -1 || a[low] != target) {
+    if (lo == -1 || a[lo] != target) {
         return -1;
     } else {
-        return low;
+        return lo;
     }
 }
 
@@ -49,13 +49,7 @@ static int* searchRange(int* nums, int numsSize, int target, int* returnSize)
 {
     int *range = malloc(2 * sizeof(int));
     *returnSize = 2;    
-
-    if (numsSize == 0) {
-        range[0] = range[1] = -1;
-        return range;
-    }
-
-    range[0] = binary_search_start(nums, numsSize, target);
+    range[0] = binary_search_begin(nums, numsSize, target);
     range[1] = binary_search_end(nums, numsSize, target);
     return range;
 }
