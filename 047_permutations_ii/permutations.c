@@ -21,8 +21,8 @@ static void dfs(int *nums, int size, bool *used, int *stack,
         for (i = 0; i < size; i++) {
             if (!used[i]) {
                 if (i > 0 && nums[i] == nums[i - 1] && !used[i - 1]) {
-                    /* Forbid same elements on same level */
-                    /* Used marks allow same elements in different levels */
+                    /* In case that duplicate permutation with same elemements */
+                    /* Used marks allow same elements in different DFS levels */
                     continue;
                 }
                 used[i] = true;

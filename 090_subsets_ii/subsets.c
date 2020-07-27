@@ -1,3 +1,4 @@
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -8,46 +9,39 @@ static inline int compare(const void *a, const void *b)
     return *(int *) a - *(int *) b;
 }
 
-static void dfs(int *nums, int size, int start, int *buf, int level,
-                bool *used, int **sets, int *count, int *sizes)
+static void dfs(int *nums, int size, int start, int *buf,
+                int level, int **sets, int *count, int *sizes)
 {
-    int i;
+    int i, last = INT_MIN;
     sets[*count] = malloc(level * sizeof(int));
     memcpy(sets[*count], buf, level * sizeof(int));
     sizes[*count] = level;
     (*count)++;
     for (i = start; i < size; i++) {
-        if (!used[i]) {
-            if (i > 0 && !used[i - 1] && nums[i - 1] == nums[i]) {
-                /* Forbid same elements on same level */
-                /* Used marks allow same elements in different levels */
-                continue;
-            }
-            used[i] = true;
+        if (last != nums[i]) {
+            /* No duplicate candidate elements at same level position */
             buf[level] = nums[i];
-            /* i + 1 limits the selecting range in following levels */
-            dfs(nums, size, i + 1, buf, level + 1, used, sets, count, sizes);
-            used[i] = false;
+            /* i + 1 limits the selecting range in next levels */
+            dfs(nums, size, i + 1, buf, level + 1, sets, count, sizes);
         }
+        last = nums[i];
     }
 }
 
 /**
  ** Return an array of arrays of size *returnSize.
  ** The sizes of the arrays are returned as *returnColumnSizes array.
- ** Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ ** Note: Both returned array and *returnColumnSizes array must be malloced, assume caller calls free().
  **/
-static int** subsets(int* nums, int numsSize, int* returnSize, int** returnColumnSizes)
+static int** subsetsWithNoDup(int* nums, int numsSize, int* returnSize, int** returnColumnSizes)
 {
     qsort(nums, numsSize, sizeof(int), compare);
     int capacity = 5000;
     int **sets = malloc(capacity * sizeof(int *));
     int *buf = malloc(numsSize * sizeof(int));
-    bool *used = malloc(numsSize);
-    memset(used, false, numsSize);
     *returnColumnSizes = malloc(capacity * sizeof(int));
     *returnSize = 0;
-    dfs(nums, numsSize, 0, buf, 0, used, sets, returnSize, *returnColumnSizes);
+    dfs(nums, numsSize, 0, buf, 0, sets, returnSize, *returnColumnSizes);
     return sets;
 }
 

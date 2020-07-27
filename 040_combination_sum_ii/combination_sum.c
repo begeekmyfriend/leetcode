@@ -8,29 +8,27 @@ static int compare(const void *a, const void *b)
     return *(int *) a - *(int *) b;
 }
 
-static void dfs(int *nums, int size, int start, int target, int *solution, int len,
-                bool *used, int **results, int *count, int *column_sizes)
+static void dfs(int *nums, int size, int start, int target, int *solution,
+                int len, int **results, int *count, int *column_sizes)
 {
     int i;
-    if (target == 0) {
+    if (target < 0) {
+        return;
+    } else if (target == 0) {
         results[*count] = malloc(len * sizeof(int));
         memcpy(results[*count], solution, len * sizeof(int));
         column_sizes[*count] = len;
         (*count)++;
-    } else if (target > 0) {
+    } else {
+        int last = -1;
         for (i = start; i < size; i++) {
-            if (!used[i]) {
-                if (i > 0 && !used[i - 1] && nums[i - 1] == nums[i]) {
-                    /* Forbid same elements in same level */
-                    /* Used marks allow same elements in different levels */
-                    continue;
-                }
-                used[i] = true;
+            if (last != nums[i]) {
+                /* No duplicate combinations in different order */
                 solution[len] = nums[i];
-                /* i + 1 limits the selecting range in following levels */
-                dfs(nums, size, i + 1, target - nums[i], solution, len + 1, used, results, count, column_sizes);
-                used[i] = false;
+                /* i + 1 limits the candidate range in next levels */
+                dfs(nums, size, i + 1, target - nums[i], solution, len + 1, results, count, column_sizes);
             }
+            last = nums[i];
         }
     }
 }
@@ -46,11 +44,9 @@ static int** combinationSum(int* candidates, int candidatesSize, int target, int
 
     int *solution = malloc(target * sizeof(int));
     int **results = malloc(100 * sizeof(int *));
-    bool *used = malloc(candidatesSize);
-    memset(used, false, candidatesSize);
     *returnColumnSizes = malloc(100 * sizeof(int));
     *returnSize = 0;
-    dfs(candidates, candidatesSize, 0, target, solution, 0, used, results, returnSize, *returnColumnSizes);
+    dfs(candidates, candidatesSize, 0, target, solution, 0, results, returnSize, *returnColumnSizes);
     return results;
 }
 

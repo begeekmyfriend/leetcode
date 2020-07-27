@@ -14,7 +14,6 @@ static void dfs(int n, int k, int start, int *stack, int len,
         (*count)++;
     } else {
         for (i = start; i <= n; i++) {
-            /* No used marks since the order does not matter */
             stack[len] = i;
             dfs(n, k, i + 1, stack, len + 1, results, count, col_sizes);
         }

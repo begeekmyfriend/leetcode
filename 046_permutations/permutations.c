@@ -3,12 +3,34 @@
 #include <stdbool.h>
 #include <string.h>
 
+#if 0
 static void swap(int *a, int *b)
 {
     int tmp = *a;
     *a = *b;
     *b = tmp;
 }
+
+static void dfs(int *nums, int size, int start,
+                int **results, int *count, int *col_size)
+{
+    int i;
+    if (start == size) {
+        results[*count] = malloc(size * sizeof(int));
+        memcpy(results[*count], nums, size * sizeof(int));
+        col_size[*count] = size;
+        (*count)++;
+    } else {
+        for (i = start; i < size; i++) {
+            /* A swap can make a new permutation but not be listed in order */
+            swap(nums + start, nums + i);
+            dfs(nums, size, start + 1, results, count, col_size);
+            /* restore the array in backtrace */
+            swap(nums + start, nums + i);
+        }
+    }
+}
+#endif
 
 static void dfs(int *nums, int size, bool *used, int *stack,
                 int len, int **results, int *count, int *col_size)
@@ -22,6 +44,7 @@ static void dfs(int *nums, int size, bool *used, int *stack,
     } else {
         for (i = 0; i < size; i++) {
             if (!used[i]) {
+                /* */
                 used[i] = true;
                 stack[len] = nums[i];
                 dfs(nums, size, used, stack, len + 1, results, count, col_size);

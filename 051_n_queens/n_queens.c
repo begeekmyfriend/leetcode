@@ -65,7 +65,6 @@ static void dfs(int n, int row, int *stack, char ***solutions, int *count, int *
             if (row == 0 || !conflict(stack, row, col)) {
                 stack[row] = col;
                 dfs(n, row + 1, stack, solutions, count, col_sizes);
-                continue;
             }
         }
     }

@@ -6,14 +6,17 @@ static void dfs(int *nums, int size, int start, int target, int *stack,
                 int len, int **results, int *count, int *column_sizes)
 {
     int i;
-    if (target == 0) {
+    if (target < 0) {
+        return;
+    } else if (target == 0) {
         results[*count] = malloc(len * sizeof(int));
         memcpy(results[*count], stack, len * sizeof(int));
         column_sizes[*count] = len;
         (*count)++;
-    } else if (target > 0) {
+    } else {
         for (i = start; i < size; i++) {
             stack[len] = nums[i];
+            /* The elements in solution can be duplicate for the purpose of the problem */
             dfs(nums, size, i, target - nums[i], stack, len + 1, results, column_sizes, count);
         }
     }
