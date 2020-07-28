@@ -10,7 +10,7 @@ static inline void swap(int *a, int *b)
 
 static int firstMissingPositive(int* nums, int numsSize)
 {
-    if (numsSize < 1) {
+    if (numsSize == 0) {
         return 1;
     }
 
@@ -18,7 +18,7 @@ static int firstMissingPositive(int* nums, int numsSize)
     while (i < numsSize) {
         /* nums[i] should be i+1 and nums[nums[i] - 1] should be nums[i] */
         if (nums[i] != i + 1 && nums[i] > 0 && nums[i] <= numsSize && nums[nums[i] - 1] != nums[i]) {
-            /* nums[nums[i] - 1] <- nums[i] */
+            /* let nums[nums[i] - 1] = nums[i] */
             swap(nums + i, nums + nums[i] - 1);
         } else {
             i++;
@@ -26,8 +26,11 @@ static int firstMissingPositive(int* nums, int numsSize)
     }
 
     for (i = 0; i < numsSize; i++) {
-        if (nums[i] != i + 1) break;
+        if (nums[i] != i + 1) {
+           break;
+        }
     }
+
     return i + 1;
 }
 
