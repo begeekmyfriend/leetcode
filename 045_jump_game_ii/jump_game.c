@@ -12,11 +12,11 @@ static int jump(int* nums, int numsSize)
     int steps = 0;
     while (hi < numsSize - 1) {
         int right = 0;
-        /* [lo, hi] is the next location range, find the farest jump */
         for (i = lo; i <= hi; i++) {
             /* Assume right > hi for the purpose of the problem */
             right = max(i + nums[i], right);
         }
+        /* [lo, hi] is the next location range */
         lo = hi + 1;
         hi = right;
         steps++;

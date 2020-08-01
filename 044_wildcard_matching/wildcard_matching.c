@@ -3,36 +3,40 @@
 #include <stdbool.h>
 #include <string.h>
 
+
 static bool isMatch(char* s, char* p)
 {
     char *last_s = NULL;
     char *last_p = NULL;
-    while(*s != '\0') {
-        if (*p=='*'){
-            //skip the "*", and mark a flag
-            p++;
-            //edge case
-            if (*p=='\0') return true;
-            //use last_s and last_p to store where the "*" match starts.
+    while (*s != '\0') {
+        if (*p == '*') {
+            /* skip the '*', and mark a flag */
+            if (*++p == '\0') {
+                return true;
+            }
+            /* use last_s and last_p to store where the "*" match starts. */
             last_s = s;
             last_p = p;
-        } else if (*p=='?' || *s == *p) {
+        } else if (*p == '?' || *s == *p) {
             s++;
             p++;
         } else if (last_s != NULL) {
-            // check "last_s" to know whether meet "*" before
-            // if meet "*" previously, and the *s != *p
-            // reset the p, using '*' to match this situation
+            /* check "last_s" to know whether meet "*" before
+             * if meet "*" previously, and the *s != *p
+             * reset the p, using '*' to match this situation
+             */
             p = last_p;
             s = ++last_s;
         } else {
-            // *p is not wildcard char, 
-            // doesn't match *s, 
-            // there are no '*' wildcard matched before
+            /* *p is not wildcard char, 
+             * doesn't match *s, 
+             * there are no '*' wildcard matched before
+             */
             return false;
         }
     }
-    //edge case: "s" is done, but "p" still have chars.
+
+    /* s is done, but "p" still have chars. */
     while (*p == '*') {
         p++;
     }

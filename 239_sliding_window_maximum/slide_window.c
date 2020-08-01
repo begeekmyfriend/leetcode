@@ -7,27 +7,30 @@
  */
 int* maxSlidingWindow(int* nums, int numsSize, int k, int* returnSize)
 {
-    int i, head = 0, tail = 0;
+    int i, left = 0, right = 0;
     int count = 0;
     int *indexes = malloc(numsSize * sizeof(int));
     int *results = malloc((numsSize - k + 1) * sizeof(int));
 
     for (i = 0; i < numsSize; i++) {
         /* keep the elements in slide window monotonous decreasing */
-        while (tail > head && nums[i] >= nums[indexes[tail - 1]]) {
+        while (right > left && nums[i] >= nums[indexes[right - 1]]) {
             /* squeeze out the previous smaller ones */
-            tail--;
+            right--;
         }
 
-        /* Pipe: first in last out */
-        indexes[tail++] = i;
-        if (indexes[head] <= i - k) {
-            head++;
-        }
+        /* In order to measure the moving size of the sliding window, we
+         * need to store the index instead of element into the window.
+         */
+        indexes[right++] = i;
 
-        /* k - 1 is the end of the first sliding window */
+        /* let k = 1 to verify the corner case */
         if (i >= k - 1) {
-            results[count++] = nums[indexes[head]];
+            results[count++] = nums[indexes[left]];
+        }
+
+        if (i - indexes[left] + 1 >= k) {
+            left++;
         }
     }
 

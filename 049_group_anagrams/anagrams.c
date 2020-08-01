@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+
 struct word_hash {
     char *word;
     int num;
@@ -25,10 +26,10 @@ static inline int BKDRHash(char *s, size_t size)
 
 /**
  ** Return an array of arrays of size *returnSize.
- ** The sizes of the arrays are returned as *columnSizes array.
- ** Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ ** The sizes of the arrays are returned as *returnColumnSizes array.
+ ** Note: Both returned array and *returnColumnSizes array must be malloced, assume caller calls free().
  **/
-static char*** groupAnagrams(char** strs, int strsSize, int** columnSizes, int* returnSize)
+static char*** groupAnagrams(char** strs, int strsSize, int* returnSize, int** returnColumnSizes)
 {
     int i, j, count = 0;
     int hash_size = strsSize;
@@ -53,10 +54,10 @@ static char*** groupAnagrams(char** strs, int strsSize, int** columnSizes, int* 
     int k = 0;
     struct hlist_node *p;
     char ***lists = malloc(count * sizeof(char **));
-    *columnSizes = malloc(count * sizeof(int));
+    *returnColumnSizes = malloc(count * sizeof(int));
     for (i = 0; i < hash_size; i++) {
         if (ht[i].num > 0) {
-            (*columnSizes)[k] = ht[i].num;
+            (*returnColumnSizes)[k] = ht[i].num;
             lists[k] = malloc(ht[i].num * sizeof(char *));
             for (j = 0; j < ht[i].num; j++) {
                 int index = ht[i].indexes[j];
