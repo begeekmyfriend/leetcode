@@ -12,50 +12,43 @@ struct node_backlog {
     struct TreeNode *right;
 };
 
-static int counting(struct TreeNode* node)
-{
-    if (node == NULL) {
-        return 0;
-    }
-    return 1 + counting(node->left) + counting(node->right);
-}
-
 /**
  ** Return an array of size *returnSize.
  ** Note: The returned array must be malloced, assume caller calls free().
  **/
 static int* postorderTraversal(struct TreeNode* root, int* returnSize)
 {
-    if (root == NULL) {
-        return NULL;
-    }
-
-    *returnSize = counting(root);
-
     int count = 0;
-    int *results = malloc(*returnSize * sizeof(int));
-    struct node_backlog *stack = malloc(*returnSize * sizeof(*stack));
+    int *results = malloc(100 * sizeof(int));
+    struct node_backlog *stack = malloc(100 * sizeof(*stack));
     struct node_backlog *top = stack;
-    struct TreeNode *node = root;
 
-    while (node != NULL || top != stack) {
-        if (node == NULL) {
+    /* root != NULL condition is just for the first iteration and
+     * never push NULL into the stack
+     */
+    while (root != NULL || top != stack) {
+        if (root != NULL) {
+            /* push both parent and its right child */
+            top->parent = root;
+            top->right = root->right;
+            top++;
+            root = root->left;
+        } else {
             if ((top - 1)->right != NULL) {
-                node = (top - 1)->right;
+                /* switch to right child but not pop up the parent */
+                root = (top - 1)->right;
+                /* avoid infinite loop */
                 (top - 1)->right = NULL;
             } else {
-                node = (--top)->parent;
-                results[count++] = node->val;
-                node = NULL;
-                continue;
+                root = (--top)->parent;
+                results[count++] = root->val;
+                /* we need to backtrace */
+                root = NULL;
             }
         }
-        top->parent = node;
-        top->right = node->right;
-        top++;
-        node = node->left;
     }
 
+    *returnSize = count;
     return results;
 }
 

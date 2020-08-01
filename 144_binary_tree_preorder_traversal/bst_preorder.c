@@ -21,24 +21,21 @@ static int* preorderTraversal(struct TreeNode* root, int* returnSize)
     int *results = malloc(cap * sizeof(int));
     struct TreeNode **stack = malloc(cap / 16 * sizeof(*stack));
     struct TreeNode **top = stack;
-    struct TreeNode *node = root;
 
-    /* node != NULL condition is just for the first iteration and
+    /* root != NULL condition is just for the first iteration and
      * never push NULL into the stack
      */
-    while (node != NULL || top != stack) {
-        if (node == NULL) {
-            /* pop up */
-            node = *--top;
+    while (root != NULL || top != stack) {
+        if (root != NULL) {
+            results[count++] = root->val;
+            /* store the parent node */
+            *top++ = root;
+            root = root->left;
+        } else {
+            /* pop up the parent node */
+            root = *--top;
+            root = root->right;
         }
-
-        results[count++] = node->val;
-
-        if (node->right != NULL) {
-            *top++ = node->right;
-        }
-
-        node = node->left;
     }
 
     *returnSize = count;
