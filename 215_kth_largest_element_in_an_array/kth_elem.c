@@ -1,14 +1,53 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-static int compare(const void *a, const void *b)
+static inline void swap(int *a, int *b)
 {
-    return *(int *) a - *(int *) b;
+    int t = *a;
+    *a = *b;
+    *b = t;
 }
 
-int findKthLargest(int* nums, int numsSize, int k) {
-    qsort(nums, numsSize, sizeof(int), compare);
-    return nums[numsSize - k];
+static int partition(int *nums, int lo, int hi)
+{
+    if (lo >= hi) {
+        return hi;
+    }
+
+    int i = lo;
+    int j = hi - 1;
+    int pivot = nums[hi];
+    while (i <= j) {
+        while (i <= j && nums[i] <= pivot) { i++; }
+        while (i <= j && nums[j] > pivot) { j--; }
+        if (i < j) {
+            swap(nums + i, nums + j);
+        }
+    }
+    /* Loop invariant: j + 1 == i && nums[j] <= pivot && nums[i] > pivot
+     * Besides, j could be -1 or i could be hi, so we swap [i] and [hi]
+     */
+    swap(nums + i, nums + hi);
+    return i;
+}
+
+int findKthLargest(int* nums, int numsSize, int k)
+{
+    int lo = 0, hi = numsSize - 1;
+    for (; ;) {
+        printf("A:%d %d\n", lo, hi);
+        int p = partition(nums, lo, hi);
+        printf("B:%d %d\n", p, numsSize - k);
+        if (p < numsSize - k) {
+            lo = p + 1;
+        } else if (p > numsSize - k) {
+            hi = p - 1;
+        } else {
+            lo = p;
+            break;
+        }
+    }
+    return nums[lo];
 }
 
 
