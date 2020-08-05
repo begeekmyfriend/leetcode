@@ -8,10 +8,8 @@ struct object {
 
 static int compare(const void *o1, const void *o2)
 {
-    char p1[32];
-    char p2[32];
-    p1[0] = '\0';
-    p2[0] = '\0';
+    char p1[32] = { '\0' };
+    char p2[32] = { '\0' };
     strcat(p1, ((struct object *) o1)->buf);
     strcat(p1, ((struct object *) o2)->buf);
     strcat(p2, ((struct object *) o2)->buf);
