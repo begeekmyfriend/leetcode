@@ -10,13 +10,14 @@ struct TreeNode {
 
 static struct TreeNode *invertTree(struct TreeNode* root)
 {
-    if (root != NULL) {
-        struct TreeNode *node = root->left;
-        root->left = root->right;
-        root->right = node;
-        invertTree(root->left);
-        invertTree(root->right);
+    if (root == NULL) {
+        return NULL;
     }
+
+    struct TreeNode *l = invertTree(root->left);
+    struct TreeNode *r = invertTree(root->right);
+    root->left = r;
+    root->right = l;
     return root;
 }
 
