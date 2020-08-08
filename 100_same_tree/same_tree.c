@@ -19,7 +19,7 @@ static bool isSameTree(struct TreeNode* p, struct TreeNode* q)
         }
         if (!isSameTree(p->right, q->right)) {
             return false;
-        }        
+        }
     } else {
         return p == q;
     }

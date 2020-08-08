@@ -1,5 +1,54 @@
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+#if 0
+static double mySqrt(double x)
+{
+    double lo = 0;
+    double hi = x;
+    double diff = 1e-8;
+    double mid = (lo + hi) / 2;
+    while (fabs(mid * mid - x) > diff) {
+        if (mid < x / mid) {
+            lo = mid;
+        } else if (mid > x / mid) {
+            hi = mid;
+        } else {
+            break;
+        }
+        mid = (lo + hi) / 2;
+    }
+
+    return mid;
+}
+
+static double mySqrt(double n)
+{
+    /* Solute the zero point of f(x) = 0 => x ^ 2 - n = 0 */
+    /* f(x) = (x - x0)f'(x0) - f(x0) = 0 First order of Tylor series */
+    double x = 1.0;
+    while (fabs(x * x - n) > 1e-8) {
+        x = x - (x * x - n) / (2 * x);
+    }
+    return x;
+}
+
+static double mySqrt(double n)
+{
+    /* Gradient descent
+     * MSE Loss = (x * x - n) ^ 2
+     * G = 4 * x ^ 3 - 4 * n * x
+     * x = x - a * G
+     */
+    double a = 1e-4;
+    double x = 1.0;
+    while (fabs(x * x - n) > 1e-8) {
+        x = x - a * 4 * x * (x * x - n);
+    }
+    return x;
+}
+#endif
 
 static int mySqrt(int x)
 {
@@ -9,18 +58,21 @@ static int mySqrt(int x)
 
     unsigned int left = 1;
     unsigned int right = (unsigned int) x;
+    unsigned int mid = left + (right - left) / 2;
     for (; ;) {
-        unsigned int mid = left + (right - left) / 2;
         if (mid > x/mid) {
             right = mid;
         } else {
             if (mid + 1 > x/(mid + 1)) {
-                return mid;
+                break;
             } else {
                 left = mid;
             }
         }
+        mid = left + (right - left) / 2;
     }
+
+    return mid;
 }
 
 int main(int argc, char **argv)
@@ -30,6 +82,7 @@ int main(int argc, char **argv)
         exit(-1);
     }
 
+    //printf("%f\n", mySqrt(1.5));//atoi(argv[1])));
     printf("%d\n", mySqrt(atoi(argv[1])));
     return 0;
 }
