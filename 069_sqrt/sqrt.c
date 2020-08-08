@@ -29,7 +29,8 @@ static double mySqrt(double n)
     /* f(x) = (x - x0)f'(x0) - f(x0) = 0 First order of Tylor series */
     double x = 1.0;
     while (fabs(x * x - n) > 1e-8) {
-        x = x - (x * x - n) / (2 * x);
+        // x = x - (x * x - n) / (2 * x);
+        x = (x - n / x) / 2;
     }
     return x;
 }
