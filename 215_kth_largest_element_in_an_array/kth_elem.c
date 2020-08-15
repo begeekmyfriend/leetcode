@@ -1,12 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-static inline void swap(int *a, int *b)
-{
-    int t = *a;
-    *a = *b;
-    *b = t;
-}
 
 static int partition(int *nums, int lo, int hi)
 {
@@ -15,19 +9,18 @@ static int partition(int *nums, int lo, int hi)
     }
 
     int i = lo;
-    int j = hi - 1;
+    int j = hi;
     int pivot = nums[hi];
-    while (i <= j) {
-        while (i <= j && nums[i] <= pivot) { i++; }
-        while (i <= j && nums[j] > pivot) { j--; }
-        if (i < j) {
-            swap(nums + i, nums + j);
-        }
+    while (i < j) {
+        while (i < j && nums[i] <= pivot) { i++; }
+        /* Loop invariant: nums[i] > pivot or i == j */
+        nums[j] = nums[i];
+        while (i < j && nums[j] >= pivot) { j--; }
+        /* Loop invariant: nums[j] > pivot or i == j */
+        nums[i] = nums[j];
     }
-    /* Loop invariant: j + 1 == i && nums[j] <= pivot && nums[i] > pivot
-     * Besides, j could be -1 or i could be hi, so we swap [i] and [hi]
-     */
-    swap(nums + i, nums + hi);
+    /* Loop invariant: i == j */
+    nums[i] = pivot;
     return i;
 }
 
