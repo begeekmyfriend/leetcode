@@ -9,22 +9,19 @@ struct ListNode {
 
 static struct ListNode *detectCycle(struct ListNode *head)
 {
-    if (head == NULL || head->next == NULL) {
-        return false;
-    }
-
-    bool first = true;
-    struct ListNode *p0, *p1;
-    for (p0 = head, p1 = head; p1 != NULL && p1->next != NULL; p0 = p0->next, p1 = p1->next->next) {
-        if (p0 == p1 && !first) {
-            p0 = head;
-            while (p0 != p1) {
-                p0 = p0->next;
-                p1 = p1->next;
+    struct ListNode *fast = head;
+    struct ListNode *slow = head;
+    while (fast != NULL && fast->next != NULL) {
+        slow = slow->next;
+        fast = fast->next->next;
+        if (fast == slow) {
+            fast = head;
+            while (fast != slow) {
+                fast = fast->next;
+                slow = slow->next;
             }
-            return p0;
+            return fast;
         }
-        first = false;
     }
 
     return NULL;

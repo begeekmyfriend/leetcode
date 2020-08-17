@@ -9,17 +9,14 @@ struct ListNode {
 
 static bool hasCycle(struct ListNode *head)
 {
-    if (head == NULL || head->next == NULL) {
-        return false;
-    }
-
-    bool first = true;
-    struct ListNode *p0, *p1;
-    for (p0 = head, p1 = head; p1 != NULL && p1->next != NULL; p0 = p0->next, p1 = p1->next->next) {
-        if (p0 == p1 && !first) {
+    struct ListNode *fast = head;
+    struct ListNode *slow = head;
+    while (fast != NULL && fast->next != NULL) {
+        slow = slow->next;
+        fast = fast->next->next;
+        if (fast == slow) {
             return true;
         }
-        first = false;
     }
 
     return false;
