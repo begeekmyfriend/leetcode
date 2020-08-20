@@ -4,13 +4,18 @@
 /**
  ** Note: The returned array must be malloced, assume caller calls free().
  **/
-static int* spiralOrder(int** matrix, int matrixRowSize, int matrixColSize)
+static int* spiralOrder(int** matrix, int matrixSize, int *matrixColSize, int *returnSize)
 {
+    if (matrixSize == 0) {
+        *returnSize = 0;
+        return NULL;
+    }
+
     int hor_top = 0;
-    int hor_bottom = matrixRowSize - 1;
+    int hor_bottom = matrixSize - 1;
     int ver_left = 0;
-    int ver_right = matrixColSize - 1;
-    int *nums = malloc(matrixRowSize * matrixColSize * sizeof(int));
+    int ver_right = matrixColSize[0] - 1;
+    int *nums = malloc(matrixSize * matrixColSize[0] * sizeof(int));
     int count = 0;
     int i, direction = 0;
 
@@ -47,6 +52,7 @@ static int* spiralOrder(int** matrix, int matrixRowSize, int matrixColSize)
         direction %= 4;
     }
 
+    *returnSize = count;
     return nums;
 }
 
@@ -54,20 +60,23 @@ int main(int argc, char **argv)
 {
     int i, j, count = 0;
     int row = 3;
-    int col = 3;
+    int *cols = malloc(row * sizeof(int));
     int **mat = malloc(row * sizeof(int *));
     for (i = 0; i < row; i++) {
-        mat[i] = malloc(col * sizeof(int));
-        for (j = 0; j < col; j++) {
+        cols[i] = row;
+        mat[i] = malloc(cols[i] * sizeof(int));
+        for (j = 0; j < cols[i]; j++) {
             mat[i][j] = ++count;
             printf("%d ", mat[i][j]);
         }
         printf("\n");
     }
-    int *nums = spiralOrder(mat, row, col);
-    for (i = 0; i < row * col; i++) {
+
+    int *nums = spiralOrder(mat, row, cols, &count);
+    for (i = 0; i < count; i++) {
         printf("%d ", nums[i]);
     }
     printf("\n");
+
     return 0;
 }

@@ -27,9 +27,11 @@ static struct Node *copyRandomList(struct Node *head)
     struct Node dummy;
     struct Node *prev = &dummy;
     prev->next = head;
+    /* separate q list */
     for (p = head; p != NULL; p = q->next) {
         q = p->next;
-        /* separate q list */
+        /* restore p->next */
+        p->next = q->next;
         prev->next = q;
         prev = q;
     }
