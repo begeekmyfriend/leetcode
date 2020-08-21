@@ -2,48 +2,48 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+
 struct TreeNode {
     int val;
     struct TreeNode *left;
     struct TreeNode *right;
 };
 
-static void traverse(struct TreeNode *node, struct TreeNode **prev,
-                     struct TreeNode **p1, struct TreeNode **p2, int *wrong)
+static void dfs(struct TreeNode *node, struct TreeNode **prev,
+                struct TreeNode **p1, struct TreeNode **p2, int *wrong)
 {
-    if (node->left != NULL) {
-        traverse(node->left, prev, p1, p2, wrong);
+    if (node == NULL || *wrong == 2) {
+        return;
     }
 
+    dfs(node->left, prev, p1, p2, wrong);
+
+    /* We must use pointer to pointer for previous object in recursion */
     if (*prev != NULL && node->val < (*prev)->val) {
         (*wrong)++;
         if (*wrong == 1) {
             *p1 = *prev;
+            /* p2 should be recorded here in some cases */
             *p2 = node;
         } else if (*wrong == 2) {
             *p2 = node;
-            return;
         }
     }
     *prev = node;
 
-    if (node->right != NULL) {
-        traverse(node->right, prev, p1, p2, wrong);
-    }
+    dfs(node->right, prev, p1, p2, wrong);
 }
 
 static void recoverTree(struct TreeNode* root)
 {
-    if (root != NULL) {
-        struct TreeNode *prev = NULL;
-        struct TreeNode *p1 = NULL;
-        struct TreeNode *p2 = NULL;
-        int wrong = 0;
-        traverse(root, &prev, &p1, &p2, &wrong);
-        int tmp = p1->val;
-        p1->val = p2->val;
-        p2->val = tmp;
-    }
+    int wrong = 0;
+    struct TreeNode *prev = NULL;
+    struct TreeNode *p1 = NULL;
+    struct TreeNode *p2 = NULL;
+    dfs(root, &prev, &p1, &p2, &wrong);
+    int tmp = p1->val;
+    p1->val = p2->val;
+    p2->val = tmp;
 }
 
 int main(int argc, char **argv)

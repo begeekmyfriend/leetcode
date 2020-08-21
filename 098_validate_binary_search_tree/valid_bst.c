@@ -3,24 +3,34 @@
 #include <stdbool.h>
 #include <limits.h>
 
+
 struct TreeNode {
     int val;
     struct TreeNode *left;
     struct TreeNode *right;
 };
 
-static bool dfs(struct TreeNode* node, int min, int max)
+bool isValidBST(struct TreeNode* root)
 {
-    if (node == NULL) return true;
-    if (node->val < min || node->val > max) return false;
-    if (node->left != NULL && node->val == INT_MIN) return false;
-    if (node->right != NULL && node->val == INT_MAX) return false;
-    return dfs(node->left, min, node->val - 1) && dfs(node->right, node->val + 1, max);
-}
-
-static bool isValidBST(struct TreeNode* root)
-{
-    return dfs(root, INT_MIN, INT_MAX);
+    int top = 0;
+    int prev = INT_MIN;
+    bool first = true;
+    struct TreeNode *stack[1000];
+    while (top > 0 || root != NULL) {
+        if (root != NULL) {
+            stack[top++] = root;
+            root = root->left;
+        } else {
+            root = stack[--top];
+            if (!first && prev >= root->val) {
+                return false;
+            }
+            first = false;
+            prev = root->val;
+            root = root->right;
+        }
+    }
+    return true;
 }
 
 int main(int argc, char **argv)

@@ -16,6 +16,7 @@ static int _rob(int* nums, int numsSize)
     for (i = 1; i < numsSize; i++) {
         int tmp_taken = taken;
         int tmp_untaken = untaken;
+        /* Taken or untaken nums[i] */
         taken = tmp_untaken + nums[i];
         untaken = max(tmp_taken, tmp_untaken);
     }
