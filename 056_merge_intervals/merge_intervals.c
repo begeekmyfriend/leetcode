@@ -36,6 +36,7 @@ int** merge(int** intervals, int intervalsSize, int* intervalsColSize, int* retu
             intervals[len][0] = tmp[i * 2];
             intervals[len][1] = tmp[i * 2 + 1];
         } else if (tmp[i * 2 + 1] > intervals[len][1]) {
+            /* merge this interval */
             intervals[len][1] = tmp[i * 2 + 1];
         }
     }

@@ -18,11 +18,12 @@ static void dfs(int *nums, int size, bool *used, int *stack,
         col_size[*count] = size;
         (*count)++;
     } else {
+        /* Reverse order is allowed in different levels, always starts from [0] */
         for (i = 0; i < size; i++) {
+            /* Used marks only allows remaining elements in DFS levels */
             if (!used[i]) {
-                if (i > 0 && nums[i] == nums[i - 1] && !used[i - 1]) {
-                    /* In case that duplicate permutation with same elemements */
-                    /* Used marks allow same elements in different DFS levels */
+                if (i > 0 && !used[i - 1] && nums[i - 1] == nums[i]) {
+                    /* In case that duplicate permutation with same elemements but in different postions */
                     continue;
                 }
                 used[i] = true;
@@ -46,8 +47,8 @@ static int **permute(int* nums, int numsSize, int* returnSize, int **returnColum
     int count = 0, cap = 10000;
     int *stack = malloc(numsSize * sizeof(int));
     int **results = malloc(cap * sizeof(int *));
-    bool *used = malloc(numsSize);
-    memset(used, false, numsSize);
+    bool *used = malloc(numsSize * sizeof(bool));
+    memset(used, false, numsSize * sizeof(bool));
     *returnSize = 0;
     *returnColumnSize = malloc(cap * sizeof(int));
     dfs(nums, numsSize, used, stack, 0, results, returnSize, *returnColumnSize);

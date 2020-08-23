@@ -42,9 +42,10 @@ static void dfs(int *nums, int size, bool *used, int *stack,
         col_size[*count] = size;
         (*count)++;
     } else {
+        /* Reverse order is allowed in different levels, always starts from [0] */
         for (i = 0; i < size; i++) {
             if (!used[i]) {
-                /* */
+                /* Used marks only allows remaining elements in DFS levels */
                 used[i] = true;
                 stack[len] = nums[i];
                 dfs(nums, size, used, stack, len + 1, results, count, col_size);

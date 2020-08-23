@@ -35,6 +35,7 @@ int** insert(int** intervals, int intervalsSize, int* intervalsColSize, int* new
             results[len][0] = tmp[i * 2];
             results[len][1] = tmp[i * 2 + 1];
         } else if (tmp[i * 2 + 1] > results[len][1]) {
+            /* merge this interval */
             results[len][1] = tmp[i * 2 + 1];
         }
     }

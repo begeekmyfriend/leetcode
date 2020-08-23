@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+
 static void dfs(int *nums, int size, int start, int target, int *stack,
                 int len, int **results, int *count, int *column_sizes)
 {
@@ -17,7 +18,7 @@ static void dfs(int *nums, int size, int start, int target, int *stack,
         for (i = start; i < size; i++) {
             stack[len] = nums[i];
             /* The elements in solution can be duplicate for the purpose of the problem */
-            dfs(nums, size, i, target - nums[i], stack, len + 1, results, column_sizes, count);
+            dfs(nums, size, i, target - nums[i], stack, len + 1, results, count, column_sizes);
         }
     }
 }

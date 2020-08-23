@@ -12,6 +12,7 @@ static bool canJump(int* nums, int numsSize)
     int i, pos = 0;
     for (i = 0; i < numsSize - 1; i++) {
         if (pos < i || pos >= numsSize - 1) {
+            /* pos < i means nums[pos] == 0 */
             break;
         }
         /* if all positive number it always can arrive. */

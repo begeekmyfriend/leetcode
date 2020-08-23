@@ -1,7 +1,9 @@
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+
 
 static int compare(const void *a, const void *b)
 {
@@ -20,7 +22,7 @@ static void dfs(int *nums, int size, int start, int target, int *solution,
         column_sizes[*count] = len;
         (*count)++;
     } else {
-        int last = -1;
+        int last = INT_MIN;
         for (i = start; i < size; i++) {
             if (last != nums[i]) {
                 /* No duplicate combinations in different order */

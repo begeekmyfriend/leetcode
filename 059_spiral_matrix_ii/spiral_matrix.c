@@ -1,16 +1,22 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+
 /**
- ** Return an array of arrays.
- ** Note: The returned array must be malloced, assume caller calls free().
- **/
-static int** generateMatrix(int n) {
+ * Return an array of arrays of size *returnSize.
+ * The sizes of the arrays are returned as *returnColumnSizes array.
+ * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ */
+static int** generateMatrix(int n, int* returnSize, int** returnColumnSizes)
+{
     int i;
     int **matrix = malloc(n * sizeof(int *));
     int *nums = malloc(n * n * sizeof(int));
+    *returnSize = n;
+    *returnColumnSizes = malloc(n * sizeof(int));
     for (i = 0; i < n; i++) {
         matrix[i] = &nums[i * n];
+        (*returnColumnSizes)[i] = n;
     }
 
     int direction = 0;
@@ -60,9 +66,10 @@ int main(int argc, char **argv)
         exit(-1);
     }
 
-    int i, j;
+    int i, j, count;
     int n = atoi(argv[1]);
-    int **matrix = generateMatrix(n);
+    int *col_sizes;
+    int **matrix = generateMatrix(n, &count, &col_sizes);
     for (i = 0; i < n; i++) {
         for (j = 0; j < n; j++) {
             printf("%d ", matrix[i][j]);
