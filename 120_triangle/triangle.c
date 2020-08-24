@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <string.h>
 
+
 static int dfs(int** triangle, int row_size, int *col_sizes,
                int row, int col, int **sums, bool **passes)
 {
@@ -14,24 +15,23 @@ static int dfs(int** triangle, int row_size, int *col_sizes,
         int s1 = dfs(triangle, row_size, col_sizes, row + 1, col, sums, passes);
         int s2 = dfs(triangle, row_size, col_sizes, row + 1, col + 1, sums, passes);
         sums[row][col] = triangle[row][col] + (s1 < s2 ? s1 : s2);
+        /* Set pass marks in backtracing as the paths are overlapped */
         passes[row][col] = true;
         return sums[row][col];
     }
 }
 
-static int minimumTotal(int** triangle, int triangleRowSize, int *triangleColSizes)
+static int minimumTotal(int** triangle, int triangleSize, int *triangleColSizes)
 {
     int i;
-    bool **passes = malloc(triangleRowSize * sizeof(bool *));
-    for (i = 0; i < triangleRowSize; i++) {
+    int **sums = malloc(triangleSize * sizeof(int *));
+    bool **passes = malloc(triangleSize * sizeof(bool *));
+    for (i = 0; i < triangleSize; i++) {
         passes[i] = malloc(triangleColSizes[i]);
         memset(passes[i], false, triangleColSizes[i]);
-    }
-    int **sums = malloc(triangleRowSize * sizeof(int *));
-    for (i = 0; i < triangleRowSize; i++) {
         sums[i] = malloc(triangleColSizes[i] * sizeof(int));
     }
-    return dfs(triangle, triangleRowSize, triangleColSizes, 0, 0, sums, passes);
+    return dfs(triangle, triangleSize, triangleColSizes, 0, 0, sums, passes);
 }
 
 int main(void)
