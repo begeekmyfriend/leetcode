@@ -19,7 +19,7 @@ private:
         } else if (target == 0) {
             res.push_back(stack);
         } else {
-            int last = -1;
+            int last = INT_MIN;
             for (int i = start; i < candidates.size(); i++) {
                 if (last != candidates[i]) {
                     /* No duplicate combinations in different order */

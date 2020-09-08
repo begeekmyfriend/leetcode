@@ -20,7 +20,7 @@ public:
         }
 
         int value = ht_[key]->second;
-        if (li_.front().second != value) {
+        if (li_.front().first != key) {
             li_.erase(ht_[key]);
             li_.push_front(make_pair(key, value));
             ht_[key] = li_.begin(); // iterator failure
@@ -46,5 +46,5 @@ public:
 private:
     int capacity_;
     list<pair<int, int>> li_;
-    unordered_map<int, pair<int, int>::iterator> ht_;
+    unordered_map<int, list<pair<int, int>>::iterator> ht_;
 };

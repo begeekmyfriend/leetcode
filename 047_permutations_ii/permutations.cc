@@ -19,10 +19,10 @@ private:
             res.push_back(stack);
         } else {
             for (int i = 0; i < nums.size(); i++) {
+                // Used marks only allows remaining elements in DFS levels
                 if (!used[i]) {
                     if (i > 0 && !used[i - 1] && nums[i - 1] == nums[i]) {
-                        /* In case that duplicate permutation with same elemements */
-                        /* Used marks allow same elements in different DFS levels */
+                        // In case that duplicate permutation with same elemements but in different postions
                         continue;
                     }
                     used[i] = true;

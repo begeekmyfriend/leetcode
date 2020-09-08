@@ -15,15 +15,10 @@ using namespace std;
  */
 class Solution {
 public:
-    TreeNode* invertTree(TreeNode* root) {
+    int maxDepth(TreeNode* root) {
         if (root == nullptr) {
-            return nullptr;
+            return 0;
         }
-        
-        TreeNode* l = invertTree(root->left);
-        TreeNode* r = invertTree(root->right);
-        root->left = r;
-        root->right = l;
-        return root;
+        return 1 + max(maxDepth(root->left), maxDepth(root->right));
     }
 };

@@ -15,15 +15,24 @@ using namespace std;
  */
 class Solution {
 public:
-    TreeNode* invertTree(TreeNode* root) {
+    bool isSymmetric(TreeNode* root) {
         if (root == nullptr) {
-            return nullptr;
+            return true;
         }
-        
-        TreeNode* l = invertTree(root->left);
-        TreeNode* r = invertTree(root->right);
-        root->left = r;
-        root->right = l;
-        return root;
+        return dfs(root->left, root->right);
+    }
+
+private:
+    bool dfs(TreeNode *l, TreeNode *r) {
+        if (l == nullptr && r == nullptr) {
+            return true;
+        }
+        if (l == nullptr || r == nullptr) {
+            return false;
+        }
+        if (l->val != r->val) {
+            return false;
+        }
+        return dfs(l->left, r->right) && dfs(l->right, r->left);
     }
 };

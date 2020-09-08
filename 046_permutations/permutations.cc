@@ -17,8 +17,10 @@ private:
         if (stack.size() == nums.size()) {
             res.push_back(stack);
         } else {
+            // Reverse order is allowed in different levels, always starts from [0]
             for (int i = 0; i < nums.size(); i++) {
                 if (!used[i]) {
+                    // Used marks only allows remaining elements in DFS levels
                     used[i] = true;
                     stack.push_back(nums[i]);
                     dfs(nums, used, stack, res);

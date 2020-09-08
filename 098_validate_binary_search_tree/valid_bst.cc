@@ -15,24 +15,25 @@ using namespace std;
  */
 class Solution {
 public:
-    int kthSmallest(TreeNode* root, int k) {
+    bool isValidBST(TreeNode* root) {
         stack<TreeNode*> stk;
+        int prev = INT_MIN;
+        bool first = true;
         while (!stk.empty() || root != nullptr) {
             if (root != nullptr) {
-                /* Store the parent node */
                 stk.push(root);
                 root = root->left;
             } else {
-                /* Pop up the parent node */
                 root = stk.top();
-                if (--k == 0) {
-                    break;
-                }
                 stk.pop();
+                if (!first && prev >= root->val) {
+                    return false;
+                }
+                first = false;
+                prev = root->val;
                 root = root->right;
             }
         }
-
-        return root->val;
+        return true;
     }
 };
