@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+
 struct TreeNode {
     int val;
     struct TreeNode *left;
@@ -11,8 +12,10 @@ struct TreeNode {
 static bool hasPathSum(struct TreeNode *root, int sum)
 {
     if (root == NULL) {
+        /* Here is non leaf */
         return false;
     } else if (root->left == NULL && root->right == NULL && root->val == sum) {
+        /* Here must be leaf */
         return true;
     } else {
         return hasPathSum(root->left, sum - root->val) || hasPathSum(root->right, sum - root->val);

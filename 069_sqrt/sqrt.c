@@ -25,8 +25,8 @@ static double mySqrt(double x)
 
 static double mySqrt(double n)
 {
-    /* Solute the zero point of f(x) = 0 => x ^ 2 - n = 0 */
-    /* f(x) = (x - x0)f'(x0) - f(x0) = 0 First order of Tylor series */
+    /* Solute the zero point of f(x). Let F(x) = f(x) - n = 0 */
+    /* then (x - x0)F'(x0) + F(x0) = 0 which is the first order of Tylor series */
     double x = 1.0;
     while (fabs(x * x - n) > 1e-8) {
         // x = x - (x * x - n) / (2 * x);
