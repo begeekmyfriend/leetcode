@@ -18,10 +18,10 @@ public:
         auto cmp = [](struct ListNode *n1, struct ListNode *n2) {
             return n1->val > n2->val;
         }
-        priority_queue<struct ListNode *, vector<struct List *>, decltype(cmp)> queue(cmp);
+        priority_queue<struct ListNode*, vector<struct ListNode*>, decltype(cmp)> queue(cmp);
 
         for (int i = 0; i < lists.size(); i++) {
-            if (lists[] != nullptr) {
+            if (lists[i] != nullptr) {
                 queue.push(lists[i]);
             }
         }
