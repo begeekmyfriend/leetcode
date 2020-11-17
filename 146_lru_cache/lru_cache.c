@@ -189,22 +189,22 @@ void lRUCachePut(LRUCache *obj, int key, int value)
         if (c->key == key) {
             list_move(&c->link, &obj->dhead);
             cache = c;
+            break;
         }
     }
 
     if (cache == NULL) {
         if (obj->count == obj->capacity) {
             cache = list_last_entry(&obj->dhead, LRUNode, link);
-            list_move(&cache->link, &obj->dhead);
+            list_del(&cache->link);
             hlist_del(&cache->node);
-            hlist_add_head(&cache->node, &obj->hhead[hash]);
         } else {
             cache = malloc(sizeof(LRUNode));
-            hlist_add_head(&cache->node, &obj->hhead[hash]);
-            list_add(&cache->link, &obj->dhead);
             obj->count++;
         }
         cache->key = key;
+        list_add(&cache->link, &obj->dhead);
+        hlist_add_head(&cache->node, &obj->hhead[hash]);
     }
     cache->value = value;
 }
