@@ -28,9 +28,7 @@ int findKthLargest(int* nums, int numsSize, int k)
 {
     int lo = 0, hi = numsSize - 1;
     for (; ;) {
-        printf("A:%d %d\n", lo, hi);
         int p = partition(nums, lo, hi);
-        printf("B:%d %d\n", p, numsSize - k);
         if (p < numsSize - k) {
             lo = p + 1;
         } else if (p > numsSize - k) {
