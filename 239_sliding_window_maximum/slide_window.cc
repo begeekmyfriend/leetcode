@@ -15,11 +15,13 @@ public:
                 right--;
             }
             indexes[right++] = i;
-            
+
+            // The last position of sliding window
             if (i >= k - 1) {
                 res.push_back(nums[indexes[left]]);
             }
-            
+
+            // The length of sliding window
             if (i - indexes[left] + 1 >= k) {
                 left++;
             }
