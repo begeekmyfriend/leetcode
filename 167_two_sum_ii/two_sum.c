@@ -9,11 +9,11 @@ static int* twoSum(int* numbers, int numbersSize, int target, int* returnSize)
 {
     int i = 0, j = numbersSize - 1;
     while (i < j) {
-        int diff = target - numbers[i];
-        if (diff < numbers[j]) {
-            while (i < --j && numbers[j + 1] == numbers[j]) {}
-        } else if (diff > numbers[j]) {
-            while (++i < j && numbers[i - 1] == numbers[i]) {}
+        int diff = target - numbers[i] - numbers[j];
+        if (diff > 0) {
+            i++;
+        } else if (diff < 0) {
+            j--;
         } else {
             *returnSize = 2;
             int *indexes = malloc(*returnSize * sizeof(int));
