@@ -9,20 +9,15 @@ static inline int max(int a, int b)
 
 static int rob(int* nums, int numsSize)
 {
-    if (numsSize == 0) {
-        return 0;
-    }
-
     int i;
-    int taken = nums[0];
+    int taken = 0;
     int untaken = 0;
     /* Record max profits of nums[0...i] respectively */
-    for (i = 1; i < numsSize; i++) {
+    for (i = 0; i < numsSize; i++) {
         int tmp_taken = taken;
-        int tmp_untaken = untaken;
         /* Taken or untaken nums[i] */
         taken = untaken + nums[i];
-        untaken = max(tmp_taken, tmp_untaken);
+        untaken = max(tmp_taken, untaken);
     }
 
     return max(taken, untaken);
