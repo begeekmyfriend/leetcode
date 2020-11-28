@@ -41,6 +41,7 @@ private:
         int sum = root->val + subl->sum_val + subr->sum_val;
         if (subl->isBst && subr->isBst && root->val > subl->max_val && root->val < subr->min_val) {
             max_sum = max(sum, max_sum);
+            // For leaf nodes
             int min_val = min(root->val, subl->min_val);
             int max_val = max(root->val, subr->max_val);
             return new TreeInfo(true, min_val, max_val, sum);

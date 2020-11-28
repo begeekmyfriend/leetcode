@@ -23,7 +23,7 @@ public:
                  }
             }
         }
-        
+
         return dp[word1.length()][word2.length()];
     }
 };
