@@ -33,7 +33,7 @@ private:
                 }
             }
         } else {
-            for (vector<int>::iterator it = lo; it + k - 1 != hi + 1; it++) {
+            for (auto it = lo; it + k - 1 != hi + 1; it++) {
                 if (it > lo && *(it - 1) == *it) { continue; }
                 stack.push_back(*it);
                 k_sum(it + 1, hi, target - *it, k - 1, stack, res);

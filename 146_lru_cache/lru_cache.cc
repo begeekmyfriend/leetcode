@@ -11,7 +11,7 @@ using namespace std;
 class LRUCache {
 public:
     LRUCache(int capacity) {
-        capacity_ = capacity;
+        cap_ = capacity;
     }
 
     int get(int key) {
@@ -30,10 +30,14 @@ public:
     }
 
     void put(int key, int value) {
+        if (cap_ <= 0) {
+            return;
+        }
+
         if (ht_.find(key) != ht_.end()) {
             li_.erase(ht_[key]);
         } else {
-            if (li_.size() == capacity_) {
+            if (li_.size() == cap_) {
                 auto lru = li_.back();
                 li_.pop_back();
                 ht_.erase(lru.first);
@@ -44,7 +48,7 @@ public:
     }
 
 private:
-    int capacity_;
+    int cap_;
     list<pair<int, int>> li_;
     unordered_map<int, list<pair<int, int>>::iterator> ht_;
 };
