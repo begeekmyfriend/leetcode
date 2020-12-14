@@ -17,40 +17,6 @@
 #define list_for_each_safe(p, n, head) \
         for (p = (head)->next, n = p->next; p != (head); p = n, n = p->next)
 
-#define hlist_for_each(pos, head) \
-    for (pos = (head)->first; pos; pos = pos->next)
-
-#define hlist_for_each_safe(pos, n, head) \
-    for (pos = (head)->first; pos && ({ n = pos->next; true; }); pos = n)
-
-struct hlist_node;
-
-struct hlist_head {
-    struct hlist_node *first;
-};
-
-struct hlist_node {
-    struct hlist_node *next, **pprev;
-};
-
-static inline void INIT_HLIST_HEAD(struct hlist_head *h) {
-    h->first = NULL;
-}
-
-static inline int hlist_empty(struct hlist_head *h) {
-    return !h->first;
-}
-
-static inline void hlist_add_head(struct hlist_node *n, struct hlist_head *h)
-{
-    if (h->first != NULL) {
-        h->first->pprev = &n->next;
-    }
-    n->next = h->first;
-    n->pprev = &h->first;
-    h->first = n;
-}
-
 struct list_head {
     struct list_head *next, *prev;
 };
@@ -98,7 +64,7 @@ static inline void list_del(struct list_head *entry)
 struct word_node {
     int step;
     char *word;
-    struct hlist_node node;
+    struct list_head node;
 };
 
 struct word_tree {
@@ -121,11 +87,11 @@ static int BKDRHash(char* str, int size)
     return hash % size;
 }
 
-static struct word_node *find(char *word, struct hlist_head *hhead, int size, int step)
+static struct word_node *find(char *word, struct list_head *hheads, int size, int step)
 {
-    struct hlist_node *p;
+    struct list_head *p;
     int hash = BKDRHash(word, size);
-    hlist_for_each(p, &hhead[hash]) {
+    list_for_each(p, &hheads[hash]) {
         struct word_node *node = list_entry(p, struct word_node, node);
         if (!strcmp(node->word, word)) {
             if (node->step == 0 || node->step == step) {
@@ -160,9 +126,9 @@ static char*** findLadders(char* beginWord, char* endWord, char** wordList, int 
     int hashsize = wordListSize * 2;
     char *word = malloc(len + 1);
 
-    struct hlist_head *hhead = malloc(hashsize * sizeof(*hhead));
+    struct list_head *hheads = malloc(hashsize * sizeof(*hheads));
     for (i = 0; i < hashsize; i++) {
-        INIT_HLIST_HEAD(hhead + i);
+        INIT_LIST_HEAD(hheads + i);
     }
 
     struct list_head *level_heads = malloc(wordListSize * sizeof(*level_heads));
@@ -177,7 +143,7 @@ static char*** findLadders(char* beginWord, char* endWord, char** wordList, int 
         node->word = wordList[i];
         node->step = 0;
         int hash = BKDRHash(wordList[i], hashsize);
-        hlist_add_head(&node->node, &hhead[hash]);
+        list_add(&node->node, &hheads[hash]);
     }
 
     /* FIFO */
@@ -193,7 +159,7 @@ static char*** findLadders(char* beginWord, char* endWord, char** wordList, int 
     root->parents = malloc(sizeof(void *));
     root->parents[0] = NULL;
     list_add_tail(&root->sibling, &level_heads[0]);
-    node = find(beginWord, hhead, hashsize, 1);
+    node = find(beginWord, hheads, hashsize, 1);
     if (node != NULL) {
         node->step = 1;
     }
@@ -207,7 +173,7 @@ static char*** findLadders(char* beginWord, char* endWord, char** wordList, int 
             char o = word[i];
             for (c = 'a'; c <= 'z'; c++) {
                 word[i] = c;
-                node = find(word, hhead, hashsize, first->step + 1);
+                node = find(word, hheads, hashsize, first->step + 1);
                 if (node != NULL) {
                     int enqueue = 1;
                     list_for_each(p, &level_heads[first->step]) {

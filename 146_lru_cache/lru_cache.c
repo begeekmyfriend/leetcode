@@ -7,12 +7,6 @@
 #define list_entry(ptr, type, member) \
     container_of(ptr, type, member)
 
-#define hlist_for_each(pos, head) \
-    for (pos = (head)->first; pos; pos = pos->next)
-
-#define hlist_for_each_safe(pos, n, head) \
-    for (pos = (head)->first; pos && ({ n = pos->next; true; }); pos = n)
-
 #define	list_first_entry(ptr, type, field)  list_entry((ptr)->next, type, field)
 #define	list_last_entry(ptr, type, field)  list_entry((ptr)->prev, type, field)
 
@@ -21,44 +15,6 @@
 
 #define	list_for_each_safe(p, n, head) \
     for (p = (head)->next, n = p->next; p != (head); p = n, n = p->next)
-
-struct hlist_node;
-
-struct hlist_head {
-    struct hlist_node *first;
-};
-
-struct hlist_node {
-    struct hlist_node *next, **pprev;
-};
-
-static inline void INIT_HLIST_HEAD(struct hlist_head *h) {
-    h->first = NULL;
-}
-
-static inline int hlist_empty(struct hlist_head *h) {
-    return !h->first;
-}
-
-static inline void hlist_add_head(struct hlist_node *n, struct hlist_head *h)
-{
-    if (h->first != NULL) {
-        h->first->pprev = &n->next;
-    }
-    n->next = h->first;
-    n->pprev = &h->first;
-    h->first = n;
-}
-
-static inline void hlist_del(struct hlist_node *n)
-{
-    struct hlist_node *next = n->next;
-    struct hlist_node **pprev = n->pprev;
-    *pprev = next;
-    if (next != NULL) {
-        next->pprev = pprev;
-    }
-}
 
 struct list_head {
     struct list_head *next, *prev;
@@ -129,26 +85,26 @@ typedef struct {
     int capacity;
     int count;
     struct list_head dhead;
-    struct hlist_head hhead[];
+    struct list_head hheads[];
 } LRUCache;
 
 typedef struct {
     int key;
     int value;
-    struct hlist_node node;
-    struct list_head link;
+    struct list_head hlink;
+    struct list_head dlink;
 } LRUNode;
 
 
 LRUCache *lRUCacheCreate(int capacity)
 {
     int i;
-    LRUCache *obj = malloc(2 * sizeof(int) + sizeof(struct list_head) + capacity * sizeof(struct hlist_head));
+    LRUCache *obj = malloc(sizeof(*obj) + capacity * sizeof(struct list_head));
     obj->count = 0;
     obj->capacity = capacity;
     INIT_LIST_HEAD(&obj->dhead);
     for (i = 0; i < capacity; i++) {
-        INIT_HLIST_HEAD(&obj->hhead[i]);
+        INIT_LIST_HEAD(&obj->hheads[i]);
     }
     return obj;
 }
@@ -157,9 +113,9 @@ void lRUCacheFree(LRUCache *obj)
 {
     struct list_head *pos, *n;
     list_for_each_safe(pos, n, &obj->dhead) {
-        LRUNode *cache = list_entry(pos, LRUNode, link);
-        list_del(&cache->link);
-        free(cache);
+        LRUNode *lru = list_entry(pos, LRUNode, dlink);
+        list_del(&lru->dlink);
+        free(lru);
     }
     free(obj);
 }
@@ -167,13 +123,13 @@ void lRUCacheFree(LRUCache *obj)
 int lRUCacheGet(LRUCache *obj, int key)
 {
     int hash = key % obj->capacity;
-    struct hlist_node *pos;
-    hlist_for_each(pos, &obj->hhead[hash]) {
-        LRUNode *cache = list_entry(pos, LRUNode, node);
-        if (cache->key == key) {
+    struct list_head *pos;
+    list_for_each(pos, &obj->hheads[hash]) {
+        LRUNode *lru = list_entry(pos, LRUNode, hlink);
+        if (lru->key == key) {
             /* Move it to header */
-            list_move(&cache->link, &obj->dhead);
-            return cache->value;
+            list_move(&lru->dlink, &obj->dhead);
+            return lru->value;
         }
     }
     return -1;
@@ -181,32 +137,30 @@ int lRUCacheGet(LRUCache *obj, int key)
 
 void lRUCachePut(LRUCache *obj, int key, int value)
 {
-    LRUNode *cache = NULL;
+    LRUNode *lru;
     int hash = key % obj->capacity;
-    struct hlist_node *pos;
-    hlist_for_each(pos, &obj->hhead[hash]) {
-        LRUNode *c = list_entry(pos, LRUNode, node);
-        if (c->key == key) {
-            list_move(&c->link, &obj->dhead);
-            cache = c;
-            break;
+    struct list_head *pos;
+    list_for_each(pos, &obj->hheads[hash]) {
+        lru = list_entry(pos, LRUNode, hlink);
+        if (lru->key == key) {
+            list_move(&lru->dlink, &obj->dhead);
+            lru->value = value;
+            return;
         }
     }
 
-    if (cache == NULL) {
-        if (obj->count == obj->capacity) {
-            cache = list_last_entry(&obj->dhead, LRUNode, link);
-            list_del(&cache->link);
-            hlist_del(&cache->node);
-        } else {
-            cache = malloc(sizeof(LRUNode));
-            obj->count++;
-        }
-        cache->key = key;
-        list_add(&cache->link, &obj->dhead);
-        hlist_add_head(&cache->node, &obj->hhead[hash]);
+    if (obj->count == obj->capacity) {
+        lru = list_last_entry(&obj->dhead, LRUNode, dlink);
+        list_del(&lru->dlink);
+        list_del(&lru->hlink);
+    } else {
+        lru = malloc(sizeof(LRUNode));
+        obj->count++;
     }
-    cache->value = value;
+    lru->key = key;
+    list_add(&lru->dlink, &obj->dhead);
+    list_add(&lru->hlink, &obj->hheads[hash]);
+    lru->value = value;
 }
 
 void lRUCacheDump(LRUCache *obj)
@@ -214,15 +168,15 @@ void lRUCacheDump(LRUCache *obj)
     if (obj == NULL) return;
 
     int i;
-    LRUNode *cache;
+    LRUNode *lru;
     printf(">>> Total %d nodes: \n", obj->count);
     for (i = 0; i < obj->count; i++) {
         printf("hash:%d:", i);
-        struct hlist_node *pos;
-        hlist_for_each(pos, &obj->hhead[i]) {
-            cache = list_entry(pos, LRUNode, node);
-            if (cache != NULL) {
-                printf(" (%d %d)", cache->key, cache->value);
+        struct list_head *pos;
+        list_for_each(pos, &obj->hheads[i]) {
+            lru = list_entry(pos, LRUNode, hlink);
+            if (lru != NULL) {
+                printf(" (%d %d)", lru->key, lru->value);
             }
         }
         printf("\n");
@@ -231,8 +185,8 @@ void lRUCacheDump(LRUCache *obj)
     printf(">>> Double list dump\n");
     struct list_head *p;
     list_for_each(p, &obj->dhead) {
-        cache = list_entry(p, LRUNode, link);
-        printf("(%d %d)\n", cache->key, cache->value);
+        lru = list_entry(p, LRUNode, dlink);
+        printf("(%d %d)\n", lru->key, lru->value);
     }
 }
 

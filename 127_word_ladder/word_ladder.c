@@ -17,36 +17,6 @@
 #define list_for_each_safe(p, n, head) \
     for (p = (head)->next, n = p->next; p != (head); p = n, n = p->next)
 
-#define hlist_for_each(pos, head) \
-    for (pos = (head)->first; pos; pos = pos->next)
-
-#define hlist_for_each_safe(pos, n, head) \
-    for (pos = (head)->first; pos && ({ n = pos->next; true; }); pos = n)
-
-struct hlist_node;
-
-struct hlist_head {
-    struct hlist_node *first;
-};
-
-struct hlist_node {
-    struct hlist_node *next, **pprev;
-};
-
-static inline void INIT_HLIST_HEAD(struct hlist_head *h) {
-    h->first = NULL;
-}
-
-static inline void hlist_add_head(struct hlist_node *n, struct hlist_head *h)
-{
-    if (h->first != NULL) {
-        h->first->pprev = &n->next;
-    }
-    n->next = h->first;
-    n->pprev = &h->first;
-    h->first = n;
-}
-
 struct list_head {
     struct list_head *next, *prev;
 };
@@ -94,7 +64,7 @@ static inline void list_del(struct list_head *entry)
 struct word_node {
     int step;
     char *word;
-    struct hlist_node node;
+    struct list_head node;
     struct list_head link;
 };
 
@@ -108,11 +78,11 @@ static int BKDRHash(char* str, int size)
     return hash % size;
 }
 
-static struct word_node *find(char *word, struct hlist_head *hhead, int size)
+static struct word_node *find(char *word, struct list_head *hheads, int size)
 {
-    struct hlist_node *p;
+    struct list_head *p;
     int hash = BKDRHash(word, size);
-    hlist_for_each(p, &hhead[hash]) {
+    list_for_each(p, &hheads[hash]) {
         struct word_node *node = list_entry(p, struct word_node, node);
         if (node->step == 0 && !strcmp(node->word, word)) {
             return node;
@@ -128,9 +98,9 @@ static int ladderLength(char* beginWord, char* endWord, char** wordList, int wor
     struct list_head queue;
     struct word_node *node;
 
-    struct hlist_head *hhead = malloc(wordListSize * sizeof(*hhead));
+    struct list_head *hheads = malloc(wordListSize * sizeof(*hheads));
     for (i = 0; i < wordListSize; i++) {
-        INIT_HLIST_HEAD(hhead + i);
+        INIT_LIST_HEAD(hheads + i);
     }
 
     /* Add into hash list */
@@ -139,7 +109,7 @@ static int ladderLength(char* beginWord, char* endWord, char** wordList, int wor
         node->word = wordList[i];
         node->step = 0;
         int hash = BKDRHash(wordList[i], wordListSize);
-        hlist_add_head(&node->node, &hhead[hash]);
+        list_add(&node->node, &hheads[hash]);
     }
 
     /* FIFO */
@@ -157,7 +127,7 @@ static int ladderLength(char* beginWord, char* endWord, char** wordList, int wor
             for (c = 'a'; c <= 'z'; c++) {
                 if (c == o) continue;
                 word[i] = c;
-                node = find(word, hhead, wordListSize);
+                node = find(word, hheads, wordListSize);
                 if (node != NULL) {
                     list_add_tail(&node->link, &queue);
                     node->step = first->step + 1;

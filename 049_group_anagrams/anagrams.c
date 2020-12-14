@@ -43,7 +43,7 @@ static char*** groupAnagrams(char** strs, int strsSize, int* returnSize, int** r
         qsort(words[i], len, sizeof(char), compare);
         int hash = BKDRHash(words[i], hash_size);
         /* find available hash bucket */
-        for (j = hash; ht[j].num > 0 && strcmp(ht[j].word, words[i]); j = ++j % hash_size) {}
+        for (j = hash; ht[j].num > 0 && strcmp(ht[j].word, words[i]); j = (j + 1) % hash_size) {}
         if (ht[j].num == 0) {
             ht[j].word = words[i];
             count++;
@@ -52,7 +52,6 @@ static char*** groupAnagrams(char** strs, int strsSize, int* returnSize, int** r
     }
 
     int k = 0;
-    struct hlist_node *p;
     char ***lists = malloc(count * sizeof(char **));
     *returnColumnSizes = malloc(count * sizeof(int));
     for (i = 0; i < hash_size; i++) {
@@ -74,7 +73,7 @@ static char*** groupAnagrams(char** strs, int strsSize, int* returnSize, int** r
 int main(int argc, char **argv)
 {
     int *column_sizes, count = 0, i, j;
-    char ***lists = groupAnagrams(argv + 1, argc - 1, &column_sizes, &count);
+    char ***lists = groupAnagrams(argv + 1, argc - 1, &count, &column_sizes);
     for (i = 0; i < count; i++) {
         for (j = 0; j < column_sizes[i]; j++) {
             printf("%s ", lists[i][j]);
