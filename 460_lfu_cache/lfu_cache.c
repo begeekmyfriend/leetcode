@@ -197,8 +197,10 @@ static FreqAVLNode *avl_tree_insert(FreqAVLTree *tree, int freq)
         parent = *rover;
         if (freq < (*rover)->freq) {
             rover = &((*rover)->children[0]);
-        } else {
+        } else if (freq > (*rover)->freq) {
             rover = &((*rover)->children[1]);
+        } else {
+            return *rover;
         }
     }
 
@@ -312,17 +314,16 @@ static void avl_tree_destory(FreqAVLTree *tree)
 
 static void freq_incr(FreqAVLTree* tree, LFUNode *lfu, int key)
 {
-    list_del(&lfu->dlink);
-    if (list_empty(&lfu->node->dhead)) {
-        /* we must erase the empty node to rearrange the AVL tree */
-        avl_node_erase(tree, lfu->node);
-    }
-
     /* New frequency */
+    list_del(&lfu->dlink);
     int freq = ++lfu->freq;
     FreqAVLNode *node = avl_tree_insert(tree, freq);
-    if (lfu->node == tree->min_freq_node) {
-        tree->min_freq_node = node;
+    if (list_empty(&lfu->node->dhead)) {
+        if (lfu->node == tree->min_freq_node) {
+            tree->min_freq_node = node;
+        }
+        /* we must erase the empty node to rearrange the AVL tree */
+        avl_node_erase(tree, lfu->node);
     }
     lfu->node = node;
     list_add(&lfu->dlink, &lfu->node->dhead);
@@ -379,10 +380,7 @@ void lFUCachePut(LFUCache* obj, int key, int value)
         lfu = list_last_entry(&node->dhead, LFUNode, dlink);
         list_del(&lfu->dlink);
         list_del(&lfu->key_link);
-        if (list_empty(&node->dhead)) {
-            /* we must erase the empty node to rearrange the AVL tree */
-            avl_node_erase(obj->tree, node);
-        }
+        /* NOTE: we DO NOT need to erase the empty AVL node since the min freq node would be update immediately */
     } else {
         /* new LFU */
         obj->size++;
@@ -428,7 +426,7 @@ void lFUCacheFree(LFUCache* obj)
 int main(void)
 {
     LFUCache* obj = lFUCacheCreate(2);
-#if 0
+#if 1
     lFUCachePut(obj, 1, 1);
     printf("Put 1 1\n");
     lFUCachePut(obj, 2, 2);
