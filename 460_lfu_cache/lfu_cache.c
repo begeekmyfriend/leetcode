@@ -319,9 +319,9 @@ static void avl_tree_destory(FreqAVLTree *tree)
 
 static void freq_incr(FreqAVLTree* tree, LFUNode *lfu, int key)
 {
-    /* erase */
     list_del(&lfu->dlink);
     if (list_empty(&lfu->node->dhead)) {
+        /* we must erase the empty node to rearrange the AVL tree */
         avl_node_erase(tree, lfu->node);
     }
 
@@ -383,6 +383,7 @@ void lFUCachePut(LFUCache* obj, int key, int value)
         list_del(&lfu->dlink);
         list_del(&lfu->key_link);
         if (list_empty(&node->dhead)) {
+            /* we must erase the empty node to rearrange the AVL tree */
             avl_node_erase(obj->tree, node);
         }
     } else {
