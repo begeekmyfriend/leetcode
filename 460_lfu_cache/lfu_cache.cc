@@ -26,7 +26,7 @@ public:
         freq_incr(key);
         return (*key_map_[key])->value_;
     }
-    
+
     void put(int key, int value) {
         if (cap_ <= 0) {
             return;
@@ -37,15 +37,13 @@ public:
             (*key_map_[key])->value_ = value;
         } else {
             if (key_map_.size() == cap_) {
-                freq_del();
+                // squeeze minimum frequency
+                auto& li = freq_map_.begin()->second;
+                key_map_.erase(li.back()->key_);
+                li.pop_back();
             }
 
-            if (key_map_.empty()) {
-                freq_map_[1] = li_;
-            }
-            auto& li = freq_map_[1];
-            li.push_front(new LFU(key, value, 1));
-            key_map_[key] = li.begin();
+            _freq_incr(key, value, 0);
         }
     }
 
@@ -54,12 +52,17 @@ private:
         int value = (*key_map_[key])->value_;
         int freq = (*key_map_[key])->freq_;
 
-        // list.erase + map.erase
-        freq_map_[freq].erase(key_map_[key]);
-        if (freq_map_[freq].empty()) {
+        // list.erase + freq_map.erase
+        auto& li = freq_map_[freq];
+        li.erase(key_map_[key]);
+        if (li.empty()) {
             freq_map_.erase(freq);
         }
 
+        _freq_incr(key, value, freq);
+    }
+
+    void _freq_incr(int key, int value, int freq) {
         if (freq_map_.find(freq + 1) == freq_map_.end()) {
             freq_map_[freq + 1] = li_;
         }
@@ -67,12 +70,6 @@ private:
         auto& li = freq_map_[freq + 1];
         li.push_front(new LFU(key, value, freq + 1));
         key_map_[key] = li.begin();
-    }
-
-    void freq_del() {
-        auto& li = freq_map_.begin()->second;
-        key_map_.erase(li.back()->key_);
-        li.pop_back();
     }
 
     void freq_map_show() {

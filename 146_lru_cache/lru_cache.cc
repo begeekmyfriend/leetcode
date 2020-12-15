@@ -19,7 +19,7 @@ public:
             return -1;
         }
 
-        int value = ht_[key]->second;
+        int value = (*ht_[key]).second;
         if (li_.front().first != key) {
             li_.erase(ht_[key]);
             li_.push_front(make_pair(key, value));
