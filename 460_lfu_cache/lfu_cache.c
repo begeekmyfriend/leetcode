@@ -31,6 +31,7 @@ typedef struct FreqAVLNode {
 
 typedef struct {
     FreqAVLNode *root;
+    FreqAVLNode *min_freq_node;
 } FreqAVLTree;
 
 typedef struct LFUNode {
@@ -284,19 +285,11 @@ static void avl_node_erase(FreqAVLTree *tree, FreqAVLNode *node)
     avl_tree_balance(tree, startpoint);
 }
 
-static FreqAVLNode *avl_tree_min_get(FreqAVLTree *tree)
-{
-    FreqAVLNode *node = tree->root;
-    while (node->children[0] != NULL) {
-        node = node->children[0];
-    }
-    return node;
-}
-
 static FreqAVLTree *avl_tree_init(void)
 {
     FreqAVLTree *tree = malloc(sizeof(*tree));
     tree->root = NULL;
+    tree->min_freq_node = NULL;
     return tree;
 }
 
@@ -327,7 +320,11 @@ static void freq_incr(FreqAVLTree* tree, LFUNode *lfu, int key)
 
     /* New frequency */
     int freq = ++lfu->freq;
-    lfu->node = avl_tree_insert(tree, freq);
+    FreqAVLNode *node = avl_tree_insert(tree, freq);
+    if (lfu->node == tree->min_freq_node) {
+        tree->min_freq_node = node;
+    }
+    lfu->node = node;
     list_add(&lfu->dlink, &lfu->node->dhead);
 }
 
@@ -378,7 +375,7 @@ void lFUCachePut(LFUCache* obj, int key, int value)
 
     /* squeeze minimum frequency */
     if (obj->size == obj->capacity) {
-        FreqAVLNode *node = avl_tree_min_get(obj->tree);
+        FreqAVLNode *node = obj->tree->min_freq_node;
         lfu = list_last_entry(&node->dhead, LFUNode, dlink);
         list_del(&lfu->dlink);
         list_del(&lfu->key_link);
@@ -396,6 +393,7 @@ void lFUCachePut(LFUCache* obj, int key, int value)
     lfu->val = value;
     lfu->freq = 1;
     lfu->node = avl_tree_insert(obj->tree, lfu->freq);
+    obj->tree->min_freq_node = lfu->node;
     list_add(&lfu->dlink, &lfu->node->dhead);
     list_add(&lfu->key_link, &obj->hheads[hash]);
 }
@@ -430,7 +428,7 @@ void lFUCacheFree(LFUCache* obj)
 int main(void)
 {
     LFUCache* obj = lFUCacheCreate(2);
-#if 1
+#if 0
     lFUCachePut(obj, 1, 1);
     printf("Put 1 1\n");
     lFUCachePut(obj, 2, 2);
