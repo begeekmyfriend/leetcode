@@ -30,5 +30,5 @@ private:
         int subrzz = 1 + subr.first;
         maxzz = max(maxzz, max(sublzz, subrzz));
         return make_pair(sublzz, subrzz);
-    } 
+    }
 };

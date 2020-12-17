@@ -13,14 +13,6 @@ using namespace std;
  *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
  * };
  */
-struct TreeInfo {
-    bool isBst;
-    int min_val;
-    int max_val;
-    int sum_val;
-    TreeInfo() : isBst(true), min_val(INT_MAX), max_val(INT_MIN), sum_val(0) {}
-    TreeInfo(bool bst, int min, int max, int sum) : isBst(bst), min_val(min), max_val(max), sum_val(sum) {}
-};
 
 class Solution {
 public:
@@ -29,6 +21,15 @@ public:
         return max(0, max_sum);
     }
 private:
+    struct TreeInfo {
+        bool isBst;
+        int min_val;
+        int max_val;
+        int sum_val;
+        TreeInfo() : isBst(true), min_val(INT_MAX), max_val(INT_MIN), sum_val(0) {}
+        TreeInfo(bool bst, int min, int max, int sum) : isBst(bst), min_val(min), max_val(max), sum_val(sum) {}
+    };
+
     int max_sum = INT_MIN;
     TreeInfo *dfs(TreeNode *root) {
         if (root == nullptr) {
