@@ -19,7 +19,7 @@ public:
     }
 
     int get(int key) {
-        if (key_map_.find(key) == key_map_.end()) {
+        if (key_map_.count(key) == 0) {
             return -1;
         }
 
@@ -32,7 +32,7 @@ public:
             return;
         }
 
-        if (key_map_.find(key) != key_map_.end()) {
+        if (key_map_.count(key) == 0) {
             freq_incr(key);
             (*key_map_[key])->value_ = value;
         } else {
@@ -63,7 +63,7 @@ private:
     }
 
     void _freq_incr(int key, int value, int freq) {
-        if (freq_map_.find(freq + 1) == freq_map_.end()) {
+        if (freq_map_.count(freq + 1) == 0) {
             freq_map_[freq + 1] = li_;
         }
 

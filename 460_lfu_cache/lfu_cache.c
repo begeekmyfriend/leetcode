@@ -344,6 +344,10 @@ LFUCache* lFUCacheCreate(int capacity)
 
 int lFUCacheGet(LFUCache* obj, int key)
 {
+    if (obj->capacity <= 0) {
+        return;
+    }
+
     struct list_head *pos;
     int hash = key % obj->capacity;
     list_for_each(pos, &obj->hheads[hash]) {

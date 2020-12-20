@@ -15,7 +15,7 @@ public:
     }
 
     int get(int key) {
-        if (ht_.find(key) == ht_.end()) {
+        if (ht_.count(key) == 0) {
             return -1;
         }
 
@@ -34,7 +34,7 @@ public:
             return;
         }
 
-        if (ht_.find(key) != ht_.end()) {
+        if (ht_.count(key) == 0) {
             li_.erase(ht_[key]);
         } else {
             if (li_.size() == cap_) {
