@@ -20,10 +20,10 @@ static int dfs(struct TreeNode *root, int *max)
     }
 
     /* In case of negative node value */
-    int l = maximum(dfs(root->left, max), 0);
-    int r = maximum(dfs(root->right, max), 0);
+    int subl = maximum(dfs(root->left, max), 0);
+    int subr = maximum(dfs(root->right, max), 0);
 
-    int sum = root->val + l + r;
+    int sum = root->val + subl + subr;
     if (sum > *max) {
        *max = sum;
     }
@@ -31,7 +31,7 @@ static int dfs(struct TreeNode *root, int *max)
     /* The return value does not equal the sum value
      * since we need to return path through the root node
      */
-    return root->val + maximum(l, r);
+    return root->val + maximum(subl, subr);
 }
 
 static int maxPathSum(struct TreeNode* root)

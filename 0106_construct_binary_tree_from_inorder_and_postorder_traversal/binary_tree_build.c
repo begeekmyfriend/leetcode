@@ -73,15 +73,6 @@ static int find(int num, int size, struct hlist_head *heads)
     return -1;
 }
 
-static struct TreeNode *node_new(int val)
-{
-    struct TreeNode *tn = malloc(sizeof(*tn));
-    tn->val = val;
-    tn->left = NULL;
-    tn->right = NULL;
-    return tn;
-}
-
 static void node_add(int val, int index, int size, struct hlist_head *heads)
 {
     struct order_node *on = malloc(sizeof(*on));
@@ -91,23 +82,23 @@ static void node_add(int val, int index, int size, struct hlist_head *heads)
     hlist_add_head(&on->node, &heads[hash]);
 }
 
-static struct TreeNode *dfs(int *inorder, int in_low, int in_high, int *postorder,
-                            int post_low, int post_high, struct hlist_head *in_heads, int size)
+static struct TreeNode *dfs(int *inorder, int in_lo, int in_hi, int *postorder,
+                            int post_lo, int post_hi, struct hlist_head *in_heads, int size)
 {
-    if (in_low > in_high || post_low > post_high) {
+    if (in_lo > in_hi || post_lo > post_hi) {
         return NULL;
     }
     struct TreeNode *tn = malloc(sizeof(*tn));
-    tn->val = postorder[post_high];
-    int index = find(postorder[post_high], size, in_heads);
-    tn->left = dfs(inorder, in_low, index - 1, postorder, post_low, post_low + (index - 1 - in_low), in_heads, size);
-    tn->right = dfs(inorder, index + 1, in_high, postorder, post_high - (in_high - index), post_high - 1, in_heads, size);
+    tn->val = postorder[post_hi];
+    int index = find(postorder[post_hi], size, in_heads);
+    tn->left = dfs(inorder, in_lo, index - 1, postorder, post_lo, post_lo + (index - 1 - in_lo), in_heads, size);
+    tn->right = dfs(inorder, index + 1, in_hi, postorder, post_hi - (in_hi - index), post_hi - 1, in_heads, size);
     return tn;
 }
 
 static struct TreeNode *buildTree(int *inorder, int inorderSize, int *postorder, int postorderSize)
 {
-    int i, j;
+    int i;
     struct hlist_head *in_heads = malloc(inorderSize * sizeof(*in_heads));
     for (i = 0; i < inorderSize; i++) {
         INIT_HLIST_HEAD(&in_heads[i]);

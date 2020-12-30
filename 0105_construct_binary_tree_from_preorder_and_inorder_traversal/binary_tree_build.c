@@ -73,15 +73,6 @@ static int find(int num, int size, struct hlist_head *heads)
     return -1;
 }
 
-static struct TreeNode *node_new(int val)
-{
-    struct TreeNode *tn = malloc(sizeof(*tn));
-    tn->val = val;
-    tn->left = NULL;
-    tn->right = NULL;
-    return tn;
-}
-
 static struct TreeNode *dfs(int *preorder, int pre_low, int pre_high, int *inorder,
                             int in_low, int in_high, struct hlist_head *in_heads, int size)
 {
@@ -107,7 +98,7 @@ static void node_add(int val, int index, int size, struct hlist_head *heads)
 
 static struct TreeNode *buildTree(int *preorder, int preorderSize, int *inorder, int inorderSize)
 {
-    int i, j;
+    int i;
     struct hlist_head *in_heads = malloc(inorderSize * sizeof(*in_heads));
     for (i = 0; i < inorderSize; i++) {
         INIT_HLIST_HEAD(&in_heads[i]);
