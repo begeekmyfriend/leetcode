@@ -18,14 +18,15 @@ static void dfs(struct TreeNode *node, struct TreeNode **prev,
 
     dfs(node->left, prev, p1, p2, wrong);
 
-    /* We must use pointer to pointer for previous object in recursion */
+    /* We must use pointer to pointer to previous object for backward recursion */
     if (*prev != NULL && node->val < (*prev)->val) {
         (*wrong)++;
         if (*wrong == 1) {
             *p1 = *prev;
-            /* p2 should be recorded here in some cases */
+            /* p2 frist to be recorded here */
             *p2 = node;
         } else if (*wrong == 2) {
+            /* update p2 location */
             *p2 = node;
         }
     }
