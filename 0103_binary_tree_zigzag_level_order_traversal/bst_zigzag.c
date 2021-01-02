@@ -13,18 +13,6 @@
 #define	list_first_entry(ptr, type, field)  list_entry((ptr)->next, type, field)
 #define	list_last_entry(ptr, type, field)  list_entry((ptr)->prev, type, field)
 
-#define	list_for_each(p, head) \
-	for (p = (head)->next; p != (head); p = p->next)
-
-#define	list_for_each_reverse(p, head) \
-	for (p = (head)->prev; p != (head); p = p->prev)
-
-#define	list_for_each_safe(p, n, head) \
-	for (p = (head)->next, n = p->next; p != (head); p = n, n = p->next)
-
-#define	list_for_each_safe_reverse(p, n, head) \
-	for (p = (head)->prev, n = p->prev; p != (head); p = n, n = p->prev)
-
 struct TreeNode {
     int val;
     struct TreeNode *left;
@@ -33,6 +21,11 @@ struct TreeNode {
 
 struct list_head {
     struct list_head *next, *prev;
+};
+
+struct queue_node {
+    struct TreeNode *node;
+    struct list_head link;
 };
 
 static inline void INIT_LIST_HEAD(struct list_head *list)
@@ -75,66 +68,29 @@ static inline void list_del(struct list_head *entry)
     entry->next = entry->prev = NULL;
 }
 
-struct bfs_node {
-    struct TreeNode *node;
-    struct list_head link;
-};
-
-static struct bfs_node *node_new(struct list_head *free_list, struct TreeNode *node)
+static struct queue_node *node_new(struct list_head *free_list, struct TreeNode *node)
 {
-    struct bfs_node *new;
+    struct queue_node *new;
     if (list_empty(free_list)) {
         new = malloc(sizeof(*new));
     } else {
-        new = list_first_entry(free_list, struct bfs_node, link);
+        new = list_first_entry(free_list, struct queue_node, link);
         list_del(&new->link);
     }
     new->node = node;
     return new;
 }
 
-static void queue(struct list_head *parents, struct list_head *children, int reverse,
-                  struct list_head *free_list, int **results, int *col_sizes, int level)
+static void node_free(struct list_head *free_list, struct queue_node *node)
 {
-    struct list_head *p, *n;
-    struct bfs_node *new, *parent;
-
-    list_for_each(p, parents) {
-        parent = list_entry(p, struct bfs_node, link);
-        if (parent->node->left != NULL) {
-            new = node_new(free_list, parent->node->left);
-            list_add_tail(&new->link, children);
-        }
-        if (parent->node->right != NULL) {
-            new = node_new(free_list, parent->node->right);
-            list_add_tail(&new->link, children);
-        }
-        col_sizes[level]++;
-    }
-
-    int i = 0;
-    results[level] = malloc(col_sizes[level] * sizeof(int));
-    if (reverse) {
-        list_for_each_safe_reverse(p, n, parents) {
-            parent = list_entry(p, struct bfs_node, link);
-            results[level][i++] = parent->node->val;
-            list_del(p);
-            list_add(p, free_list);
-        }
-    } else {
-        list_for_each_safe(p, n, parents) {
-            parent = list_entry(p, struct bfs_node, link);
-            results[level][i++] = parent->node->val;
-            list_del(p);
-            list_add(p, free_list);
-        }
-    }
+    list_del(&node->link);
+    list_add(&node->link, free_list);
 }
 
 /**
  ** Return an array of arrays of size *returnSize.
  ** The sizes of the arrays are returned as *returnColumnSizes array.
- ** Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ ** Note: Both returned array and *returnColumnSizes array must be malloced, assume caller calls free().
  **/
 static int** zigzagLevelOrder(struct TreeNode* root, int* returnSize, int** returnColumnSizes)
 {
@@ -144,25 +100,43 @@ static int** zigzagLevelOrder(struct TreeNode* root, int* returnSize, int** retu
     }
 
     struct list_head free_list;
-    struct list_head q0;
-    struct list_head q1;
+    struct list_head q;
     INIT_LIST_HEAD(&free_list);
-    INIT_LIST_HEAD(&q0);
-    INIT_LIST_HEAD(&q1);
+    INIT_LIST_HEAD(&q);
 
     int **results = malloc(BST_MAX_LEVEL * sizeof(int *));
     *returnColumnSizes = malloc(BST_MAX_LEVEL * sizeof(int));
     memset(*returnColumnSizes, 0, BST_MAX_LEVEL * sizeof(int));
 
-    int level = 0;
-    struct bfs_node *new = node_new(&free_list, root);
-    list_add_tail(&new->link, &q0);
+    /* Add root node */
+    struct queue_node *new = node_new(&free_list, root);
+    list_add_tail(&new->link, &q);
 
-    while (!list_empty(&q0) || !list_empty(&q1)) {
-        if (level & 0x1) {
-            queue(&q1, &q0, 1, &free_list, results, *returnColumnSizes, level);
-        } else {
-            queue(&q0, &q1, 0, &free_list, results, *returnColumnSizes, level);
+    int i, level = 0;
+    (*returnColumnSizes)[level]++;
+    while (!list_empty(&q)) {
+        int size = (*returnColumnSizes)[level];
+        results[level] = malloc(size * sizeof(int));
+        for (i = 0; i < size; i++) {
+            struct queue_node *n = list_first_entry(&q, struct queue_node, link);
+            if (level & 0x1) {
+                results[level][size - i - 1] = n->node->val;
+            } else {
+                results[level][i] = n->node->val;
+            }
+
+            if (n->node->left != NULL) {
+                new = node_new(&free_list, n->node->left);
+                list_add_tail(&new->link, &q);
+                (*returnColumnSizes)[level + 1]++;
+            }
+            if (n->node->right != NULL) {
+                new = node_new(&free_list, n->node->right);
+                list_add_tail(&new->link, &q);
+                (*returnColumnSizes)[level + 1]++;
+            }
+
+            node_free(&free_list, n);
         }
         level++;
     }
