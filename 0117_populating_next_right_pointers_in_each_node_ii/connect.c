@@ -1,12 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-struct TreeLinkNode {
-    int val;
-    struct TreeLinkNode *left;
-    struct TreeLinkNode *right;
-    struct TreeLinkNode *next;
-};
 
 #define container_of(ptr, type, member) \
     ((type *)((char *)(ptr) - (size_t)&(((type *)0)->member)))
@@ -17,14 +11,20 @@ struct TreeLinkNode {
 #define	list_first_entry(ptr, type, field)  list_entry((ptr)->next, type, field)
 #define	list_last_entry(ptr, type, field)  list_entry((ptr)->prev, type, field)
 
-#define	list_for_each(p, head) \
-	for (p = (head)->next; p != (head); p = p->next)
-
-#define	list_for_each_safe(p, n, head) \
-	for (p = (head)->next, n = p->next; p != (head); p = n, n = p->next)
-
 struct list_head {
     struct list_head *next, *prev;
+};
+
+struct Node {
+    int val;
+    struct Node *left;
+    struct Node *right;
+    struct Node *next;
+};
+
+struct queue_node {
+    struct Node *node;
+    struct list_head link;
 };
 
 static inline void INIT_LIST_HEAD(struct list_head *list)
@@ -67,87 +67,72 @@ static inline void list_del(struct list_head *entry)
     entry->next = entry->prev = NULL;
 }
 
-struct bfs_node {
-    struct TreeLinkNode *node;
-    struct list_head link;
-};
-
-static struct bfs_node *node_fetch(struct list_head *free_list, struct TreeLinkNode *node)
+static struct queue_node *node_new(struct Node *node, struct list_head *free_list)
 {
-    struct bfs_node *bn = list_first_entry(free_list, struct bfs_node, link);
-    list_del(&bn->link);
-    bn->node = node;
-    return bn;
-}
-
-static void queue(struct list_head *parents, struct list_head *children, struct list_head *free_list)
-{
-    struct list_head *p, *n;
-    struct TreeLinkNode *prev = NULL;
-    list_for_each_safe(p, n, parents) {
-        struct bfs_node *new;
-        struct bfs_node *parent = list_entry(p, struct bfs_node, link);
-        struct TreeLinkNode *lch = parent->node->left;
-        struct TreeLinkNode *rch = parent->node->right;
-        if (lch != NULL) {
-            if (prev != NULL) {
-                prev->next = lch;
-            }
-            prev = lch;
-            new = node_fetch(free_list, lch);
-            list_add_tail(&new->link, children);
-        }
-        if (rch != NULL) {
-            if (prev != NULL) {
-                prev->next = rch;
-            }
-            prev = rch;
-            new = node_fetch(free_list, rch);
-            list_add_tail(&new->link, children);
-        }
-
-        /* return */
-        list_del(p);
-        list_add(p, free_list);
+    struct queue_node *qn;
+    if (list_empty(free_list)) {
+        qn = malloc(sizeof(*qn));
+    } else {
+        qn = list_first_entry(free_list, struct queue_node, link);
+        list_del(&qn->link);
     }
+    qn->node = node;
+    return qn;
 }
 
-static void connect(struct TreeLinkNode *root)
+static void node_free(struct queue_node *qn, struct list_head *free_list)
+{
+    list_del(&qn->link);
+    list_add_tail(&qn->link, free_list);
+}
+
+struct Node *connect(struct Node *root)
 {
     if (root == NULL) {
-        return;
+        return root;
     }
 
     struct list_head free_list;
-    struct list_head q0;
-    struct list_head q1;
-    struct bfs_node nodes[4096];
+    struct list_head q;
     INIT_LIST_HEAD(&free_list);
-    INIT_LIST_HEAD(&q0);
-    INIT_LIST_HEAD(&q1);
+    INIT_LIST_HEAD(&q);
 
-    int i;
-    for (i = 0; i < 4096; i++) {
-        list_add(&nodes[i].link, &free_list);
-    }
+    int i, level_size = 1;
+    struct queue_node *new = node_new(root, &free_list);
+    list_add_tail(&new->link, &q);
 
-    int level = 0;
-    struct bfs_node *new = node_fetch(&free_list, root);
-    list_add_tail(&new->link, &q0);
+    while (!list_empty(&q)) {
+        struct Node *prev = NULL;
+        int size = level_size;
+        for (i = 0; i < size; i++) {
+            struct queue_node *qn = list_first_entry(&q, struct queue_node, link);
+            if (prev != NULL) {
+                prev->next = qn->node;
+            }
+            prev = qn->node;
 
-    while (!list_empty(&q0) || !list_empty(&q1)) {
-        if (level & 0x1) {
-            queue(&q1, &q0, &free_list);
-        } else {
-            queue(&q0, &q1, &free_list);
+            if (qn->node->left != NULL) {
+                new = node_new(qn->node->left, &free_list);
+                list_add_tail(&new->link, &q);
+                level_size++;
+            }
+            if (qn->node->right != NULL) {
+                new = node_new(qn->node->right, &free_list);
+                list_add_tail(&new->link, &q);
+                level_size++;
+            }
+
+            node_free(qn, &free_list);
         }
-        level++;
     }
+
+    return root;
 }
 
 int main(int argc, char **argv)
 {
-    struct TreeLinkNode root, n1[2], n2[4], n3[8];
+    struct Node root, n1[2], n2[4], n3[8];
+#if 0
     root.val = 5;
     n1[0].val = 4;
     n1[1].val = 8;
@@ -188,6 +173,32 @@ int main(int argc, char **argv)
     n3[7].left = NULL;
     n3[7].right = NULL;
     n3[7].next = NULL;
+#else
+    root.val = 1;
+    n1[0].val = 2;
+    n1[1].val = 3;
+    n2[0].val = 4;
+    n2[1].val = 5;
+    n2[3].val = 7;
+
+    root.left = &n1[0];
+    root.right = &n1[1];
+    n1[0].left = &n2[0];
+    n1[0].right = &n2[1];
+    n1[0].next = NULL;
+    n1[1].left = NULL;
+    n1[1].right = &n2[3];
+    n1[1].next = NULL;
+    n2[0].left = NULL;
+    n2[0].right = NULL;
+    n2[0].next = NULL;
+    n2[1].left = NULL;
+    n2[1].right = NULL;
+    n2[1].next = NULL;
+    n2[3].left = NULL;
+    n2[3].right = NULL;
+    n2[3].next = NULL;
+#endif
 
     connect(&root);
     return 0;
