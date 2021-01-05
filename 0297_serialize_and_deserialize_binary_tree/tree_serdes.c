@@ -1,4 +1,4 @@
-#include <stdbool.h>
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -10,52 +10,37 @@ struct TreeNode {
     struct TreeNode *right;
 };
 
+static int count = 0;
+static int SYM_NULL = INT_MIN;
+
 static void ser(struct TreeNode *root, char **str, int *len) {
     if (root == NULL) {
-        (*str)[(*len)++] = '#';
-        (*str)[(*len)++] = ',';
+        memcpy(str + *len, &SYM_NULL, sizeof(int));
+        (*len) += sizeof(int);
     } else {
-        int v = root->val;
-        if (v < 0) {
-            v = -v;
-            (*str)[(*len)++] = '-';
-        }
-        while (v > 0) {
-            (*str)[(*len)++] = v % 10 + '0';
-            v /= 10;
-        }
-        (*str)[(*len)++] = ',';
+        memcpy(str + *len, &root->val, sizeof(int));
+        (*len) += sizeof(int);
         ser(root->left, str, len);
         ser(root->right, str, len);
     }
+    count++;
 }
 
-static struct TreeNode *des(char **str) {
-    if (**str == '\0') {
+static struct TreeNode *des(char **str)
+{
+    if (count == 0) {
         return NULL;
     }
-    if (**str == '#') {
-        (*str)++;
-        (*str)++;
-        return NULL;
-    }
+    count--;
 
-    int i;
-    bool sign = false;
+    int value;
+    memcpy(&value, *str, sizeof(int));
+    (*str) += sizeof(int);
+    if (value == SYM_NULL) {
+        return NULL;
+    }
     struct TreeNode *node = malloc(sizeof(struct TreeNode));
-    node->val = 0;
-    if (**str == '-') {
-        sign = true;
-        (*str)++;
-    }
-    for (i = 1; **str != ','; i *= 10) {
-        node->val += i * ((**str) - '0');
-        (*str)++;
-    }
-    if (sign) {
-        node->val = -node->val;
-    }
-    (*str)++;
+    node->val = value;
     node->left = des(str);
     node->right = des(str);    
     return node;
