@@ -9,23 +9,27 @@ struct ListNode {
 
 static struct ListNode *getIntersectionNode(struct ListNode *headA, struct ListNode *headB)
 {
+    if (headA == NULL || headB == NULL) {
+        return NULL;
+    }
+
     struct ListNode *p;
     for (p = headA; p->next != NULL; p = p->next) {}
     p->next = headB;
 
-    bool first = true;
-    struct ListNode *p0, *p1;
-    for (p0 = headA, p1 = headA; p1 != NULL && p1->next != NULL; p0 = p0->next, p1 = p1->next->next) {
-        if (p0 == p1 && !first) {
-            p0 = headA;
-            while (p0 != p1) {
-                p0 = p0->next;
-                p1 = p1->next;
+    struct ListNode *slow = headA, *fast = headA;
+    while (fast != NULL && fast->next != NULL) {
+        slow = slow->next;
+        fast = fast->next->next;
+        if (slow == fast) {
+            slow = headA;
+            while (slow != fast) {
+                slow = slow->next;
+                fast = fast->next;
             }
             p->next = NULL;
-            return p0;
+            return slow;
         }
-        first = false;
     }
 
     p->next = NULL;
