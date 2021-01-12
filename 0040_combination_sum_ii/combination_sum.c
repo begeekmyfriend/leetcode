@@ -25,7 +25,7 @@ static void dfs(int *nums, int size, int start, int target, int *solution,
         int last = INT_MIN;
         for (i = start; i < size; i++) {
             if (last != nums[i]) {
-                /* No duplicate combinations in different order */
+                /* No duplicate combinations in the same level position */
                 solution[len] = nums[i];
                 /* i + 1 limits the candidate range in next levels */
                 dfs(nums, size, i + 1, target - nums[i], solution, len + 1, results, count, column_sizes);

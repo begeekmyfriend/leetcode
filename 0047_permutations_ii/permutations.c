@@ -23,7 +23,8 @@ static void dfs(int *nums, int size, bool *used, int *stack,
             /* Used marks only allows remaining elements in DFS levels */
             if (!used[i]) {
                 if (i > 0 && !used[i - 1] && nums[i - 1] == nums[i]) {
-                    /* In case that duplicate permutation with same elemements but in different postions */
+                    /* In case duplicate permutation with same elemements in the same postion */
+                    /* used[i - 1] == true means different level position */
                     continue;
                 }
                 used[i] = true;
