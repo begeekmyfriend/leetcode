@@ -19,7 +19,7 @@ public:
 #else
         // BFS solution is slow...
         queue<int> q;
-        unordered_set<int> s;
+        unordered_set<int> visited;
         int step = 0;
         q.push(amount);
         while (!q.empty()) {
@@ -31,8 +31,8 @@ public:
                 for (int coin : coins) {
                     int n = q.front() - coin;
                     if (n >= 0) {
-                        if (s.count(n) == 0) {
-                            s.insert(n);
+                        if (visited.count(n) == 0) {
+                            visited.insert(n);
                             q.push(n);
                         }
                     }

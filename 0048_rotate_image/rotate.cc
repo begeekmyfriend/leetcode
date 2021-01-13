@@ -15,6 +15,6 @@ public:
                 matrix[size - 1 - i][size - 1 - j] = matrix[j][size - 1 - i];
                 matrix[j][size - 1 - i] = tmp;
             }
-        }        
+        }
     }
 };
