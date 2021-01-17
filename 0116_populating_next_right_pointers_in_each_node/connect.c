@@ -1,33 +1,35 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-struct TreeLinkNode {
+
+struct Node {
     int val;
-    struct TreeLinkNode *left;
-    struct TreeLinkNode *right;
-    struct TreeLinkNode *next;
+    struct Node *left;
+    struct Node *right;
+    struct Node *next;
 };
 
-static void connect(struct TreeLinkNode *root)
+struct Node* connect(struct Node *root)
 {
     if (root == NULL) {
-        return;
+        return root;
     }
 
-    struct TreeLinkNode *head = root;
+    struct Node *head = root;
     while (head->left != NULL) {
-        struct TreeLinkNode *p;
+        struct Node *p;
         for (p = head; p != NULL; p = p->next) {
             p->left->next = p->right;
             p->right->next = p->next == NULL ? NULL : p->next->left;
         }
         head = head->left;
     }
+    return root;
 }
 
 int main(int argc, char **argv)
 {
-    struct TreeLinkNode root, n1[2], n2[4], n3[8];
+    struct Node root, n1[2], n2[4], n3[8];
     root.val = 5;
     n1[0].val = 4;
     n1[1].val = 8;
