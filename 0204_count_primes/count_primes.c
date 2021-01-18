@@ -1,12 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include <string.h>
 
-static int countPrimes(int n)
+
+int countPrimes(int n)
 {
-    if (n < 3) return 0;
-    
+    if (n < 3) {
+        return 0;
+    }
+
     int i, j;
     bool *marked = malloc(n);
     memset(marked, false, n);
