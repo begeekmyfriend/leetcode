@@ -8,7 +8,7 @@ struct TreeNode {
     struct TreeNode *right;
 };
 
-static struct TreeNode* lowestCommonAncestor(struct TreeNode* root, struct TreeNode* p, struct TreeNode* q)
+struct TreeNode* lowestCommonAncestor(struct TreeNode* root, struct TreeNode* p, struct TreeNode* q)
 {
     if (root == NULL || root->val == p->val || root->val == q->val) {
         return root;
