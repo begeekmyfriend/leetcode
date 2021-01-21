@@ -7,7 +7,7 @@
  * The sizes of the arrays are returned as *returnColumnSizes array.
  * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
  */
-static int** generateMatrix(int n, int* returnSize, int** returnColumnSizes)
+int** generateMatrix(int n, int* returnSize, int** returnColumnSizes)
 {
     int i;
     int **matrix = malloc(n * sizeof(int *));

@@ -1,10 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+
 /**
  ** Note: The returned array must be malloced, assume caller calls free().
  **/
-static int* spiralOrder(int** matrix, int matrixSize, int *matrixColSize, int *returnSize)
+int* spiralOrder(int** matrix, int matrixSize, int *matrixColSize, int *returnSize)
 {
     if (matrixSize == 0) {
         *returnSize = 0;

@@ -4,46 +4,44 @@ using namespace std;
 
 class Solution {
 public:
-    vector<int> spiralOrder(vector<vector<int>>& matrix) {
-        vector<int> res;
-        int hor_top = 0;
-        int hor_bottom = matrix.size() - 1;
-        int ver_left = 0;
-        int ver_right = matrix[0].size() - 1;
+    vector<vector<int>> generateMatrix(int n) {
+        vector<vector<int>> matrix(n, vector<int>(n));
         int direction = 0;
-        while (hor_top <= hor_bottom && ver_left <= ver_right) {
+        int hor_top = 0;
+        int hor_bottom = n - 1;
+        int ver_left = 0;
+        int ver_right = n - 1;
+        int num  = 0;
+        while (num < n * n) {
             switch (direction) {
             case 0:
                 for (int i = ver_left; i <= ver_right; i++) {
-                    res.push_back(matrix[hor_top][i]);
+                     matrix[hor_top][i] = ++num;
                 }
                 hor_top++;
                 break;
             case 1:
                 for (int i = hor_top; i <= hor_bottom; i++) {
-                    res.push_back(matrix[i][ver_right]);
+                     matrix[i][ver_right] = ++num;
                 }
                 ver_right--;
                 break;
             case 2:
                 for (int i = ver_right; i >= ver_left; i--) {
-                    res.push_back(matrix[hor_bottom][i]);
+                     matrix[hor_bottom][i] = ++num;
                 }
                 hor_bottom--;
                 break;
             case 3:
                 for (int i = hor_bottom; i >= hor_top; i--) {
-                    res.push_back(matrix[i][ver_left]);
+                     matrix[i][ver_left] = ++num;
                 }
                 ver_left++;
-                break;
-            default:
                 break;
             }
             direction++;
             direction %= 4;
         }
-
-        return res;
+        return matrix;
     }
 };
