@@ -1,31 +1,29 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+
 struct ListNode {
     int val;
     struct ListNode *next;
 };
 
-static struct ListNode* rotateRight(struct ListNode* head, int k)
+struct ListNode* rotateRight(struct ListNode* head, int k)
 {
-    if (head == NULL || k <= 0) {
+    if (head == NULL) {
         return head;
     }
 
+    int len = 0;
     struct ListNode dummy;
     dummy.next = head;
-    struct ListNode *prev = &dummy;
-    struct ListNode *p = head;
-    int len = 0;
-    while (p != NULL) {
-        prev = p;
-        p = p->next;
+    struct ListNode *tail = &dummy;
+    while (tail->next != NULL) {
+        tail = tail->next;
         len++;
     }
 
-    struct ListNode *last = prev;
-    prev = &dummy;
-    p = head;
+    struct ListNode *prev = &dummy;
+    struct ListNode *p = head;
     len = len - (k % len);
     while (len-- > 0) {
         prev = p;
@@ -36,23 +34,22 @@ static struct ListNode* rotateRight(struct ListNode* head, int k)
         /* deletion */
         prev->next = NULL;
         /* insertion */
-        last->next = dummy.next;
-        dummy.next = p;
+        tail->next = head;
+        head = p;
     }
 
-    return dummy.next;
+    return head;
 }
 
 int main(int argc, char **argv)
 {
-    int i;
-    struct ListNode *p, *prev, dummy, *list;
-
     if (argc < 2) {
         fprintf(stderr, "Usage: ./test k n1 n2...\n");
         exit(-1);
     }
 
+    int i;
+    struct ListNode *p, *prev, dummy, *list;
     dummy.next = NULL;
     prev = &dummy;
     for (i = 2; i < argc; i++) {
