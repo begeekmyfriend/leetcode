@@ -1,14 +1,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-static int findPeakElement(int* nums, int numsSize)
-{
-    if (numsSize == 1) {
-        return nums[0];
-    }
 
+int findPeakElement(int* nums, int numsSize)
+{
     int i;
-    for (i = 1; i < numsSize && nums[i] > nums[i - 1]; i++) {}
+    for (i = 1; i < numsSize; i++) {
+        if (nums[i] < nums[i - 1]) {
+            break;
+        }
+    }
     return i - 1;
 }
 
