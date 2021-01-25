@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+
 struct ListNode {
     int val;
     struct ListNode *next;
@@ -17,15 +18,15 @@ static struct ListNode *recursive(struct ListNode *prev, struct ListNode *p)
     return recursive(p, q);
 }
 
-static struct ListNode *reverseList(struct ListNode *head)
+struct ListNode *reverseList(struct ListNode *head)
 {
     return recursive(NULL, head);
 }
 
 
-/* Iteration */
 #if 0
-static struct ListNode *reverseList(struct ListNode *head)
+/* Iteration */
+struct ListNode *reverseList(struct ListNode *head)
 {
     struct ListNode *prev = NULL;
     struct ListNode *p = head;
