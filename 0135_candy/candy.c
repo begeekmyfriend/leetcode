@@ -1,10 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-static int candy(int* ratings, int ratingsSize)
+
+int candy(int* ratings, int ratingsSize)
 {
-    if (ratingsSize == 0) return 0;
-    if (ratingsSize == 1) return 1;
+    if (ratingsSize == 0) {
+        return 0;
+    }
 
     int i, *candies = malloc(ratingsSize * sizeof(int));
     candies[0] = 1;  
