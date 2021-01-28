@@ -9,14 +9,14 @@ public:
         unordered_map<string, vector<string>> ht;
         for (const auto& str : strs) {
             int counts[26] = { 0 };
-            for (const auto& s : str) {
-                counts[s - 'a']++;
+            for (char c : str) {
+                counts[c - 'a']++;
             }
 
             string key;
-            for (const auto& c : counts) {
+            for (int i : counts) {
                 key.push_back('#');
-                key.push_back(c + '0');
+                key.push_back(i + '0');
             }
 
             ht[key].push_back(str);

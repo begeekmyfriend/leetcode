@@ -58,9 +58,9 @@ static void dfs(int *nums, int size, bool *used, int *stack,
 /**
  * Return an array of arrays of size *returnSize.
  * The sizes of the arrays are returned as *returnColumnSizes array.
- * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ * Note: Both returned array and *returnColumnSizes array must be malloced, assume caller calls free().
  */
-static int** permute(int* nums, int numsSize, int* returnSize, int** returnColumnSizes)
+int** permute(int* nums, int numsSize, int* returnSize, int** returnColumnSizes)
 {
     int count = 0, cap = 5000;
     int **results = malloc(cap * sizeof(int *));

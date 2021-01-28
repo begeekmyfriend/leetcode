@@ -29,7 +29,7 @@ static inline int BKDRHash(char *s, size_t size)
  ** The sizes of the arrays are returned as *returnColumnSizes array.
  ** Note: Both returned array and *returnColumnSizes array must be malloced, assume caller calls free().
  **/
-static char*** groupAnagrams(char** strs, int strsSize, int* returnSize, int** returnColumnSizes)
+char*** groupAnagrams(char** strs, int strsSize, int* returnSize, int** returnColumnSizes)
 {
     int i, j, count = 0;
     int hash_size = strsSize;
@@ -72,10 +72,10 @@ static char*** groupAnagrams(char** strs, int strsSize, int* returnSize, int** r
 
 int main(int argc, char **argv)
 {
-    int *column_sizes, count = 0, i, j;
-    char ***lists = groupAnagrams(argv + 1, argc - 1, &count, &column_sizes);
+    int *col_sizes, count = 0, i, j;
+    char ***lists = groupAnagrams(argv + 1, argc - 1, &count, &col_sizes);
     for (i = 0; i < count; i++) {
-        for (j = 0; j < column_sizes[i]; j++) {
+        for (j = 0; j < col_sizes[i]; j++) {
             printf("%s ", lists[i][j]);
         }
         printf("\n");

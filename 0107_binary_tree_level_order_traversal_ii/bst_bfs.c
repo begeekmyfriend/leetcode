@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define BST_MAX_LEVEL 800
 
 struct TreeNode {
     int val;
@@ -29,9 +28,9 @@ static void bfs(struct TreeNode *root, int **results, int *count, int *col_sizes
 /**
  ** Return an array of arrays of size *returnSize.
  ** The sizes of the arrays are returned as *returnColumnSizes array.
- ** Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ ** Note: Both returned array and *returnColumnSizes array must be malloced, assume caller calls free().
  **/
-static int** levelOrderBottom(struct TreeNode* root, int* returnSize, int** returnColumnSizes)
+int** levelOrderBottom(struct TreeNode* root, int* returnSize, int** returnColumnSizes)
 {
     if (root == NULL) {
         *returnSize = 0;
@@ -40,9 +39,9 @@ static int** levelOrderBottom(struct TreeNode* root, int* returnSize, int** retu
 
     int size = 1;
     *returnSize = 0;
-    int **results = malloc(BST_MAX_LEVEL * sizeof(int *));
-    *returnColumnSizes = malloc(BST_MAX_LEVEL * sizeof(int));
-    memset(*returnColumnSizes, 0, BST_MAX_LEVEL * sizeof(int));
+    int **results = malloc(800 * sizeof(int *));
+    *returnColumnSizes = malloc(800 * sizeof(int));
+    memset(*returnColumnSizes, 0, 800 * sizeof(int));
     bfs(root, results, returnSize, *returnColumnSizes, &size, 0);
 
     int i, j;

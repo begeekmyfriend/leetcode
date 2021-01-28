@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+
 static int compare(const void *a, const void *b)
 {
     return *(int *) a - *(int *) b;
@@ -30,7 +31,7 @@ static void two_sum(int *nums, int low, int high, int target, int **results, int
  ** Return an array of arrays of size *returnSize.
  ** Note: The returned array must be malloced, assume caller calls free().
  **/
-static int** threeSum(int* nums, int numsSize, int* returnSize)
+int** threeSum(int* nums, int numsSize, int* returnSize)
 {
     if (numsSize < 3) {
         return NULL;

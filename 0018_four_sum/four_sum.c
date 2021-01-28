@@ -2,13 +2,14 @@
 #include <stdlib.h>
 #include <string.h>
 
+
 static int compare(const void *a, const void *b)
 {
     return *(int *) a - *(int *) b;
 }
 
 static void k_sum(int *nums, int low, int high, int target, int total, int k, 
-                  int *stack, int len, int **results, int *count, int *columnSizes)
+                  int *stack, int len, int **results, int *count, int *col_sizes)
 {
     int i;
     if (k == 2) {
@@ -23,7 +24,7 @@ static void k_sum(int *nums, int low, int high, int target, int total, int k,
                 stack[len++] = nums[high];
                 results[*count] = malloc(total * sizeof(int));
                 memcpy(results[*count], stack, total * sizeof(int));
-                columnSizes[*count] = total;
+                col_sizes[*count] = total;
                 (*count)++;
                 len -= 2;
                 while (++low < high && nums[low] == nums[low - 1]) {}
@@ -34,9 +35,8 @@ static void k_sum(int *nums, int low, int high, int target, int total, int k,
         /* k > 2 */
         for (i = low; i <= high - k + 1; i++) {
             if (i > low && nums[i] == nums[i - 1]) continue;
-            stack[len++] = nums[i];
-            k_sum(nums, i + 1, high, target - nums[i], 4, k - 1, stack, len,  results, count, columnSizes);
-            len--;
+            stack[len] = nums[i];
+            k_sum(nums, i + 1, high, target - nums[i], 4, k - 1, stack, len + 1, results, count, col_sizes);
         }
     }
 }
@@ -44,9 +44,10 @@ static void k_sum(int *nums, int low, int high, int target, int total, int k,
 /**
  * Return an array of arrays of size *returnSize.
  * The sizes of the arrays are returned as *returnColumnSizes array.
- * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ * Note: Both returned array and *returnColumnSizes array must be malloced, assume caller calls free().
  */
-int** fourSum(int* nums, int numsSize, int target, int* returnSize, int** returnColumnSizes) {
+int** fourSum(int* nums, int numsSize, int target, int* returnSize, int** returnColumnSizes)
+{
     *returnSize = 0;
     int i, j, capacity = 50000;
     int **results = malloc(capacity * sizeof(int *));
@@ -62,11 +63,11 @@ int** fourSum(int* nums, int numsSize, int target, int* returnSize, int** return
 
 int main(void)
 {
-    int i, count;
+    int i, count, target = 11, *col_sizes;
     //int nums[] = { 1, 0, -1, 0, -2, 2 };
     //int nums[] = { -3, -2, -1, 0, 0, 1, 2, 3 };
     int nums[] = { 0, 1, 5, 0, 1, 5, 5, -4 };
-    int **quadruplets = fourSum(nums, sizeof(nums) / sizeof(*nums), 11, &count);
+    int **quadruplets = fourSum(nums, sizeof(nums) / sizeof(*nums), target, &count, &col_sizes);
     for (i = 0; i < count; i++) {
         printf("%d %d %d %d\n", quadruplets[i][0], quadruplets[i][1], quadruplets[i][2], quadruplets[i][3]);
     }

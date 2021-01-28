@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+
 struct TreeNode {
     int val;
     struct TreeNode *left;
@@ -25,7 +26,12 @@ static void dfs(struct TreeNode *node, int sum, int *stack, int len, int **resul
     }
 }
 
-static int **pathSum(struct TreeNode *root, int sum, int **columnSizes, int *returnSize)
+/**
+ * Return an array of arrays of size *returnSize.
+ * The sizes of the arrays are returned as *returnColumnSizes array.
+ * Note: Both returned array and *returnColumnSizes array must be malloced, assume caller calls free().
+ */
+int **pathSum(struct TreeNode *root, int sum, int *returnSize, int **returnColumnSizes)
 {
     if (root == NULL) {
         *returnSize = 0;
@@ -35,8 +41,8 @@ static int **pathSum(struct TreeNode *root, int sum, int **columnSizes, int *ret
     int level = 5000, cap = 1000;
     int *stack = malloc(level * sizeof(int));
     int **results = malloc(cap * sizeof(int *));
-    *columnSizes = malloc(cap * sizeof(int));
-    dfs(root, sum, stack, 0, results, *columnSizes, returnSize);
+    *returnColumnSizes = malloc(cap * sizeof(int));
+    dfs(root, sum, stack, 0, results, *returnColumnSizes, returnSize);
     return results;
 }
 
@@ -76,13 +82,14 @@ int main(int argc, char **argv)
     n3[7].right = NULL;
 
     int i, j, count = 0;
-    int *sizes;
-    int **list = pathSum(&root, 22, &sizes, &count);
+    int *col_sizes, sum = 22;
+    int **list = pathSum(&root, sum, &count, &col_sizes);
     for (i = 0; i < count; i++) {
-        for (j = 0; j < sizes[i]; j++) {
+        for (j = 0; j < col_sizes[i]; j++) {
             printf("%d ", list[i][j]);
         }
         printf("\n");
     }
+
     return 0;
 }

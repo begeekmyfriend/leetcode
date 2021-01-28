@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <string.h>
 
+
 static void dfs(int n, int k, int start, int *stack, int len,
                 int **results, int *count, int *col_sizes)
 {
@@ -23,7 +24,7 @@ static void dfs(int n, int k, int start, int *stack, int len,
 /**
  * Return an array of arrays of size *returnSize.
  * The sizes of the arrays are returned as *returnColumnSizes array.
- * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ * Note: Both returned array and *returnColumnSizes array must be malloced, assume caller calls free().
  */
 int** combine(int n, int k, int* returnSize, int** returnColumnSizes) {
     int capacity = 10000;

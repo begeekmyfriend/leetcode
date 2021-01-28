@@ -28,10 +28,10 @@ static void dfs(int *nums, int size, int start, int target, int *stack,
  ** The sizes of the arrays are returned as *returnColumnSizes array.
  ** Note: Both returned array and *returnColumnSizes array must be malloced, assume caller calls free().
  **/
-static int** combinationSum(int* candidates, int candidatesSize, int target, int* returnSize, int **returnColumnSizes)
+int** combinationSum(int* candidates, int candidatesSize, int target, int* returnSize, int **returnColumnSizes)
 {
     int cap = 200;
-    int *stack = malloc(candidatesSize * sizeof(int));
+    int *stack = malloc(cap * sizeof(int));
     int **results = malloc(cap * sizeof(int *));
     *returnColumnSizes = malloc(cap * sizeof(int));
     *returnSize = 0;

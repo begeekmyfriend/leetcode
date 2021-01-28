@@ -11,7 +11,7 @@ static int compare(const void *a, const void *b)
 }
 
 static void dfs(int *nums, int size, int start, int target, int *solution,
-                int len, int **results, int *count, int *column_sizes)
+                int len, int **results, int *count, int *col_sizes)
 {
     int i;
     if (target < 0) {
@@ -19,7 +19,7 @@ static void dfs(int *nums, int size, int start, int target, int *solution,
     } else if (target == 0) {
         results[*count] = malloc(len * sizeof(int));
         memcpy(results[*count], solution, len * sizeof(int));
-        column_sizes[*count] = len;
+        col_sizes[*count] = len;
         (*count)++;
     } else {
         int last = INT_MIN;
@@ -28,7 +28,7 @@ static void dfs(int *nums, int size, int start, int target, int *solution,
                 /* No duplicate combinations in the same level position */
                 solution[len] = nums[i];
                 /* i + 1 limits the candidate range in next levels */
-                dfs(nums, size, i + 1, target - nums[i], solution, len + 1, results, count, column_sizes);
+                dfs(nums, size, i + 1, target - nums[i], solution, len + 1, results, count, col_sizes);
             }
             last = nums[i];
         }
@@ -40,7 +40,7 @@ static void dfs(int *nums, int size, int start, int target, int *solution,
  ** The sizes of the arrays are returned as *returnColumnSizes array.
  ** Note: Both returned array and *returnColumnSizes array must be malloced, assume caller calls free().
  **/
-static int** combinationSum(int* candidates, int candidatesSize, int target, int* returnSize, int** returnColumnSizes)
+int** combinationSum(int* candidates, int candidatesSize, int target, int* returnSize, int** returnColumnSizes)
 {
     qsort(candidates, candidatesSize, sizeof(int), compare);
 

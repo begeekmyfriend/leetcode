@@ -73,7 +73,7 @@ static void dfs(int n, int row, int *stack, char ***solutions, int *count, int *
 /**
  * Return an array of arrays of size *returnSize.
  * The sizes of the arrays are returned as *returnColumnSizes array.
- * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ * Note: Both returned array and *returnColumnSizes array must be malloced, assume caller calls free().
  */
 char *** solveNQueens(int n, int* returnSize, int** returnColumnSizes)
 {

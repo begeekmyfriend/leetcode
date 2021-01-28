@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <string.h>
 
+
 struct palindrome {
     int low;
     int high;
@@ -49,9 +50,9 @@ static void dfs(struct palindrome *pal_set, int num, int start,
 /**
  ** Return an array of arrays of size *returnSize.
  ** The sizes of the arrays are returned as *returnColumnSizes array.
- ** Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ ** Note: Both returned array and *returnColumnSizes array must be malloced, assume caller calls free().
  **/
-static char ***partition(char* s, int* returnSize, int** returnColumnSizes)
+char ***partition(char* s, int* returnSize, int** returnColumnSizes)
 {
     int len = strlen(s);
     if (len == 0) {
