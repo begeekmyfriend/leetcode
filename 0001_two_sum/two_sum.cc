@@ -9,7 +9,7 @@ public:
         unordered_map<int, int> ht; 
         for (int i = 0; i < nums.size(); i++) {
             int other = target - nums[i];
-            if (ht.find(other) != ht.end()) {
+            if (ht.count(other)) {
                 /* Only one solution for purpose of this problem */
                 res.append(ht[other]);
                 res.append(i);
