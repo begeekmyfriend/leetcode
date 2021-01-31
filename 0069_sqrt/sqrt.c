@@ -51,26 +51,26 @@ static double mySqrt(double n)
 }
 #endif
 
-static int mySqrt(int x)
+int mySqrt(int x)
 {
     if (x == 0) {
         return 0;
     }
 
-    unsigned int left = 1;
-    unsigned int right = (unsigned int) x;
-    unsigned int mid = left + (right - left) / 2;
+    unsigned int lo = 1;
+    unsigned int hi = (unsigned int) x;
+    unsigned int mid = lo + (hi - lo) / 2;
     for (; ;) {
         if (mid > x/mid) {
-            right = mid;
+            hi = mid;
         } else {
             if (mid + 1 > x/(mid + 1)) {
                 break;
             } else {
-                left = mid;
+                lo = mid;
             }
         }
-        mid = left + (right - left) / 2;
+        mid = lo + (hi - lo) / 2;
     }
 
     return mid;
