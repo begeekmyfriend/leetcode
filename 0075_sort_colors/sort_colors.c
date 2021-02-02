@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+
 static inline void swap(int *a, int *b)
 {
     int tmp = *a;
@@ -9,7 +10,7 @@ static inline void swap(int *a, int *b)
     *b = tmp;
 }
 
-static void sortColors(int* nums, int numsSize)
+void sortColors(int* nums, int numsSize)
 {
     int i, j = 0;
     for (i = 0; i < numsSize; i++) {
