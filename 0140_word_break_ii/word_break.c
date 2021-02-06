@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+
 #define container_of(ptr, type, member) \
     ((type *)((char *)(ptr) - (size_t)&(((type *)0)->member)))
 
@@ -11,11 +12,18 @@
 #define	list_for_each(p, head) \
     for (p = (head)->next; p != (head); p = p->next)
 
-#define	list_for_each_safe(p, n, head) \
-    for (p = (head)->next, n = p->next; p != (head); p = n, n = p->next)
-
 struct list_head {
     struct list_head *next, *prev;
+};
+
+struct word_node {
+    char *word;
+    struct list_head link;
+};
+
+struct solution {
+    int count;
+    struct list_head heads[];
 };
 
 static inline void INIT_LIST_HEAD(struct list_head *list)
@@ -46,107 +54,58 @@ static inline void list_add_tail(struct list_head *_new, struct list_head *head)
     __list_add(_new, head->prev, head);
 }
 
-static inline void __list_del(struct list_head *entry)
+static void new_word_add(struct list_head *head, char *word)
 {
-    entry->next->prev = entry->prev;
-    entry->prev->next = entry->next;
+    struct word_node *wn = malloc(sizeof(*wn));
+    wn->word = word;
+    list_add_tail(&wn->link, head);
 }
 
-static inline void list_del(struct list_head *entry)
-{
-    __list_del(entry);
-    entry->next = entry->prev = NULL;
-}
-
-struct word_node {
-    char *word;
-    struct list_head link;
-};
-
-struct dfs_cache {
-    int num;
-    int cap;
-    struct list_head **heads;
-};
-
-static struct dfs_cache *resize(struct dfs_cache **caches, int index)
-{
-    int i;
-    struct dfs_cache *cache = caches[index];
-    if (cache->num + 1 > cache->cap) {
-        cache->cap *= 2;
-        struct list_head **heads = malloc(cache->cap * sizeof(*heads));
-        for (i = 0; i < cache->cap; i++) {
-            if (i < cache->num) {
-                 heads[i] = cache->heads[i];
-            } else {
-                 heads[i] = malloc(sizeof(struct list_head));
-                 INIT_LIST_HEAD(heads[i]);
-            }
-        }
-        free(cache->heads);
-        cache->heads = heads;
-    }
-
-    return cache;
-}
-
-static struct dfs_cache *dfs(char *s, char **words, int *sizes, int num,
-                             struct dfs_cache **caches, int index)
+static struct solution *dfs(char *s, char **words, int *lens, int size,
+                            struct solution **sols, int index)
 {
     int i, j;
-    struct word_node *wn;
-    struct dfs_cache *result;
-
     if (*s == '\0') {
         return NULL;
-    } else if (caches[index] != NULL) {
-        return caches[index];
+    } else if (sols[index] != NULL) {
+        return sols[index];
     } else {
-        result = malloc(sizeof(*result));
-        result->num = 0;
-        result->cap = 1;
-        result->heads = malloc(sizeof(struct list_head *));
-        result->heads[0] = malloc(sizeof(struct list_head));
-        INIT_LIST_HEAD(result->heads[0]);
-        caches[index] = result;
-        for (i = 0; i < num; i++) {
-            if (!memcmp(s, words[i], sizes[i])) {
-                struct dfs_cache *next = dfs(s + sizes[i], words, sizes, num, caches, index + sizes[i]);
-                if (next != NULL) {
-                    int k = result->num;
-                    for (j = k; j < k + next->num; j++) {
-                        result = resize(caches, index);
-                        wn = malloc(sizeof(*wn));
-                        wn->word = words[i];
-                        list_add(&wn->link, result->heads[j]);
-
+        struct solution *sol = malloc(sizeof(*sol) + 60 * sizeof(struct list_head));
+        sol->count = 0;
+        sols[index] = sol;
+        for (i = 0; i < size; i++) {
+            if (!strncmp(s, words[i], lens[i])) {
+                /* post-order traverse */
+                struct solution *sub_sol = dfs(s + lens[i], words, lens, size, sols, index + lens[i]);
+                if (sub_sol != NULL) {
+                    int k = sol->count;
+                    for (j = k; j < k + sub_sol->count; j++) {
+                        /* Append all sub-solutions */
+                        INIT_LIST_HEAD(&sol->heads[j]);
+                        new_word_add(&sol->heads[j], words[i]);
                         struct list_head *p;
-                        list_for_each(p, next->heads[j - k]) {
-                            struct word_node *wnn = list_entry(p, struct word_node, link);
-                            wn = malloc(sizeof(*wn));
-                            wn->word = wnn->word;
-                            list_add_tail(&wn->link, result->heads[j]);
+                        list_for_each(p, &sub_sol->heads[j - k]) {
+                            struct word_node *wn = list_entry(p, struct word_node, link);
+                            new_word_add(&sol->heads[j], wn->word);
                         }
-                        result->num++;
+                        sol->count++;
                     }
                 } else {
-                    wn = malloc(sizeof(*wn));
-                    wn->word = words[i];
-                    list_add(&wn->link, result->heads[result->num++]);
+                    /* leaf node */
+                    INIT_LIST_HEAD(&sol->heads[0]);
+                    new_word_add(&sol->heads[sol->count++], words[i]);
                 }
             }
         }
-
-        return result;
+        return sol;
     }
 }
 
 /**
- ** Return an array of size *returnSize.
- ** Note: The returned array must be malloced, assume caller calls free().
- **/
-static char **wordBreak(char* s, char** wordDict, int wordDictSize, int *returnSize)
+ * Return an array of size *returnSize.
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+char **wordBreak(char* s, char** wordDict, int wordDictSize, int *returnSize)
 {
     if (wordDictSize == 0) {
         *returnSize = 0;
@@ -155,24 +114,24 @@ static char **wordBreak(char* s, char** wordDict, int wordDictSize, int *returnS
 
     int i, total = 0;
     int len = strlen(s);
-    int *sizes = malloc(wordDictSize * sizeof(int));
+    int *lens = malloc(wordDictSize * sizeof(int));
 
     /* Add into hash list */
     for (i = 0; i < wordDictSize; i++) {
-        sizes[i] = strlen(wordDict[i]);
-        total += sizes[i];
+        lens[i] = strlen(wordDict[i]);
+        total += lens[i];
     }
 
-    struct dfs_cache **caches = malloc(len * sizeof(*caches));
-    memset(caches, 0, len * sizeof(*caches));
-    struct dfs_cache *cache = dfs(s, wordDict, sizes, wordDictSize, caches, 0);
+    struct solution **sols = malloc(len * sizeof(void *));
+    memset(sols, 0, len * sizeof(void *));
+    struct solution *sol = dfs(s, wordDict, lens, wordDictSize, sols, 0);
 
-    char **results = malloc(cache->num * sizeof(char *));
-    for (i = 0; i < cache->num; i++) {
+    char **results = malloc(sol->count * sizeof(char *));
+    for (i = 0; i < sol->count; i++) {
         results[i] = malloc(total + 100);
         char *p = results[i];
         struct list_head *n;
-        list_for_each(n, cache->heads[i]) {
+        list_for_each(n, &sol->heads[i]) {
             struct word_node *wn = list_entry(n, struct word_node, link);
             char *q = wn->word;
             while ((*p++ = *q++) != '\0') {}
@@ -181,7 +140,7 @@ static char **wordBreak(char* s, char** wordDict, int wordDictSize, int *returnS
         *(p - 1) = '\0';
     }
 
-    *returnSize = cache->num;
+    *returnSize = sol->count;
     return results;
 }
 
