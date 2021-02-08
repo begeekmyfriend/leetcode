@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+
 #define container_of(ptr, type, member) \
     ((type *)((char *)(ptr) - (size_t)&(((type *)0)->member)))
 
@@ -9,16 +10,22 @@
     container_of(ptr, type, member)
 
 #define list_first_entry(ptr, type, field)  list_entry((ptr)->next, type, field)
-#define list_last_entry(ptr, type, field)  list_entry((ptr)->prev, type, field)
 
 #define list_for_each(p, head) \
         for (p = (head)->next; p != (head); p = p->next)
 
-#define list_for_each_safe(p, n, head) \
-        for (p = (head)->next, n = p->next; p != (head); p = n, n = p->next)
-
 struct list_head {
     struct list_head *next, *prev;
+};
+
+struct word_node {
+    char *word;
+    struct list_head node;
+    struct list_head sibling;
+    struct list_head link;
+    int par_num;
+    int step;
+    struct word_node *parents[];
 };
 
 static inline void INIT_LIST_HEAD(struct list_head *list)
@@ -61,22 +68,6 @@ static inline void list_del(struct list_head *entry)
     entry->next = entry->prev = NULL;
 }
 
-struct word_node {
-    int step;
-    char *word;
-    struct list_head node;
-};
-
-struct word_tree {
-    char *word;
-    struct list_head sibling;
-    struct list_head link;
-    struct word_tree **parents;
-    int par_num;
-    int par_cap;
-    int step;
-};
-
 static int BKDRHash(char* str, int size)
 {
     int seed = 131; // 31 131 1313 13131 131313 etc.. 
@@ -87,11 +78,11 @@ static int BKDRHash(char* str, int size)
     return hash % size;
 }
 
-static struct word_node *find(char *word, struct list_head *hheads, int size, int step)
+static struct word_node *find(char *word, struct list_head *dict, int size, int step)
 {
     struct list_head *p;
     int hash = BKDRHash(word, size);
-    list_for_each(p, &hheads[hash]) {
+    list_for_each(p, &dict[hash]) {
         struct word_node *node = list_entry(p, struct word_node, node);
         if (!strcmp(node->word, word)) {
             if (node->step == 0 || node->step == step) {
@@ -102,48 +93,35 @@ static struct word_node *find(char *word, struct list_head *hheads, int size, in
     return NULL;
 }
 
-static void parent_add(struct word_tree *parent, struct word_tree *child)
-{
-    if (child->par_num + 1 > child->par_cap) {
-        child->par_cap *= 2;
-        struct word_tree **parents = malloc(child->par_cap * sizeof(void *));
-        memcpy(parents, child->parents, child->par_num * sizeof(void *));
-        free(child->parents);
-        child->parents = parents;
-    }
-    child->parents[child->par_num++] = parent;
-}
-
 /**
  ** Return an array of arrays of size *returnSize.
  ** The sizes of the arrays are returned as *returnColumnSizes array.
  ** Note: Both returned array and *returnColumnSizes array must be malloced, assume caller calls free().
  **/
-static char*** findLadders(char* beginWord, char* endWord, char** wordList, int wordListSize, int* returnSize, int** returnColumnSizes)
+char*** findLadders(char* beginWord, char* endWord, char** wordList, int wordListSize, int* returnSize, int** returnColumnSizes)
 {
-    int i, j, k;
-    int len = strlen(beginWord);
+    int i, word_len = strlen(beginWord);
     int hashsize = wordListSize * 2;
-    char *word = malloc(len + 1);
+    char *word = malloc(word_len + 1);
 
-    struct list_head *hheads = malloc(hashsize * sizeof(*hheads));
+    struct list_head *dict = malloc(hashsize * sizeof(*dict));
     for (i = 0; i < hashsize; i++) {
-        INIT_LIST_HEAD(hheads + i);
+        INIT_LIST_HEAD(dict + i);
     }
 
-    struct list_head *level_heads = malloc(wordListSize * sizeof(*level_heads));
+    struct list_head *level_caches = malloc(wordListSize * sizeof(*level_caches));
     for (i = 0; i < wordListSize; i++) {
-        INIT_LIST_HEAD(&level_heads[i]);
+        INIT_LIST_HEAD(&level_caches[i]);
     }
 
-    /* Add into hash list */
+    /* Word dictionary */
     struct word_node *node;
     for (i = 0; i < wordListSize; i++) {
         node = malloc(sizeof(*node));
         node->word = wordList[i];
         node->step = 0;
         int hash = BKDRHash(wordList[i], hashsize);
-        list_add(&node->node, &hheads[hash]);
+        list_add(&node->node, &dict[hash]);
     }
 
     /* FIFO */
@@ -151,52 +129,52 @@ static char*** findLadders(char* beginWord, char* endWord, char** wordList, int 
     INIT_LIST_HEAD(&queue);
 
     /* Build tree structure for BFS */
-    struct word_tree *root = malloc(sizeof(*root));
+    struct word_node *root = malloc(sizeof(*root) + sizeof(void *));
     root->word = beginWord;
     root->step = 1;
-    root->par_cap = 1;
     root->par_num = 1;
-    root->parents = malloc(sizeof(void *));
     root->parents[0] = NULL;
-    list_add_tail(&root->sibling, &level_heads[0]);
-    node = find(beginWord, hheads, hashsize, 1);
+    list_add_tail(&root->sibling, &level_caches[0]);
+    node = find(beginWord, dict, hashsize, 1);
     if (node != NULL) {
         node->step = 1;
     }
 
-    /* BFS with FIFO for shortest path */
-    struct word_tree *first = root;
+    /* BFS with FIFO queue for shortest path */
+    struct word_node *first = root;
     while (strcmp(first->word, endWord)) {
         strcpy(word, first->word);
-        for (i = 0; i < len; i++) {
+        for (i = 0; i < word_len; i++) {
             char c;
             char o = word[i];
             for (c = 'a'; c <= 'z'; c++) {
+                if (c == o) continue;
                 word[i] = c;
-                node = find(word, hheads, hashsize, first->step + 1);
+                node = find(word, dict, hashsize, first->step + 1);
                 if (node != NULL) {
                     int enqueue = 1;
-                    list_for_each(p, &level_heads[first->step]) {
-                        struct word_tree *w = list_entry(p, struct word_tree, sibling);
-                        if (!strcmp(w->word, node->word)) {
+                    /* Search in level cache in case of duplication */
+                    list_for_each(p, &level_caches[first->step]) {
+                        struct word_node *w = list_entry(p, struct word_node, sibling);
+                        /* Here we could just check if they are the same reference */
+                        if (w->word == node->word) {
                             enqueue = 0;
                             /* record the parant relation */
-                            parent_add(first, w);
+                            w->parents[w->par_num++] = first;
                             break;
                         }
                     }
 
                     if (enqueue) {
+                        /* new level cache and enqueue */
                         node->step = first->step + 1;
-                        struct word_tree *new = malloc(sizeof(*new));
+                        struct word_node *new = malloc(sizeof(*new) + 15 * sizeof(void *));
                         new->word = node->word;
                         new->step = node->step;
-                        new->par_cap = 10;
                         new->par_num = 0;
-                        new->parents = malloc(new->par_cap * sizeof(void *));
-                        list_add_tail(&new->sibling, &level_heads[first->step]);
+                        list_add_tail(&new->sibling, &level_caches[first->step]);
                         list_add_tail(&new->link, &queue);
-                        parent_add(first, new);
+                        new->parents[new->par_num++] = first;
                     }
                 }
             }
@@ -207,53 +185,53 @@ static char*** findLadders(char* beginWord, char* endWord, char** wordList, int 
             *returnSize = 0;
             return NULL;
         } else {
-            first = list_first_entry(&queue, struct word_tree, link);
+            /* dequeue */
+            first = list_first_entry(&queue, struct word_node, link);
             list_del(&first->link);
         }
     }
 
-    i = 0;
+    *returnSize = 0;
     int size = first->step;
     char ***results = malloc(1000 * sizeof(char **));
     int *indexes = malloc(size * sizeof(int));
     memset(indexes, 0, size * sizeof(int));
-    struct word_tree **nodes = malloc(size * sizeof(*nodes));
-    list_for_each(p, &level_heads[size - 1]) {
-        struct word_tree *end = list_entry(p, struct word_tree, sibling);
+    struct word_node **nodes = malloc(size * sizeof(*nodes));
+    list_for_each(p, &level_caches[size - 1]) {
+        struct word_node *end = list_entry(p, struct word_node, sibling);
         if (!strcmp(end->word, endWord)) {
             int move_on = 1;
             while (move_on) {
                 move_on = 0;
-                struct word_tree *w = end;
-                char **list = results[i] = malloc(size * sizeof(char *));
-                for (j = size - 1; j >= 0; j--) {
-                    list[j] = malloc(len + 1);
-                    strcpy(list[j], w->word);
-                    nodes[j] = w;
-                    w = w->parents[indexes[j]];
+                struct word_node *w = end;
+                char **list = results[*returnSize] = malloc(size * sizeof(char *));
+                for (i = size - 1; i >= 0; i--) {
+                    list[i] = malloc(word_len + 1);
+                    strcpy(list[i], w->word);
+                    nodes[i] = w;
+                    w = w->parents[indexes[i]];
                 }
 
                 /* Switch to another branch */
-                for (j = 0; j < size; j++) {
-                    if (indexes[j] < nodes[j]->par_num - 1) {
-                        indexes[j]++;
-                        /* Reset indexes of parents  */
-                        memset(indexes, 0, j * sizeof(int));
+                for (i = 0; i < size; i++) {
+                    if (indexes[i] < nodes[i]->par_num - 1) {
+                        indexes[i]++;
+                        /* common prefix  */
+                        memset(indexes, 0, i * sizeof(int));
                         move_on = 1;
                         break;
                     }
                 }
 
-                i++;
+                (*returnSize)++;
             }
         }
     }
 
-    *returnColumnSizes = malloc(i * sizeof(int));
-    for (j = 0; j < i; j++) {
-        (*returnColumnSizes)[j] = size;
+    *returnColumnSizes = malloc(*returnSize * sizeof(int));
+    for (i = 0; i < *returnSize; i++) {
+        (*returnColumnSizes)[i] = size;
     }
-    *returnSize = i;
     return results;
 }
 
