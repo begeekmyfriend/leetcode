@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <string.h>
 
 #define container_of(ptr, type, member) \
@@ -9,13 +10,9 @@
     container_of(ptr, type, member)
 
 #define list_first_entry(ptr, type, field)  list_entry((ptr)->next, type, field)
-#define list_last_entry(ptr, type, field)  list_entry((ptr)->prev, type, field)
 
 #define list_for_each(p, head) \
     for (p = (head)->next; p != (head); p = p->next)
-
-#define list_for_each_safe(p, n, head) \
-    for (p = (head)->next, n = p->next; p != (head); p = n, n = p->next)
 
 struct list_head {
     struct list_head *next, *prev;
@@ -78,11 +75,11 @@ static int BKDRHash(char* str, int size)
     return hash % size;
 }
 
-static struct word_node *find(char *word, struct list_head *hheads, int size)
+static struct word_node *find(char *word, struct list_head *dict, int size)
 {
     struct list_head *p;
     int hash = BKDRHash(word, size);
-    list_for_each(p, &hheads[hash]) {
+    list_for_each(p, &dict[hash]) {
         struct word_node *node = list_entry(p, struct word_node, node);
         if (node->step == 0 && !strcmp(node->word, word)) {
             return node;
@@ -98,18 +95,25 @@ static int ladderLength(char* beginWord, char* endWord, char** wordList, int wor
     struct list_head queue;
     struct word_node *node;
 
-    struct list_head *hheads = malloc(wordListSize * sizeof(*hheads));
+    struct list_head *dict = malloc(wordListSize * sizeof(*dict));
     for (i = 0; i < wordListSize; i++) {
-        INIT_LIST_HEAD(hheads + i);
+        INIT_LIST_HEAD(dict + i);
     }
 
     /* Add into hash list */
+    bool found = false;
     for (i = 0; i < wordListSize; i++) {
         node = malloc(sizeof(*node));
         node->word = wordList[i];
         node->step = 0;
         int hash = BKDRHash(wordList[i], wordListSize);
-        list_add(&node->node, &hheads[hash]);
+        list_add(&node->node, &dict[hash]);
+        if (!strcmp(endWord, wordList[i])) {
+            found = true;
+        }
+    }
+    if (!found) {
+        return 0;
     }
 
     /* FIFO */
@@ -127,8 +131,9 @@ static int ladderLength(char* beginWord, char* endWord, char** wordList, int wor
             for (c = 'a'; c <= 'z'; c++) {
                 if (c == o) continue;
                 word[i] = c;
-                node = find(word, hheads, wordListSize);
+                node = find(word, dict, wordListSize);
                 if (node != NULL) {
+                    /* enqueue */
                     list_add_tail(&node->link, &queue);
                     node->step = first->step + 1;
                 }
@@ -139,6 +144,7 @@ static int ladderLength(char* beginWord, char* endWord, char** wordList, int wor
         if (list_empty(&queue)) {
             return 0;
         } else {
+            /* dequeue */
             first = list_first_entry(&queue, struct word_node, link);
             list_del(&first->link);
         }
