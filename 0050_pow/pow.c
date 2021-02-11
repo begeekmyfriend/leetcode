@@ -2,7 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-static double fast_pow(double x, int n)
+
+double fast_pow(double x, int n)
 {
     if (n == 0) { return 1.0; }
     if (n == 1) { return x; }
@@ -10,7 +11,7 @@ static double fast_pow(double x, int n)
     return n & 1 ? t * t * x : t * t;
 }
 
-static double my_pow(double x, int n)
+double my_pow(double x, int n)
 {
     if (n == INT_MIN) {
         double t = 1 / fast_pow(x, -(n / 2));
