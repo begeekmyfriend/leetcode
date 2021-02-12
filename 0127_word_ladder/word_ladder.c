@@ -11,8 +11,10 @@
 
 #define list_first_entry(ptr, type, field)  list_entry((ptr)->next, type, field)
 
-#define list_for_each(p, head) \
-    for (p = (head)->next; p != (head); p = p->next)
+#define list_for_each_entry(pos, head, member) \
+    for (pos = list_entry((head)->next, typeof(*pos), member); \
+         &(pos)->member != (head); \
+         pos = list_entry((pos)->member.next, typeof(*pos), member))
 
 struct list_head {
     struct list_head *next, *prev;
@@ -77,10 +79,9 @@ static int BKDRHash(char* str, int size)
 
 static struct word_node *find(char *word, struct list_head *dict, int size)
 {
-    struct list_head *p;
+    struct word_node *node;
     int hash = BKDRHash(word, size);
-    list_for_each(p, &dict[hash]) {
-        struct word_node *node = list_entry(p, struct word_node, node);
+    list_for_each_entry(node, &dict[hash], node) {
         if (node->step == 0 && !strcmp(node->word, word)) {
             return node;
         }

@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define NEIGHBORS_MAX_SIZE 100
 
 #define container_of(ptr, type, member) \
     ((type *)((char *)(ptr) - (size_t)&(((type *)0)->member)))
@@ -9,67 +8,59 @@
 #define list_entry(ptr, type, member) \
     container_of(ptr, type, member)
 
-#define hlist_for_each(pos, head) \
-    for (pos = (head)->first; pos; pos = pos->next)
+#define list_for_each_entry(pos, head, member) \
+    for (pos = list_entry((head)->next, typeof(*pos), member); \
+         &(pos)->member != (head); \
+         pos = list_entry((pos)->member.next, typeof(*pos), member))
 
-#define hlist_for_each_safe(pos, n, head) \
-    for (pos = (head)->first; pos && ({ n = pos->next; true; }); pos = n)
-
-struct hlist_node;
-
-struct hlist_head {
-    struct hlist_node *first;
+struct list_head {
+    struct list_head *next, *prev;
 };
-
-struct hlist_node {
-    struct hlist_node *next, **pprev;
-};
-
-static inline void INIT_HLIST_HEAD(struct hlist_head *h) {
-    h->first = NULL;
-}
-
-static inline int hlist_empty(struct hlist_head *h) {
-    return !h->first;
-}
-
-static inline void hlist_add_head(struct hlist_node *n, struct hlist_head *h)
-{
-    if (h->first != NULL) {
-        h->first->pprev = &n->next;
-    }
-    n->next = h->first;
-    n->pprev = &h->first;
-    h->first = n;
-}
-
-static inline void hlist_del(struct hlist_node *n)
-{
-    struct hlist_node *next = n->next;
-    struct hlist_node **pprev = n->pprev;
-    *pprev = next;
-    if (next != NULL) {
-        next->pprev = pprev;
-    }
-}
 
 struct UndirectedGraphNode {
     int label;
-    struct UndirectedGraphNode *neighbors[NEIGHBORS_MAX_SIZE];
+    struct UndirectedGraphNode *neighbors[100];
     int neighborsCount;
 };
 
 struct label_node {
+    struct list_head link;
     struct UndirectedGraphNode *gn;
-    struct hlist_node node;
 };
 
-static struct UndirectedGraphNode *find(int label, int size, struct hlist_head *heads)
+static inline void INIT_LIST_HEAD(struct list_head *list)
 {
+    list->next = list->prev = list;
+}
+
+static inline int list_empty(const struct list_head *head)
+{
+    return (head->next == head);
+}
+
+static inline void __list_add(struct list_head *new, struct list_head *prev, struct list_head *next)
+{
+    next->prev = new;
+    new->next = next;
+    new->prev = prev;
+    prev->next = new;
+}
+
+static inline void list_add(struct list_head *_new, struct list_head *head)
+{
+    __list_add(_new, head, head->next);
+}
+
+static inline void list_add_tail(struct list_head *_new, struct list_head *head)
+{
+    __list_add(_new, head->prev, head);
+}
+
+static struct UndirectedGraphNode *find(int label, int size, struct list_head *heads)
+{
+    struct label_node *ln;
     int hash = (label < 0 ? -label : label) % size;
-    struct hlist_node *p;
-    hlist_for_each(p, &heads[hash]) {
-        struct label_node *ln = list_entry(p, struct label_node, node);
+    list_for_each_entry(ln, &heads[hash], link) {
         if (ln->gn->label == label) {
             return ln->gn;
         }
@@ -77,7 +68,7 @@ static struct UndirectedGraphNode *find(int label, int size, struct hlist_head *
     return NULL;
 }
 
-static struct UndirectedGraphNode *dfs(struct UndirectedGraphNode *graph, struct hlist_head *heads, int size)
+static struct UndirectedGraphNode *dfs(struct UndirectedGraphNode *graph, struct list_head *heads, int size)
 {
     if (graph == NULL) {
         return NULL;
@@ -94,7 +85,7 @@ static struct UndirectedGraphNode *dfs(struct UndirectedGraphNode *graph, struct
     struct label_node *ln = malloc(sizeof(*ln));
     ln->gn = node;
     int hash = (node->label < 0 ? -node->label : node->label) % size;
-    hlist_add_head(&ln->node, &heads[hash]);
+    list_add(&ln->link, &heads[hash]);
 
     int i;
     for (i = 0; i < node->neighborsCount; i++) {
@@ -104,14 +95,13 @@ static struct UndirectedGraphNode *dfs(struct UndirectedGraphNode *graph, struct
     return node;
 }
 
-static struct UndirectedGraphNode *cloneGraph(struct UndirectedGraphNode *graph)
+struct UndirectedGraphNode *cloneGraph(struct UndirectedGraphNode *graph)
 {
     int i, cap = 1000;
-    struct hlist_head *heads = malloc(cap * sizeof(*heads));
+    struct list_head *heads = malloc(cap * sizeof(*heads));
     for (i = 0; i < cap; i++) {
-        INIT_HLIST_HEAD(&heads[i]);
+        INIT_LIST_HEAD(&heads[i]);
     }
-
     return dfs(graph, heads, cap);
 }
 

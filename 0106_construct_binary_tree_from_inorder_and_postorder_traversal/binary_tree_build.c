@@ -1,52 +1,21 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+
 #define container_of(ptr, type, member) \
     ((type *)((char *)(ptr) - (size_t)&(((type *)0)->member)))
 
 #define list_entry(ptr, type, member) \
     container_of(ptr, type, member)
 
-#define hlist_for_each(pos, head) \
-    for (pos = (head)->first; pos; pos = pos->next)
+#define list_for_each_entry(pos, head, member) \
+    for (pos = list_entry((head)->next, typeof(*pos), member); \
+         &(pos)->member != (head); \
+         pos = list_entry((pos)->member.next, typeof(*pos), member))
 
-struct hlist_node;
-
-struct hlist_head {
-    struct hlist_node *first;
+struct list_head {
+    struct list_head *next, *prev;
 };
-
-struct hlist_node {
-    struct hlist_node *next, **prev;
-};
-
-static inline void INIT_HLIST_HEAD(struct hlist_head *h) {
-    h->first = NULL;
-}
-
-static inline int hlist_empty(struct hlist_head *h) {
-    return !h->first;
-}
-
-static inline void hlist_add_head(struct hlist_node *n, struct hlist_head *h)
-{
-    if (h->first != NULL) {
-        h->first->prev = &n->next;
-    }
-    n->next = h->first;
-    n->prev = &h->first;
-    h->first = n;
-}
-
-static inline void hlist_del(struct hlist_node *n)
-{
-    struct hlist_node *next = n->next;
-    struct hlist_node **prev = n->prev;
-    *prev = next;
-    if (next != NULL) {
-        next->prev = prev;
-    }
-}
 
 struct TreeNode {
     int val;
@@ -55,17 +24,44 @@ struct TreeNode {
 };
 
 struct order_node {
-    struct hlist_node node;
+    struct list_head link;
     int val;
     int index;
 };
 
-static int find(int num, int size, struct hlist_head *heads)
+static inline void INIT_LIST_HEAD(struct list_head *list)
 {
-    struct hlist_node *p;
+    list->next = list->prev = list;
+}
+
+static inline int list_empty(const struct list_head *head)
+{
+    return (head->next == head);
+}
+
+static inline void __list_add(struct list_head *new, struct list_head *prev, struct list_head *next)
+{
+    next->prev = new;
+    new->next = next;
+    new->prev = prev;
+    prev->next = new;
+}
+
+static inline void list_add(struct list_head *_new, struct list_head *head)
+{
+    __list_add(_new, head, head->next);
+}
+
+static inline void list_add_tail(struct list_head *_new, struct list_head *head)
+{
+    __list_add(_new, head->prev, head);
+}
+
+static int find(int num, int size, struct list_head *heads)
+{
+    struct order_node *on;
     int hash = (num < 0 ? -num : num) % size;
-    hlist_for_each(p, &heads[hash]) {
-        struct order_node *on = list_entry(p, struct order_node, node);
+    list_for_each_entry(on, &heads[hash], link) {
         if (num == on->val) {
             return on->index;
         }
@@ -73,17 +69,17 @@ static int find(int num, int size, struct hlist_head *heads)
     return -1;
 }
 
-static void node_add(int val, int index, int size, struct hlist_head *heads)
+static void node_add(int val, int index, int size, struct list_head *heads)
 {
     struct order_node *on = malloc(sizeof(*on));
     on->val = val;
     on->index = index;
     int hash = (val < 0 ? -val : val) % size;
-    hlist_add_head(&on->node, &heads[hash]);
+    list_add(&on->link, &heads[hash]);
 }
 
 static struct TreeNode *dfs(int *inorder, int in_lo, int in_hi, int *postorder,
-                            int post_lo, int post_hi, struct hlist_head *in_heads, int size)
+                            int post_lo, int post_hi, struct list_head *in_heads, int size)
 {
     if (in_lo > in_hi || post_lo > post_hi) {
         return NULL;
@@ -96,12 +92,12 @@ static struct TreeNode *dfs(int *inorder, int in_lo, int in_hi, int *postorder,
     return tn;
 }
 
-static struct TreeNode *buildTree(int *inorder, int inorderSize, int *postorder, int postorderSize)
+struct TreeNode *buildTree(int *inorder, int inorderSize, int *postorder, int postorderSize)
 {
     int i;
-    struct hlist_head *in_heads = malloc(inorderSize * sizeof(*in_heads));
+    struct list_head *in_heads = malloc(inorderSize * sizeof(*in_heads));
     for (i = 0; i < inorderSize; i++) {
-        INIT_HLIST_HEAD(&in_heads[i]);
+        INIT_LIST_HEAD(&in_heads[i]);
     }
     for (i = 0; i < inorderSize; i++) {
         node_add(inorder[i], i, inorderSize, in_heads);

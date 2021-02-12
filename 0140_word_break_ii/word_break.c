@@ -9,8 +9,10 @@
 #define list_entry(ptr, type, member) \
     container_of(ptr, type, member)
 
-#define	list_for_each(p, head) \
-    for (p = (head)->next; p != (head); p = p->next)
+#define list_for_each_entry(pos, head, member) \
+    for (pos = list_entry((head)->next, typeof(*pos), member); \
+         &(pos)->member != (head); \
+         pos = list_entry((pos)->member.next, typeof(*pos), member))
 
 struct list_head {
     struct list_head *next, *prev;
@@ -83,9 +85,8 @@ static struct solution *dfs(char *s, char **words, int *lens, int size,
                         /* Append all sub-solutions */
                         INIT_LIST_HEAD(&sol->heads[j]);
                         new_word_add(&sol->heads[j], words[i]);
-                        struct list_head *p;
-                        list_for_each(p, &sub_sol->heads[j - k]) {
-                            struct word_node *wn = list_entry(p, struct word_node, link);
+                        struct word_node *wn;
+                        list_for_each_entry(wn, &sub_sol->heads[j - k], link) {
                             new_word_add(&sol->heads[j], wn->word);
                         }
                         sol->count++;
@@ -130,9 +131,8 @@ char **wordBreak(char* s, char** wordDict, int wordDictSize, int *returnSize)
     for (i = 0; i < sol->count; i++) {
         results[i] = malloc(total + 100);
         char *p = results[i];
-        struct list_head *n;
-        list_for_each(n, &sol->heads[i]) {
-            struct word_node *wn = list_entry(n, struct word_node, link);
+        struct word_node *wn;
+        list_for_each_entry(wn, &sol->heads[i], link) {
             char *q = wn->word;
             while ((*p++ = *q++) != '\0') {}
             *(p - 1) = ' ';

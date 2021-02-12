@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+
 #define container_of(ptr, type, member) \
     ((type *)((char *)(ptr) - (size_t)&(((type *)0)->member)))
 
@@ -11,11 +12,16 @@
 #define list_first_entry(ptr, type, field)  list_entry((ptr)->next, type, field)
 #define list_last_entry(ptr, type, field)  list_entry((ptr)->prev, type, field)
 
-#define list_for_each(p, head) \
-    for (p = (head)->next; p != (head); p = p->next)
+#define list_for_each_entry(pos, head, member) \
+    for (pos = list_entry((head)->next, typeof(*pos), member); \
+         &(pos)->member != (head); \
+         pos = list_entry((pos)->member.next, typeof(*pos), member))
 
-#define list_for_each_safe(p, n, head) \
-    for (p = (head)->next, n = p->next; p != (head); p = n, n = p->next)
+#define list_for_each_entry_safe(pos, n, head, member) \
+    for (pos = list_entry((head)->next, typeof(*pos), member), \
+         n = list_entry(pos->member.next, typeof(*pos), member); \
+         &pos->member != (head); \
+         pos = n, n = list_entry(n->member.next, typeof(*n), member))
 
 struct list_head {
     struct list_head *next, *prev;
@@ -348,10 +354,9 @@ int lFUCacheGet(LFUCache* obj, int key)
         return;
     }
 
-    struct list_head *pos;
+    LFUNode *lfu;
     int hash = key % obj->capacity;
-    list_for_each(pos, &obj->hheads[hash]) {
-        LFUNode *lfu = list_entry(pos, LFUNode, key_link);
+    list_for_each_entry(lfu, &obj->hheads[hash], key_link) {
         if (lfu->key == key) {
             freq_incr(obj->tree, lfu, key);
             return lfu->val;
@@ -368,9 +373,7 @@ void lFUCachePut(LFUCache* obj, int key, int value)
 
     LFUNode *lfu;
     int hash = key % obj->capacity;
-    struct list_head *pos;
-    list_for_each(pos, &obj->hheads[hash]) {
-        lfu = list_entry(pos, LFUNode, key_link);
+    list_for_each(lfu, &obj->hheads[hash], key_link) {
         if (lfu->key == key) {
             freq_incr(obj->tree, lfu, key);
             lfu->val = value;
@@ -404,9 +407,8 @@ void lFUCacheFree(LFUCache* obj)
 {
     int i;
     for (i = 0; i < obj->capacity; i++) {
-        struct list_head *pos, *n;
-        list_for_each_safe(pos, n, &obj->hheads[i]) {
-            LFUNode *lfu = list_entry(pos, LFUNode, key_link);
+        LFUNode *lfu, *n;
+        list_for_each_entry_safe(lfu, n, &obj->hheads[i], key_link) {
             list_del(&lfu->dlink);
             list_del(&lfu->key_link);
             free(lfu);

@@ -3,55 +3,21 @@
 #include <stdbool.h>
 #include <string.h>
 
+
 #define container_of(ptr, type, member) \
     ((type *)((char *)(ptr) - (size_t)&(((type *)0)->member)))
 
 #define list_entry(ptr, type, member) \
     container_of(ptr, type, member)
 
-#define hlist_for_each(pos, head) \
-    for (pos = (head)->first; pos; pos = pos->next)
+#define list_for_each_entry(pos, head, member) \
+    for (pos = list_entry((head)->next, typeof(*pos), member); \
+         &(pos)->member != (head); \
+         pos = list_entry((pos)->member.next, typeof(*pos), member))
 
-#define hlist_for_each_safe(pos, n, head) \
-    for (pos = (head)->first; pos && ({ n = pos->next; true; }); pos = n)
-
-struct hlist_node;
-
-struct hlist_head {
-    struct hlist_node *first;
+struct list_head {
+    struct list_head *next, *prev;
 };
-
-struct hlist_node {
-    struct hlist_node *next, **pprev;
-};
-
-static inline void INIT_HLIST_HEAD(struct hlist_head *h) {
-    h->first = NULL;
-}
-
-static inline int hlist_empty(struct hlist_head *h) {
-    return !h->first;
-}
-
-static inline void hlist_add_head(struct hlist_node *n, struct hlist_head *h)
-{
-    if (h->first != NULL) {
-        h->first->pprev = &n->next;
-    }
-    n->next = h->first;
-    n->pprev = &h->first;
-    h->first = n;
-}
-
-static inline void hlist_del(struct hlist_node *n)
-{
-    struct hlist_node *next = n->next;
-    struct hlist_node **pprev = n->pprev;
-    *pprev = next;
-    if (next != NULL) {
-        next->pprev = pprev;
-    }
-}
 
 struct Point {
     int x, y;
@@ -60,14 +26,41 @@ struct Point {
 struct point_node {
     int p1;
     int p2;
-    struct hlist_node node;
+    struct list_head link;
 };
 
-static bool can_insert(struct hlist_head *head, int p1, int p2)
+static inline void INIT_LIST_HEAD(struct list_head *list)
 {
-    struct hlist_node *pos;
-    hlist_for_each(pos, head) {
-        struct point_node *pn = list_entry(pos, struct point_node, node);
+    list->next = list->prev = list;
+}
+
+static inline int list_empty(const struct list_head *head)
+{
+    return (head->next == head);
+}
+
+static inline void __list_add(struct list_head *new, struct list_head *prev, struct list_head *next)
+{
+    next->prev = new;
+    new->next = next;
+    new->prev = prev;
+    prev->next = new;
+}
+
+static inline void list_add(struct list_head *_new, struct list_head *head)
+{
+    __list_add(_new, head, head->next);
+}
+
+static inline void list_add_tail(struct list_head *_new, struct list_head *head)
+{
+    __list_add(_new, head->prev, head);
+}
+
+static bool can_insert(struct list_head *head, int p1, int p2)
+{
+    struct point_node *pn;
+    list_for_each_entry(pn, head, link) {
         return p1 == pn->p1;
     }
     return true;
@@ -102,9 +95,9 @@ static int maxPoints(struct Point *points, int pointsSize)
         dup_cnts[i] = 1;
     }
 
-    struct hlist_head *heads = malloc(slope_size * sizeof(*heads));
+    struct list_head *heads = malloc(slope_size * sizeof(*heads));
     for (i = 0; i < slope_size; i++) {
-        INIT_HLIST_HEAD(&heads[i]);
+        INIT_LIST_HEAD(&heads[i]);
     }
 
     for (i = 0; i < pointsSize; i++) {
@@ -139,17 +132,16 @@ static int maxPoints(struct Point *points, int pointsSize)
                     struct point_node *pn = malloc(sizeof(*pn));
                     pn->p1 = i;
                     pn->p2 = j;
-                    hlist_add_head(&pn->node, &heads[hash]);
+                    list_add(&pn->link, &heads[hash]);
                 }
             }
         }
     }
 
     for (i = 0; i < slope_size; i++) {
-        struct hlist_node *pos;
         int index = -1;
-        hlist_for_each(pos, &heads[i]) {
-            struct point_node *pn = list_entry(pos, struct point_node, node);
+        struct point_node *pn;
+        list_for_each_entry(pn, &heads[i], link) {
             index = pn->p1;
             slope_cnts[i]++;
         }

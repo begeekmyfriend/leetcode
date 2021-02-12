@@ -10,76 +10,20 @@
 #define	list_first_entry(ptr, type, field)  list_entry((ptr)->next, type, field)
 #define	list_last_entry(ptr, type, field)  list_entry((ptr)->prev, type, field)
 
-#define	list_for_each(p, head) \
-    for (p = (head)->next; p != (head); p = p->next)
+#define list_for_each_entry(pos, head, member) \
+    for (pos = list_entry((head)->next, typeof(*pos), member); \
+         &(pos)->member != (head); \
+         pos = list_entry((pos)->member.next, typeof(*pos), member))
 
-#define	list_for_each_safe(p, n, head) \
-    for (p = (head)->next, n = p->next; p != (head); p = n, n = p->next)
+#define list_for_each_entry_safe(pos, n, head, member) \
+    for (pos = list_entry((head)->next, typeof(*pos), member), \
+         n = list_entry(pos->member.next, typeof(*pos), member); \
+         &pos->member != (head); \
+         pos = n, n = list_entry(n->member.next, typeof(*n), member))
 
 struct list_head {
     struct list_head *next, *prev;
 };
-
-static inline void
-INIT_LIST_HEAD(struct list_head *list)
-{
-    list->next = list->prev = list;
-}
-
-static inline int
-list_empty(const struct list_head *head)
-{
-    return (head->next == head);
-}
-
-static inline void
-__list_add(struct list_head *new, struct list_head *prev, struct list_head *next)
-{
-    next->prev = new;
-    new->next = next;
-    new->prev = prev;
-    prev->next = new;
-}
-
-static inline void
-list_add(struct list_head *_new, struct list_head *head)
-{
-    __list_add(_new, head, head->next);
-}
-
-static inline void
-list_add_tail(struct list_head *_new, struct list_head *head)
-{
-    __list_add(_new, head->prev, head);
-}
-
-static inline void
-__list_del(struct list_head *entry)
-{
-    entry->next->prev = entry->prev;
-    entry->prev->next = entry->next;
-}
-
-static inline void
-list_del(struct list_head *entry)
-{
-    __list_del(entry);
-    entry->next = entry->prev = NULL;
-}
-
-static inline void
-list_move(struct list_head *list, struct list_head *head)
-{
-    __list_del(list);
-    list_add(list, head);
-}
-
-static inline void
-list_move_tail(struct list_head *entry, struct list_head *head)
-{
-    __list_del(entry);
-    list_add_tail(entry, head);
-}
 
 typedef struct {
     int capacity;
@@ -95,6 +39,57 @@ typedef struct {
     struct list_head dlink;
 } LRUNode;
 
+static inline void INIT_LIST_HEAD(struct list_head *list)
+{
+    list->next = list->prev = list;
+}
+
+static inline int list_empty(const struct list_head *head)
+{
+    return (head->next == head);
+}
+
+static inline void __list_add(struct list_head *new, struct list_head *prev, struct list_head *next)
+{
+    next->prev = new;
+    new->next = next;
+    new->prev = prev;
+    prev->next = new;
+}
+
+static inline void list_add(struct list_head *_new, struct list_head *head)
+{
+    __list_add(_new, head, head->next);
+}
+
+static inline void list_add_tail(struct list_head *_new, struct list_head *head)
+{
+    __list_add(_new, head->prev, head);
+}
+
+static inline void __list_del(struct list_head *entry)
+{
+    entry->next->prev = entry->prev;
+    entry->prev->next = entry->next;
+}
+
+static inline void list_del(struct list_head *entry)
+{
+    __list_del(entry);
+    entry->next = entry->prev = NULL;
+}
+
+static inline void list_move(struct list_head *list, struct list_head *head)
+{
+    __list_del(list);
+    list_add(list, head);
+}
+
+static inline void list_move_tail(struct list_head *entry, struct list_head *head)
+{
+    __list_del(entry);
+    list_add_tail(entry, head);
+}
 
 LRUCache *lRUCacheCreate(int capacity)
 {
@@ -111,9 +106,8 @@ LRUCache *lRUCacheCreate(int capacity)
 
 void lRUCacheFree(LRUCache *obj)
 {
-    struct list_head *pos, *n;
-    list_for_each_safe(pos, n, &obj->dhead) {
-        LRUNode *lru = list_entry(pos, LRUNode, dlink);
+    LRUNode *lru, *n;
+    list_for_each_entry_safe(lru, n, &obj->dhead, dlink) {
         list_del(&lru->dlink);
         free(lru);
     }
@@ -122,10 +116,9 @@ void lRUCacheFree(LRUCache *obj)
 
 int lRUCacheGet(LRUCache *obj, int key)
 {
+    LRUNode *lru;
     int hash = key % obj->capacity;
-    struct list_head *pos;
-    list_for_each(pos, &obj->hheads[hash]) {
-        LRUNode *lru = list_entry(pos, LRUNode, hlink);
+    list_for_each_entry(lru, &obj->hheads[hash], hlink) {
         if (lru->key == key) {
             /* Move it to header */
             list_move(&lru->dlink, &obj->dhead);
@@ -139,9 +132,7 @@ void lRUCachePut(LRUCache *obj, int key, int value)
 {
     LRUNode *lru;
     int hash = key % obj->capacity;
-    struct list_head *pos;
-    list_for_each(pos, &obj->hheads[hash]) {
-        lru = list_entry(pos, LRUNode, hlink);
+    list_for_each_entry(lru, &obj->hheads[hash], hlink) {
         if (lru->key == key) {
             list_move(&lru->dlink, &obj->dhead);
             lru->value = value;
@@ -172,9 +163,8 @@ void lRUCacheDump(LRUCache *obj)
     printf(">>> Total %d nodes: \n", obj->count);
     for (i = 0; i < obj->count; i++) {
         printf("hash:%d:", i);
-        struct list_head *pos;
-        list_for_each(pos, &obj->hheads[i]) {
-            lru = list_entry(pos, LRUNode, hlink);
+        list_for_each_entry(lru, &obj->hheads[i], hlink) {
+            lru = list_entry(lru, LRUNode, hlink);
             if (lru != NULL) {
                 printf(" (%d %d)", lru->key, lru->value);
             }
@@ -183,9 +173,7 @@ void lRUCacheDump(LRUCache *obj)
     }
 
     printf(">>> Double list dump\n");
-    struct list_head *p;
-    list_for_each(p, &obj->dhead) {
-        lru = list_entry(p, LRUNode, dlink);
+    list_for_each_entry(lru, &obj->dhead, dlink) {
         printf("(%d %d)\n", lru->key, lru->value);
     }
 }

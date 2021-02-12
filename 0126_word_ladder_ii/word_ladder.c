@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -11,8 +12,10 @@
 
 #define list_first_entry(ptr, type, field)  list_entry((ptr)->next, type, field)
 
-#define list_for_each(p, head) \
-        for (p = (head)->next; p != (head); p = p->next)
+#define list_for_each_entry(pos, head, member) \
+    for (pos = list_entry((head)->next, typeof(*pos), member); \
+         &(pos)->member != (head); \
+         pos = list_entry((pos)->member.next, typeof(*pos), member))
 
 struct list_head {
     struct list_head *next, *prev;
@@ -80,10 +83,9 @@ static int BKDRHash(char* str, int size)
 
 static struct word_node *find(char *word, struct list_head *dict, int size, int step)
 {
-    struct list_head *p;
+    struct word_node *node;
     int hash = BKDRHash(word, size);
-    list_for_each(p, &dict[hash]) {
-        struct word_node *node = list_entry(p, struct word_node, node);
+    list_for_each_entry(node, &dict[hash], node) {
         if (!strcmp(node->word, word)) {
             if (node->step == 0 || node->step == step) {
                 return node;
@@ -115,17 +117,25 @@ char*** findLadders(char* beginWord, char* endWord, char** wordList, int wordLis
     }
 
     /* Word dictionary */
-    struct word_node *node;
+    *returnSize = 0;
+    bool found = false;
+    struct word_node *node, *wn;
     for (i = 0; i < wordListSize; i++) {
         node = malloc(sizeof(*node));
         node->word = wordList[i];
         node->step = 0;
         int hash = BKDRHash(wordList[i], hashsize);
         list_add(&node->node, &dict[hash]);
+        if (!strcmp(endWord, wordList[i])) {
+            found = true;
+        }
+    }
+    if (!found) {
+        return NULL;
     }
 
     /* FIFO */
-    struct list_head *p, queue;
+    struct list_head queue;
     INIT_LIST_HEAD(&queue);
 
     /* Build tree structure for BFS */
@@ -154,13 +164,12 @@ char*** findLadders(char* beginWord, char* endWord, char** wordList, int wordLis
                 if (node != NULL) {
                     int enqueue = 1;
                     /* Search in level cache in case of duplication */
-                    list_for_each(p, &level_caches[first->step]) {
-                        struct word_node *w = list_entry(p, struct word_node, sibling);
+                    list_for_each_entry(wn, &level_caches[first->step], sibling) {
                         /* Here we could just check if they are the same reference */
-                        if (w->word == node->word) {
+                        if (wn->word == node->word) {
                             enqueue = 0;
                             /* record the parant relation */
-                            w->parents[w->par_num++] = first;
+                            wn->parents[wn->par_num++] = first;
                             break;
                         }
                     }
@@ -182,7 +191,6 @@ char*** findLadders(char* beginWord, char* endWord, char** wordList, int wordLis
         }
 
         if (list_empty(&queue)) {
-            *returnSize = 0;
             return NULL;
         } else {
             /* dequeue */
@@ -191,25 +199,24 @@ char*** findLadders(char* beginWord, char* endWord, char** wordList, int wordLis
         }
     }
 
-    *returnSize = 0;
     int size = first->step;
     char ***results = malloc(1000 * sizeof(char **));
     int *indexes = malloc(size * sizeof(int));
     memset(indexes, 0, size * sizeof(int));
     struct word_node **nodes = malloc(size * sizeof(*nodes));
-    list_for_each(p, &level_caches[size - 1]) {
-        struct word_node *end = list_entry(p, struct word_node, sibling);
+    struct word_node *end;
+    list_for_each_entry(end, &level_caches[size - 1], sibling) {
         if (!strcmp(end->word, endWord)) {
             int move_on = 1;
             while (move_on) {
                 move_on = 0;
-                struct word_node *w = end;
+                wn = end;
                 char **list = results[*returnSize] = malloc(size * sizeof(char *));
                 for (i = size - 1; i >= 0; i--) {
                     list[i] = malloc(word_len + 1);
-                    strcpy(list[i], w->word);
-                    nodes[i] = w;
-                    w = w->parents[indexes[i]];
+                    strcpy(list[i], wn->word);
+                    nodes[i] = wn;
+                    wn = wn->parents[indexes[i]];
                 }
 
                 /* Switch to another branch */

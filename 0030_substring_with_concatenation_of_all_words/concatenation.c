@@ -3,48 +3,67 @@
 #include <stdbool.h>
 #include <string.h>
 
+
 #define container_of(ptr, type, member) \
     ((type *)((char *)(ptr) - (size_t)&(((type *)0)->member)))
 
 #define list_entry(ptr, type, member) \
     container_of(ptr, type, member)
 
-#define hlist_for_each(pos, head) \
-    for (pos = (head)->first; pos; pos = pos->next)
+#define list_for_each_entry(pos, head, member) \
+    for (pos = list_entry((head)->next, typeof(*pos), member); \
+         &(pos)->member != (head); \
+         pos = list_entry((pos)->member.next, typeof(*pos), member))
 
-struct hlist_node;
-
-struct hlist_head {
-    struct hlist_node *first;
+struct list_head {
+    struct list_head *next, *prev;
 };
-
-struct hlist_node {
-    struct hlist_node *next, **pprev;
-};
-
-static inline void INIT_HLIST_HEAD(struct hlist_head *h) {
-    h->first = NULL;
-}
-
-static inline int hlist_empty(struct hlist_head *h) {
-    return !h->first;
-}
-
-static inline void hlist_add_head(struct hlist_node *n, struct hlist_head *h)
-{
-    if (h->first != NULL) {
-        h->first->pprev = &n->next;
-    }
-    n->next = h->first;
-    n->pprev = &h->first;
-    h->first = n;
-}
 
 struct word_node {
-    struct hlist_node node;
     char *word;
     int index;
+    struct list_head link;
 };
+
+static inline void INIT_LIST_HEAD(struct list_head *list)
+{
+    list->next = list->prev = list;
+}
+
+static inline int list_empty(const struct list_head *head)
+{
+    return (head->next == head);
+}
+
+static inline void __list_add(struct list_head *new, struct list_head *prev, struct list_head *next)
+{
+    next->prev = new;
+    new->next = next;
+    new->prev = prev;
+    prev->next = new;
+}
+
+static inline void list_add(struct list_head *_new, struct list_head *head)
+{
+    __list_add(_new, head, head->next);
+}
+
+static inline void list_add_tail(struct list_head *_new, struct list_head *head)
+{
+    __list_add(_new, head->prev, head);
+}
+
+static inline void __list_del(struct list_head *entry)
+{
+    entry->next->prev = entry->prev;
+    entry->prev->next = entry->next;
+}
+
+static inline void list_del(struct list_head *entry)
+{
+    __list_del(entry);
+    entry->next = entry->prev = NULL;
+}
 
 static inline int BKDRHash(char *s, size_t size)
 {
@@ -56,12 +75,11 @@ static inline int BKDRHash(char *s, size_t size)
     return hash % size;
 }
 
-static int find(char *word, struct hlist_head *heads, int size)
+static int find(char *word, struct list_head *heads, int size)
 {
+    struct word_node *wn;
     int hash = BKDRHash(word, size);
-    struct hlist_node *pos;
-    hlist_for_each(pos, &heads[hash]) {
-        struct word_node *wn = list_entry(pos, struct word_node, node);
+    list_for_each_entry(wn, &heads[hash], link) {
         if (!strcmp(wn->word, word)) {
             return wn->index;
         }
@@ -69,13 +87,11 @@ static int find(char *word, struct hlist_head *heads, int size)
     return -1;
 }
 
-static void add(char **words, int index, struct hlist_head *heads, int size, int *freqs)
+static void add(char **words, int index, struct list_head *heads, int size, int *freqs)
 {
-    int hash = BKDRHash(words[index], size);
-    struct hlist_node *pos;
     struct word_node *wn;
-    hlist_for_each(pos, &heads[hash]) {
-        wn = list_entry(pos, struct word_node, node);
+    int hash = BKDRHash(words[index], size);
+    list_for_each_entry(wn, &heads[hash], link) {
         if (!strcmp(wn->word, words[index])) {
             freqs[wn->index]++;
             return;
@@ -84,7 +100,7 @@ static void add(char **words, int index, struct hlist_head *heads, int size, int
     wn = malloc(sizeof(*wn));
     wn->word = words[index];
     wn->index = index;
-    hlist_add_head(&wn->node, &heads[hash]);
+    list_add(&wn->link, &heads[hash]);
     freqs[wn->index]++;
 }
 
@@ -101,9 +117,9 @@ static int *findSubstring(char *s, char **words, int wordsSize, int *returnSize)
 
     int i, j, cap = 10000, count = 0;
     int hash_size = wordsSize;
-    struct hlist_head *heads = malloc(hash_size * sizeof(*heads));
+    struct list_head *heads = malloc(hash_size * sizeof(*heads));
     for (i = 0; i < hash_size; i++) {
-        INIT_HLIST_HEAD(&heads[i]);
+        INIT_LIST_HEAD(&heads[i]);
     }
 
     int *freqs = malloc(wordsSize * sizeof(int));

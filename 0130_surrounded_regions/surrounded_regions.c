@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+
 #define container_of(ptr, type, member) \
     ((type *)((char *)(ptr) - (size_t)&(((type *)0)->member)))
 
@@ -9,16 +10,14 @@
     container_of(ptr, type, member)
 
 #define	list_first_entry(ptr, type, field)  list_entry((ptr)->next, type, field)
-#define	list_last_entry(ptr, type, field)  list_entry((ptr)->prev, type, field)
-
-#define	list_for_each(p, head) \
-	for (p = (head)->next; p != (head); p = p->next)
-
-#define	list_for_each_safe(p, n, head) \
-	for (p = (head)->next, n = p->next; p != (head); p = n, n = p->next)
 
 struct list_head {
     struct list_head *next, *prev;
+};
+
+struct node {
+    int x, y;
+    struct list_head link;
 };
 
 static inline void INIT_LIST_HEAD(struct list_head *list)
@@ -60,11 +59,6 @@ static inline void list_del(struct list_head *entry)
     __list_del(entry);
     entry->next = entry->prev = NULL;
 }
-
-struct node {
-    struct list_head link;
-    int x, y;
-};
 
 static struct node *node_new(struct list_head *free_list)
 {
