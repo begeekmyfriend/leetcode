@@ -1,7 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-static int removeElement(int *nums, int numsSize, int val)
+
+int removeElement(int *nums, int numsSize, int val)
 {
     int i, count = 0;
     for (i = 0; i < numsSize; i++) {
