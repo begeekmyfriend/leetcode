@@ -2,7 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-static int lengthOfLongestSubstring(char *s)
+
+int lengthOfLongestSubstring(char *s)
 {
     int offset[128];
     int max_len = 0;
