@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+
 struct TreeNode {
     int val;
     struct TreeNode *left;
@@ -9,12 +10,13 @@ struct TreeNode {
 
 static int dfs(struct TreeNode* node, int sum)
 {
-    int total = 0;
+    /* Here we have to use pre-order */
+    /* sum must be in argument stack of recusion.*/
     sum = sum * 10 + node->val;
-
     if (node->left == NULL && node->right == NULL) {
         return sum;
     } else {
+        int total = 0;
         if (node->left != NULL) {
             total += dfs(node->left, sum);
         }
@@ -25,7 +27,7 @@ static int dfs(struct TreeNode* node, int sum)
     }
 }
 
-static int sumNumbers(struct TreeNode* root)
+int sumNumbers(struct TreeNode* root)
 {
     if (root == NULL) {
         return 0;
