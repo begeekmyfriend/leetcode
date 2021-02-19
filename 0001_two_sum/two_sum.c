@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+
 struct object {
     int val;
     int index;
@@ -11,7 +12,7 @@ static int compare(const void *a, const void *b)
     return ((struct object *) a)->val - ((struct object *) b)->val;
 }
 
-static int * twosum(int *nums, int numsSize, int target, int *returnSize)
+int * twosum(int *nums, int numsSize, int target, int *returnSize)
 {
     int i, j;
     struct object *objs = malloc(numsSize * sizeof(*objs));
