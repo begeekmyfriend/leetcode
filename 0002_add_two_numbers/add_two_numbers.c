@@ -2,13 +2,14 @@
 #include <stdlib.h>
 #include <string.h>
 
+
 /* Definition for singly-linked list. */
 struct ListNode {
     int val;
     struct ListNode *next;
 };
 
-static struct ListNode* addTwoNumbers(struct ListNode* l1, struct ListNode* l2)
+struct ListNode* addTwoNumbers(struct ListNode* l1, struct ListNode* l2)
 {
     int carry = 0;
     struct ListNode dummy;
