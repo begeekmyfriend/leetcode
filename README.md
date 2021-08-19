@@ -1,2 +1,2 @@
-# leetcode
-Let's fuck it up
+# LEETCODE SOLUTIONS
+Easy and Understandable C/C++ Solutions of Some Leetcode Questions.
