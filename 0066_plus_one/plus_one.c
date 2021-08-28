@@ -11,9 +11,15 @@ static int* plusOne(int* digits, int digitsSize, int* returnSize)
     int i, j, len = 0, carry = 1;
     int *result = malloc((digitsSize + 1) * sizeof(int));
     for (i = digitsSize - 1; i >= 0 || carry; i--) {
-        int n = digits[i] + carry;
-        result[len++] = n % 10;
-        carry = n / 10;
+        if(i >= 0){
+            int n = digits[i] + carry;
+            result[len++] = n % 10;
+            carry = n / 10;
+        } else {
+            // add case like [9]
+            result[len++] = 1;
+            carry = 0;
+        }
     }
 
     for (i = 0, j = len - 1; i < j; i++, j--) {

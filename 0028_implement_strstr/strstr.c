@@ -78,6 +78,10 @@ static int strStr(char *haystack, char *needle)
     unsigned int hlen = strlen(haystack);
     unsigned int nlen = strlen(needle);
 
+    // when haystack is shorter than needle, should return -1
+    if(hlen < nlen)
+        return -1;
+
     /* Brute force */
     /* Corner condition: imagine nlen = 1 and it equals i < hlen */
     for (i = 0; i < hlen - nlen + 1; i++) {
