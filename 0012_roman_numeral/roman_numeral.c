@@ -82,7 +82,8 @@ static char *intToRoman(int num)
     num2char(&p, hundred_bit, 2);
     num2char(&p, ten_bit, 1);
     num2char(&p, one_bit, 0);
-
+    *p = '\0';
+    
     return roman_numeral;
 }
 
