@@ -18,8 +18,10 @@ public:
         ListNode *prev = nullptr;
         ListNode *p = head;
         while (p != nullptr) {
+            // prev <- p <- q
             ListNode *q = p->next;
             p->next = prev;
+            // step
             prev = p;
             p = q;
         }

@@ -31,8 +31,10 @@ struct ListNode *reverseList(struct ListNode *head)
     struct ListNode *prev = NULL;
     struct ListNode *p = head;
     while (p != NULL) {
+        /* prev <- p <- q */
         struct ListNode *q = p->next;
         p->next = prev;
+        /* step */
         prev = p;
         p = q;
     }
