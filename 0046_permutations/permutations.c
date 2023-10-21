@@ -41,16 +41,18 @@ static void dfs(int *nums, int size, bool *used, int *stack,
         memcpy(results[*count], stack, size * sizeof(int));
         col_size[*count] = size;
         (*count)++;
-    } else {
-        /* Reverse order is allowed in different levels, always starts from [0] */
-        for (i = 0; i < size; i++) {
-            if (!used[i]) {
-                /* Used marks only allows remaining elements in DFS levels */
-                used[i] = true;
-                stack[len] = nums[i];
-                dfs(nums, size, used, stack, len + 1, results, count, col_size);
-                used[i] = false;
-            }
+        return;
+    }
+
+    /* Reverse order is allowed in different levels, always starts from [0] */
+    for (i = 0; i < size; i++) {
+        if (!used[i]) {
+            /* Used marks all the allowable remaining elements in the next DFS
+             * levels */
+            stack[len] = nums[i];
+            used[i] = true;
+            dfs(nums, size, used, stack, len + 1, results, count, col_size);
+            used[i] = false;
         }
     }
 }

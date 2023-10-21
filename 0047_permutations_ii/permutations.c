@@ -12,26 +12,29 @@ static void dfs(int *nums, int size, bool *used, int *stack,
                 int len, int **results, int *count, int *col_size)
 {
     int i;
+
     if (len == size) {
         results[*count] = malloc(len * sizeof(int));
         memcpy(results[*count], stack, len * sizeof(int));
         col_size[*count] = size;
         (*count)++;
-    } else {
-        /* Reverse order is allowed in different levels, always starts from [0] */
-        for (i = 0; i < size; i++) {
-            /* Used marks only allows remaining elements in DFS levels */
-            if (!used[i]) {
-                if (i > 0 && !used[i - 1] && nums[i - 1] == nums[i]) {
-                    /* In case duplicate permutation with same elemements in the same postion */
-                    /* used[i - 1] == true means different level position */
-                    continue;
-                }
-                used[i] = true;
-                stack[len] = nums[i];
-                dfs(nums, size, used, stack, len + 1, results, count, col_size);
-                used[i] = false;
+        return;
+    }
+
+    /* Reverse order is allowed in different levels, always starts from [0] */
+    for (i = 0; i < size; i++) {
+        /* used marks remaining allowable elements in the next DFS level */
+        if (!used[i]) {
+            if (i > 0 && !used[i - 1] && nums[i - 1] == nums[i]) {
+                /* !used[i - 1] means the upper DFS level does not contain
+                 * nums[i - 1] such that we need to exclude the duplicate
+                 * enumeration that has been recorded with used[i - 1]==true. */
+                continue;
             }
+            stack[len] = nums[i];
+            used[i] = true;
+            dfs(nums, size, used, stack, len + 1, results, count, col_size);
+            used[i] = false;
         }
     }
 }

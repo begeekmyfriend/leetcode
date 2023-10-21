@@ -19,11 +19,12 @@ private:
             res.push_back(stack);
         } else {
             for (int i = 0; i < nums.size(); i++) {
-                // Used marks only allows remaining elements in DFS levels
+                // used marks remaining allowable elements in the next DFS level
                 if (!used[i]) {
                     if (i > 0 && !used[i - 1] && nums[i - 1] == nums[i]) {
-                        // In case duplicate permutation with same elemements in the same postion
-                        // used[i - 1] == true means different level position
+                        // !used[i - 1] means the upper DFS level does not contain
+                        // nums[i - 1] such that we need to exclude the duplicate
+                        // enumeration that has been recorded with used[i-1]==true.
                         continue;
                     }
                     stack.push_back(nums[i]);
