@@ -31,7 +31,7 @@ static void two_sum(int *nums, int low, int high, int target, int **results, int
  ** Return an array of arrays of size *returnSize.
  ** Note: The returned array must be malloced, assume caller calls free().
  **/
-int** threeSum(int* nums, int numsSize, int* returnSize)
+int** threeSum(int* nums, int numsSize, int* returnSize, int** returnColumnSizes)
 {
     if (numsSize < 3) {
         return NULL;
@@ -47,6 +47,12 @@ int** threeSum(int* nums, int numsSize, int* returnSize)
             two_sum(nums, i + 1, numsSize - 1, -nums[i], results, returnSize);
         }
     }
+
+    *returnColumnSizes = malloc(*returnSize * sizeof(int *));
+    for (i = 0; i < *returnSize; i++) {
+        (*returnColumnSizes)[i] = 3;
+    }
+
     return results;
 }
 

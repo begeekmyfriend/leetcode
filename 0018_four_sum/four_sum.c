@@ -8,8 +8,8 @@ static int compare(const void *a, const void *b)
     return *(int *) a - *(int *) b;
 }
 
-static void k_sum(int *nums, int low, int high, int target, int total, int k, 
-                  int *stack, int len, int **results, int *count, int *col_sizes)
+static void k_sum(int *nums, int low, int high, long target, int total, int k, 
+                  int *stack, int len, int **results, int *count)
 {
     int i;
     if (k == 2) {
@@ -24,7 +24,6 @@ static void k_sum(int *nums, int low, int high, int target, int total, int k,
                 stack[len++] = nums[high];
                 results[*count] = malloc(total * sizeof(int));
                 memcpy(results[*count], stack, total * sizeof(int));
-                col_sizes[*count] = total;
                 (*count)++;
                 len -= 2;
                 while (++low < high && nums[low] == nums[low - 1]) {}
@@ -36,7 +35,8 @@ static void k_sum(int *nums, int low, int high, int target, int total, int k,
         for (i = low; i <= high - k + 1; i++) {
             if (i > low && nums[i] == nums[i - 1]) continue;
             stack[len] = nums[i];
-            k_sum(nums, i + 1, high, target - nums[i], 4, k - 1, stack, len + 1, results, count, col_sizes);
+            k_sum(nums, i + 1, high, target - nums[i], 4, k - 1, stack,
+                  len + 1, results, count);
         }
     }
 }
@@ -49,15 +49,20 @@ static void k_sum(int *nums, int low, int high, int target, int total, int k,
 int** fourSum(int* nums, int numsSize, int target, int* returnSize, int** returnColumnSizes)
 {
     *returnSize = 0;
-    int i, j, capacity = 50000;
+    int i, capacity = 50000;
     int **results = malloc(capacity * sizeof(int *));
-    *returnColumnSizes = malloc(capacity * sizeof(int));
 
     if (numsSize >= 4) {
         qsort(nums, numsSize, sizeof(*nums), compare);
         int *stack = malloc(4 * sizeof(int));
-        k_sum(nums, 0, numsSize - 1, target, 4, 4, stack, 0, results, returnSize, *returnColumnSizes);
+        k_sum(nums, 0, numsSize - 1, target, 4, 4, stack, 0, results, returnSize);
     }
+
+    *returnColumnSizes = malloc(capacity * sizeof(int));
+    for (i = 0; i < *returnSize; i++) {
+        (*returnColumnSizes)[i] = 4;
+    }
+
     return results;
 }
 

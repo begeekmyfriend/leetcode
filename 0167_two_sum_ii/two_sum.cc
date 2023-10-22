@@ -9,10 +9,10 @@ public:
         int i = 0;
         int j = numbers.size() - 1;
         while (i < j) {
-            int diff = target - numbers[i] - numbers[j];
-            if (diff > 0) {
+            int sum = numbers[i] + numbers[j];
+            if (sum < target) {
                 i++;
-            } else if (diff < 0) {
+            } else if (sum > target) {
                 j--;
             } else {
                 res.push_back(i + 1);

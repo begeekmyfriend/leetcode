@@ -5,10 +5,6 @@ using namespace std;
 class Solution {
 public:
     void nextPermutation(vector<int>& nums) {
-        if (nums.size() < 2) {
-            return;
-        }
-
         int i = nums.size() - 2;
         while (i >= 0 && nums[i] >= nums[i + 1]) {
             i--;
@@ -16,10 +12,10 @@ public:
 
         if (i >= 0) {
             int j = nums.size() - 1;
-            while (j >= 0 && nums[j] >= nums[i]) {
+            while (j >= 0 && nums[i] >= nums[j]) {
                 j--;
             }
-            swap(nums.begin() + i, nums.begin() + j);
+            swap(nums[i], nums[j]);
         }
 
         reverse(nums.begin() + i + 1, nums.end());
