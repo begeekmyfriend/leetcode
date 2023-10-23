@@ -1,6 +1,31 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#if 0
+static int trap(int* height, int heightSize)
+{
+    int i, res = 0;
+    int *lmax = malloc(heightSize * sizeof(int));
+    int *rmax = malloc(heightSize * sizeof(int));
+
+    lmax[0] = height[0];
+    rmax[heightSize - 1] = height[heightSize - 1];
+
+    for (i = 1; i < heightSize; i++) {
+        lmax[i] = height[i] > lmax[i - 1]  ? height[i] : lmax[i - 1] ;
+    }
+
+    for (i = heightSize - 2; i >= 0; i--) {
+        rmax[i] = height[i] > rmax[i + 1]  ? height[i] : rmax[i + 1] ;
+    }
+
+    for (i = 1; i < heightSize - 1; i++) {
+        res += (lmax[i]  < rmax[i]  ? lmax[i]  : rmax[i] ) - height[i];
+    }
+
+    return res;
+}
+#endif
 
 static int trap(int* height, int heightSize)
 {
@@ -12,6 +37,7 @@ static int trap(int* height, int heightSize)
     int r = heightSize - 1, rmax = 0;
     while (l < r) {
         if (height[l] < height[r]) {
+            /* Only lmax is needed for lmax < rmax here */
             if (height[l] > lmax) {
                 lmax = height[l];
             } else {
@@ -19,6 +45,7 @@ static int trap(int* height, int heightSize)
             }
             l++;
         } else {
+            /* Only rmax is needed for rmax < lmax here */
             if (height[r] > rmax) {
                 rmax = height[r];
             } else {

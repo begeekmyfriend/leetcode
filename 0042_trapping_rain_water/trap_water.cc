@@ -13,6 +13,7 @@ public:
         int right = height.size() - 1, right_max = 0;
         while (left < right) {
             if (height[left] < height[right]) {
+                /* Only lmax is needed for lmax < rmax here */
                 if (height[left] > left_max) {
                     left_max = height[left];
                 } else {
@@ -20,6 +21,7 @@ public:
                 }
                 left++;
             } else {
+                /* Only rmax is needed for rmax < lmax here */
                 if (height[right] > right_max) {
                     right_max = height[right];
                 } else {
