@@ -53,7 +53,7 @@ static int maxProfit(int* prices, int pricesSize)
     int total = left_profit[pricesSize - 1];
     for (i = pricesSize - 2; i >= 0; i--) {
         if (prices[i] > max) {
-             max = prices[i];
+            max = prices[i];
         } else {
             tmp = max - prices[i];
             right_profit = tmp > right_profit ? tmp : right_profit;
