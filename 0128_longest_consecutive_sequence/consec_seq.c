@@ -94,26 +94,15 @@ int longestConsecutive(int* nums, int numsSize)
     }
 
     for (i = 0; i < numsSize; i++) {
-        int len = 0;
-        int num;
-        node = find(nums[i], numsSize, heads);
-        while (node != NULL) {
-            len++;
-            num = node->num;
-            list_del(&node->link);
-
-            int left = num;
-            while ((node = find(--left, numsSize, heads)) != NULL) {
+        /* Find the first consecutive number */
+        node = find(nums[i] - 1, numsSize, heads);
+        if (node == NULL) {
+            int len = 0;
+            int num = nums[i];
+            while ((node = find(num++, numsSize, heads)) != NULL) {
                 len++;
                 list_del(&node->link);
             }
-
-            int right = num;
-            while ((node = find(++right, numsSize, heads)) != NULL) {
-                len++;
-                list_del(&node->link);
-            }
-
             length = len > length ? len : length;
         }
     }

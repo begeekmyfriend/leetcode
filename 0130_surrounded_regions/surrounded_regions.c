@@ -117,7 +117,7 @@ static void bfs(char **board, int row_size, int col_size,
     } 
 }
 
-void solve(char** board, int boardRowSize, int boardColSize)
+void solve(char** board, int boardSize, int *boardColSize)
 {
     int i, j;
     struct node *new;
@@ -126,48 +126,48 @@ void solve(char** board, int boardRowSize, int boardColSize)
     INIT_LIST_HEAD(&queue);
     INIT_LIST_HEAD(&free_list);
 
-    for (i = 0; i < boardColSize; i++) {
+    for (i = 0; i < boardColSize[0]; i++) {
         if (board[0][i] == 'O') {
             new = node_new(&free_list);
             new->x = 0;
             new->y = i;
             list_add_tail(&new->link, &queue);
-            bfs(board, boardRowSize, boardColSize, &queue, &free_list);
+            bfs(board, boardSize, boardColSize[0], &queue, &free_list);
         }
     }
 
-    for (i = 0; i < boardColSize; i++) {
-        if (board[boardRowSize - 1][i] == 'O') {
+    for (i = 0; i < boardColSize[0]; i++) {
+        if (board[boardSize - 1][i] == 'O') {
             new = node_new(&free_list);
-            new->x = boardRowSize - 1;
+            new->x = boardSize - 1;
             new->y = i;
             list_add_tail(&new->link, &queue);
-            bfs(board, boardRowSize, boardColSize, &queue, &free_list);
+            bfs(board, boardSize, boardColSize[0], &queue, &free_list);
         }
     }
 
-    for (i = 0; i < boardRowSize; i++) {
+    for (i = 0; i < boardSize; i++) {
         if (board[i][0] == 'O') {
             new = node_new(&free_list);
             new->x = i;
             new->y = 0;
             list_add_tail(&new->link, &queue);
-            bfs(board, boardRowSize, boardColSize, &queue, &free_list);
+            bfs(board, boardSize, boardColSize[i], &queue, &free_list);
         }
     }
 
-    for (i = 0; i < boardRowSize; i++) {
-        if (board[i][boardColSize - 1] == 'O') {
+    for (i = 0; i < boardSize; i++) {
+        if (board[i][boardColSize[i] - 1] == 'O') {
             new = node_new(&free_list);
             new->x = i;
-            new->y = boardColSize - 1;
+            new->y = boardColSize[i] - 1;
             list_add_tail(&new->link, &queue);
-            bfs(board, boardRowSize, boardColSize, &queue, &free_list);
+            bfs(board, boardSize, boardColSize[i], &queue, &free_list);
         }
     }
 
-    for (i = 0; i < boardRowSize; i++) {
-        for (j = 0; j < boardColSize; j++) {
+    for (i = 0; i < boardSize; i++) {
+        for (j = 0; j < boardColSize[i]; j++) {
             board[i][j] = board[i][j] == 'P' ? 'O' : 'X';
         }
     }
@@ -177,33 +177,33 @@ int main(void)
 {
     int i, j;
     int row_size = 5;
-    int col_size = 5;
+    int *col_sizes = malloc(row_size * sizeof(int));
     char **board = malloc(row_size * sizeof(char *));
-    board[0] = malloc(col_size);
+    board[0] = malloc(row_size);
     board[0][0] = 'X';
     board[0][1] = 'X';
     board[0][2] = 'X';
     board[0][3] = 'X';
     board[0][4] = 'X';
-    board[1] = malloc(col_size);
+    board[1] = malloc(row_size);
     board[1][0] = 'O';
     board[1][1] = 'X';
     board[1][2] = 'O';
     board[1][3] = 'O';
     board[1][4] = 'X';
-    board[2] = malloc(col_size);
+    board[2] = malloc(row_size);
     board[2][0] = 'O';
     board[2][1] = 'O';
     board[2][2] = 'X';
     board[2][3] = 'O';
     board[2][4] = 'X';
-    board[3] = malloc(col_size);
+    board[3] = malloc(row_size);
     board[3][0] = 'X';
     board[3][1] = 'X';
     board[3][2] = 'O';
     board[3][3] = 'X';
     board[3][4] = 'X';
-    board[4] = malloc(col_size);
+    board[4] = malloc(row_size);
     board[4][0] = 'X';
     board[4][1] = 'X';
     board[4][2] = 'O';
@@ -211,16 +211,17 @@ int main(void)
     board[4][4] = 'X';
 
     for (i = 0; i < row_size; i++) {
-        for (j = 0; j < col_size; j++) {
+        col_sizes[i] = row_size;
+        for (j = 0; j < col_sizes[i]; j++) {
             printf("%c ", board[i][j]);
         }
         printf("\n");
     }
     printf("\n");
 
-    solve(board, row_size, col_size);
+    solve(board, row_size, col_sizes);
     for (i = 0; i < row_size; i++) {
-        for (j = 0; j < col_size; j++) {
+        for (j = 0; j < col_sizes[i]; j++) {
             printf("%c ", board[i][j]);
         }
         printf("\n");
