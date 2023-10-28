@@ -12,6 +12,8 @@ static int search(int* nums, int numsSize, int target)
             return mid;
         }
 
+        /* lo might be mid */
+        /* We only need to consider non-rotated sorted array search */
         if (nums[lo] <= nums[mid]) {
             if (nums[lo] <= target && target < nums[mid]) {
                 hi = mid - 1;
