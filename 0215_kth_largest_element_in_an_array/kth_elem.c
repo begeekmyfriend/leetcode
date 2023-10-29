@@ -1,11 +1,41 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+
 static inline void swap(int *a, int *b) 
 {
     int t = *a;
     *a = *b;
     *b = t;
+}
+
+static void max_heapify(int *nums, int size, int parent)
+{
+    int i = parent;  /* parent is the root */
+    int l = parent * 2 + 1;
+    int r = parent * 2 + 2;
+
+    if (l < size && nums[l] > nums[i]) {
+        i = l;
+    }
+
+    if (r < size && nums[r] > nums[i]) {
+        i = r;
+    }
+
+    /* percolate up */
+    if (i != parent) {
+        swap(&nums[i], &nums[parent]);
+        max_heapify(nums, size, i);
+    }
+}
+
+static void build_max_heap(int *nums, int size)
+{
+    int i;
+    for (i = size / 2; i >= 0; i--) {
+        max_heapify(nums, size, i);
+    }
 }
 
 static int quick_select(int *nums, int lo, int hi, int k)
@@ -40,8 +70,22 @@ static int quick_select(int *nums, int lo, int hi, int k)
 
 int findKthLargest(int* nums, int numsSize, int k)
 {
+#if 0
     int i = quick_select(nums, 0, numsSize - 1, k);
     return nums[i];
+#else
+    int i;
+
+    build_max_heap(nums, numsSize);
+
+    /* nums[0] is the largest element and the last is the least */
+    for (i = numsSize - 1; i >= numsSize - k + 1; i--) {
+        swap(&nums[0], &nums[i]);
+        max_heapify(nums, numsSize, 0);
+    }
+
+    return nums[0];
+#endif
 }
 
 
