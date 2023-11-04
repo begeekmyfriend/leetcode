@@ -15,26 +15,21 @@ using namespace std;
 class Solution {
 public:
     ListNode* mergeTwoLists(ListNode* l1, ListNode* l2) {
-        struct ListNode *prev, dummy;
-
-        prev = &dummy;
+        struct ListNode *tail, dummy;
+        tail = &dummy;
         dummy.next = l1;
+
         while (l1 != nullptr && l2 != nullptr) {
             if (l1->val <= l2->val) {
-                prev = l1;
+                tail->next = l1;
                 l1 = l1->next;
             } else {
-                struct ListNode *tmp = l2;
+                tail->next = l2;
                 l2 = l2->next;
-                tmp->next = l1;
-                prev->next = tmp;
-                prev = tmp;
             }
         }
 
-        if (l2 != nullptr) {
-            prev->next = l2;
-        }
+        tail->next = l1 != nullptr ? l1 : l2;
 
         return dummy.next;
     }
