@@ -3,16 +3,21 @@
 
 static int findMin(int* nums, int numsSize)
 {
-    if (numsSize == 1) {
-        return nums[0];
-    }
-    int i, j;
-    for (i = 1; i < numsSize; i++) {
-        if (nums[i] < nums[i - 1]) {
-            return nums[i];
+    int lo = 0;
+    int hi = numsSize - 1;
+
+    while (lo < hi) {
+        int mid = lo + (hi - lo) / 2;
+        if (nums[mid] < nums[hi]) {
+            hi = mid;
+        } else if (nums[mid] > nums[hi]) {
+            lo = mid + 1;
+        } else {
+            hi--;
         }
     }
-    return nums[0];
+
+    return nums[lo];
 }
 
 int main(int argc, char **argv)

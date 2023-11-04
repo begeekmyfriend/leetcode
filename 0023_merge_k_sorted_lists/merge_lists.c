@@ -2,141 +2,94 @@
 #include <stdlib.h>
 #include <string.h>
 
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     struct ListNode *next;
+ * };
+ */
 struct ListNode {
     int val;
     struct ListNode *next;
 };
 
-struct PriorityQueue {
-    struct ListNode **nodes;
-    int size;
-};
-
 static inline void swap(struct ListNode **a, struct ListNode **b)
 {
-    struct ListNode *tmp = *a;
+    struct ListNode *t = *a;
     *a = *b;
-    *b = tmp;
+    *b = t;
 }
 
-static inline int left(int i) { return i * 2 + 1; }
-static inline int right(int i) { return left(i) + 1; }
-static inline int parent(int i) { return (i - 1) / 2; }
+static void min_heapify(struct ListNode **nodes, int size, int parent)
+{
+    int i = parent;  /* parent is the root */
+    int l = parent * 2 + 1;
+    int r = parent * 2 + 2;
 
-static void queue_dump(struct PriorityQueue *queue)
+    if (l < size && nodes[l]->val < nodes[i]->val) {
+        i = l;
+    }
+
+    if (r < size && nodes[r]->val < nodes[i]->val) {
+        i = r;
+    }
+
+    /* percolate up */
+    if (i != parent) {
+        swap(&nodes[i], &nodes[parent]);
+        min_heapify(nodes, size, i);
+    }
+}
+
+static void build_min_heap(struct ListNode **nodes, int size)
 {
     int i;
-    for (i = 0; i < queue->size; i++) {
-        printf("%d ", queue->nodes[i]->val);
-    }
-    printf("\n");
-}
 
-static void percolate_up(struct ListNode **nodes, int i)
-{
-    while (i >= 0 && nodes[parent(i)]->val > nodes[i]->val) {
-        swap(nodes + parent(i), nodes + i);
-        i = parent(i);
+    if (size <= 0)  return;
+
+    for (i = size / 2; i >= 0; i--) {
+        min_heapify(nodes, size, i);
     }
 }
 
-static void percolate_down1(struct ListNode **nodes, int size, int child)
+static struct ListNode *get(struct ListNode **nodes, int size)
 {
-    int i, min;
-    for (i = child; i >= 0; i = parent(i)) {
-        if (right(i) < size) {
-            min = nodes[left(i)]->val < nodes[right(i)]->val ? left(i) : right(i);
-        } else {
-            min = left(i);
-        }
-        if (nodes[min]->val < nodes[i]->val) {
-            swap(nodes + min, nodes + i);
-        } else {
-            break;
-        }
-    }
-}
-
-static void percolate_down2(struct ListNode **nodes, int size)
-{
-    int i, min;
-    for (i = 0; left(i) < size; i = min) {
-        if (right(i) < size) {
-            min = nodes[left(i)]->val < nodes[right(i)]->val ? left(i) : right(i);
-        } else {
-            min = left(i);
-        }
-        if (nodes[min]->val < nodes[i]->val) {
-            swap(nodes + min, nodes + i);
-        } else {
-            break;
-        }
-    }
-}
-
-static void heap_build(struct PriorityQueue *queue)
-{
-    int i;
-    for (i = queue->size / 2 - 1; i > 0; i--) {
-        percolate_down1(queue->nodes, queue->size, i);
-    }
-}
-
-static void put(struct PriorityQueue *queue, struct ListNode *node)
-{
-    queue->nodes[queue->size++] = node;
-    percolate_up(queue->nodes, queue->size - 1);
-}
-
-static struct ListNode *get(struct PriorityQueue *queue)
-{
-    int i;
-    struct ListNode *p = queue->nodes[0];
-    swap(queue->nodes, queue->nodes + queue->size - 1);
-    queue->size--;
-    percolate_down2(queue->nodes, queue->size);
+    struct ListNode *p = nodes[0];
+    nodes[0] = nodes[--size];
+    min_heapify(nodes, size, 0);
     return p;
 }
 
-static struct PriorityQueue *init(int size)
+static void put(struct ListNode **nodes, int size, struct ListNode *n)
 {
-    struct PriorityQueue *queue = malloc(sizeof(*queue));
-    queue->nodes = malloc(size * sizeof(*queue->nodes));
-    queue->size = 0;
-    return queue;
+    nodes[size++] = n;
+    build_min_heap(nodes, size);
 }
 
-static struct ListNode* mergeKLists(struct ListNode** lists, int listsSize)
+struct ListNode* mergeKLists(struct ListNode** lists, int listsSize)
 {
-    if (listsSize == 0) {
-        return NULL;
-    }
-
-    if (listsSize == 1) {
-        return lists[0];
-    }
-
-    int i;
+    int i, size = 0;
     struct ListNode dummy;
-    struct ListNode *prev;
-    struct PriorityQueue *queue = init(listsSize);
-
-    dummy.next = NULL;
-    prev = &dummy;
+    struct ListNode *p = &dummy;
+    struct ListNode **nodes = malloc(listsSize * sizeof(struct ListNode));
 
     for (i = 0; i < listsSize; i++) {
         if (lists[i] != NULL) {
-            put(queue, lists[i]);
+            nodes[size++] = lists[i];
         }
     }
-    heap_build(queue);
 
-    while (queue->size > 0) {
-        struct ListNode *n = get(queue);
-        prev->next = n;
-        prev = n;
+    build_min_heap(nodes, size);
+
+    while (size > 0) {
+        struct ListNode *n = get(nodes, size);
+        size--;
+        p->next = n;
+        p = p->next;
         if (n->next != NULL) {
-            put(queue, n->next);
+            put(nodes, size, n->next);
+            size++;
         }
         n->next = NULL;
     }
