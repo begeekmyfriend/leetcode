@@ -67,8 +67,45 @@ static void put(struct ListNode **nodes, int size, struct ListNode *n)
     build_min_heap(nodes, size);
 }
 
+static struct ListNode* mergeTwoLists(struct ListNode* l1, struct ListNode* l2)
+{
+    struct ListNode dummy;
+    struct ListNode *tail = &dummy;
+
+    while (l1 != NULL && l2 != NULL) {
+        if (l1->val <= l2->val) {
+            tail->next = l1;
+            l1 = l1->next;
+        } else {
+            tail->next = l2;
+            l2 = l2->next;
+        }
+        tail = tail->next;
+    }
+
+    tail->next = l1 != NULL ? l1 : l2;
+
+    return dummy.next;
+}
+
+static struct ListNode* dfs(struct ListNode** lists, int lo, int hi)
+{
+    if (lo > hi)  // listsSize might be zero
+        return NULL; 
+
+    if (lo == hi)
+        return lists[lo];
+
+    int mid = lo + (hi - lo) / 2;
+    return mergeTwoLists(dfs(lists, lo, mid), dfs(lists, mid + 1, hi));
+}
+
+
 struct ListNode* mergeKLists(struct ListNode** lists, int listsSize)
 {
+#if 1
+    return dfs(lists, 0, listsSize - 1);
+#else
     int i, size = 0;
     struct ListNode dummy;
     struct ListNode *p = &dummy;
@@ -95,6 +132,7 @@ struct ListNode* mergeKLists(struct ListNode** lists, int listsSize)
     }
 
     return dummy.next;
+#endif
 }
 
 int main(void)
