@@ -2,6 +2,17 @@
 #include <stdlib.h>
 #include <string.h>
 
+
+/* sliding window pattern 
+ * while (r < size) {
+ *     // check target condition
+ *     while (target_condition) {
+ *         // calculate minimum length
+ *         // iterate left indicator
+ *     }
+ *     // iterate right indicator
+ * }
+ */
 static char *minWindow(char *s, char *t)
 {
     int i, j, count[256] = { 0 };
@@ -42,8 +53,7 @@ static char *minWindow(char *s, char *t)
         memcpy(result, s + start, min_len);
         result[min_len] = '\0';
     } else {
-        result = malloc(1);
-        result[0] = '\0';
+        result = "";
     }
 
     return result;

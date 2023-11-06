@@ -5,31 +5,19 @@
 
 int lengthOfLongestSubstring(char *s)
 {
-    int offset[128];
-    int max_len = 0;
+    int count[256] = {0};
     int len = 0;
-    int index = 0;
+    int i, j;
 
-    memset(offset, 0xff, sizeof(offset));
-    while (*s != '\0') {
-        if (offset[*s] == -1) {
-            len++;
-        } else {
-            if (index - offset[*s] > len) {
-                /* not included in sliding window, go on increasing */
-                len++;
-            } else {
-                /* repetition in sliding window, count from scratch */
-	        len = index - offset[*s];
-            }
+    for (i = 0, j = 0; s[i] != '\0'; i++) {
+        count[s[i]]++;
+        while (count[s[i]] > 1) {
+            len = i - j > len ? i - j : len;
+            count[s[j++]] -= 1;
         }
-        if (len > max_len) {
-            max_len = len;
-        }
-        offset[*s++] = index++;
     }
 
-    return max_len;
+    return i - j > len ? i - j : len;
 }
 
 int main(int argc, char **argv)
