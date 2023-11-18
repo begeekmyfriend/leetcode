@@ -1,18 +1,20 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 int lengthOfLastWord(char *s)
 {
-    int len = 0;
-    while (*s != '\0') {
-        if (s[-1] == ' ' && s[0] != ' ') {
-            len = 1;
-        } else if (*s != ' ') {
-            len++;
-        }
-        s++;
+    int word_len = 0;
+    int len = strlen(s);
+
+    while (len > 0 && s[--len] == ' ') {}
+
+    while (len >= 0 && s[len] != ' ') {
+        word_len++;
+        len--;
     }
-    return len;
+
+    return word_len;
 }
 
 int main(int argc, char **argv)

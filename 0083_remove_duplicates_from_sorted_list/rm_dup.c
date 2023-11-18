@@ -1,3 +1,4 @@
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -9,16 +10,19 @@ struct ListNode {
 
 struct ListNode* deleteDuplicates(struct ListNode* head)
 {
-    struct ListNode *p, *q;
-    p = q = head;
-    while (p != NULL) {
-        while (q != NULL && q->val == p->val) {
-            q = q->next;
+    struct ListNode dummy;
+    struct ListNode *prev = &dummy;
+    dummy.val = INT_MIN;
+
+    while (head != NULL) {
+        if (prev->val != head->val) {
+            prev->next = head;
+            prev = head;
         }
-        p->next = q;
-        p = q;
+        head = head->next;
     }
-    return head;
+    prev->next = head;
+    return dummy.next;
 }
 
 int main(int argc, char **argv)
