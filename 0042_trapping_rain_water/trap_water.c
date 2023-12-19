@@ -35,22 +35,18 @@ static int trap(int* height, int heightSize)
     int res = 0;
     int l = 0, lmax = 0;
     int r = heightSize - 1, rmax = 0;
+
     while (l < r) {
-        if (height[l] < height[r]) {
-            /* Only lmax is needed for lmax < rmax here */
-            if (height[l] > lmax) {
-                lmax = height[l];
-            } else {
-                res += lmax - height[l];
-            }
+        /* lmax is the highest in height[0...l] and
+         * rmax is the highest in height[r...size - 1]
+         */
+        lmax = height[l] > lmax ? height[l] : lmax;
+        rmax = height[r] > rmax ? height[r] : rmax;
+        if (lmax < rmax) {
+            res += lmax - height[l];
             l++;
         } else {
-            /* Only rmax is needed for rmax < lmax here */
-            if (height[r] > rmax) {
-                rmax = height[r];
-            } else {
-                res += rmax - height[r];
-            }
+            res += rmax - height[r];
             r--;
         }
     }

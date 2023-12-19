@@ -9,25 +9,20 @@ public:
          * water level of the position would be determined by the opposite side.
          */
         int res = 0;
-        int left = 0, left_max = 0;
-        int right = height.size() - 1, right_max = 0;
-        while (left < right) {
-            if (height[left] < height[right]) {
-                /* Only lmax is needed for lmax < rmax here */
-                if (height[left] > left_max) {
-                    left_max = height[left];
-                } else {
-                    res += left_max - height[left];
-                }
-                left++;
+        int l = 0, l_max = 0;
+        int r = height.size() - 1, r_max = 0;
+
+        while (l < r) {
+            // lmax is the highest in height[0...l] and
+            // rmax is the highest in height[r...size - 1]
+            l_max = max(height[l], l_max);
+            r_max = max(height[r], r_max);
+            if (l_max < r_max) {
+                res += l_max - height[l];
+                l++;
             } else {
-                /* Only rmax is needed for rmax < lmax here */
-                if (height[right] > right_max) {
-                    right_max = height[right];
-                } else {
-                    res += right_max - height[right];
-                }
-                right--;
+                res += r_max - height[r];
+                r--;
             }
         }
 

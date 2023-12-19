@@ -8,9 +8,11 @@ public:
         int taken = 0;
         int untaken = 0;
         for (int i = 0; i < nums.size(); i++) {
-            int tmp_taken = taken;
+            int last_taken = taken;
+            /* last untaken + nums[i]*/
             taken = untaken + nums[i];
-            untaken = max(untaken, tmp_taken);
+            /* max(last untaken, last taken) */
+            untaken = max(untaken, last_taken);
         }
         return max(taken, untaken);
     }

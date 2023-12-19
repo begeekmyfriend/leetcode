@@ -14,10 +14,12 @@ static int rob(int* nums, int numsSize)
     int untaken = 0;
     /* Record max profits of nums[0...i] respectively */
     for (i = 0; i < numsSize; i++) {
-        int tmp_taken = taken;
+        int last_taken = taken;
         /* Taken or untaken nums[i] */
+        /* last taken + nums[i] */
         taken = untaken + nums[i];
-        untaken = max(tmp_taken, untaken);
+        /* max(last untaken, last taken) */
+        untaken = max(last_taken, untaken);
     }
 
     return max(taken, untaken);
