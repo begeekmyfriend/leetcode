@@ -13,26 +13,29 @@ struct TreeNode {
     struct TreeNode *right;
 };
 
-static struct TreeNode *dfs(int *nums, int lo, int hi)
+static struct TreeNode *dfs(struct ListNode **head, int lo, int hi)
 {
+    if (lo > hi) {
+        return NULL;
+    }
+
     int mid = lo + (hi - lo) / 2;
     struct TreeNode *node = malloc(sizeof(*node));
-    node->val = nums[mid];
-    node->left = mid > lo ? dfs(nums, lo, mid - 1) : NULL;
-    node->right = mid < hi ? dfs(nums, mid + 1, hi) : NULL;
+    node->left = dfs(head, lo, mid - 1);
+    node->val = (*head)->val;
+    (*head) = (*head)->next;
+    node->right = dfs(head, mid + 1, hi);
     return node;
 }
 
-static struct TreeNode *sortedListToBST(struct ListNode *head)
+static struct TreeNode* sortedListToBST(struct ListNode* head)
 {
-    int i, nums[10000];
-    for (i = 0; head != NULL; head = head->next, i++) {
-        nums[i] = head->val;
+    struct ListNode *p;
+    int len = 0;
+    for (p = head; p != NULL; p = p->next) {
+        len++;
     }
-    if (i == 0) {
-        return NULL;
-    }
-    return traverse(nums, 0, i - 1);
+    return dfs(&head, 0, len - 1);
 }
 
 int main(int argc, char **argv)
