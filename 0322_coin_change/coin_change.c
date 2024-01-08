@@ -6,13 +6,14 @@ int coinChange(int* coins, int coinsSize, int amount)
 {
     int i, j;
     int *dp = malloc((amount + 1) * sizeof(int));
-    for (i = 1; i <= amount; i++) {
-        /* INT_MAX */
-        dp[i] = amount + 1;
-    }
 
+    /* The dp array records minimum coin number corresponding to the
+     * amount of coins. So we need to initialize each dp[i] with
+     * amount + 1 as an invalid value */
     dp[0] = 0;
     for (i = 1; i <= amount; i++) {
+        /* initialized with INT_MAX */
+        dp[i] = amount + 1;
         for (j = 0; j < coinsSize; j++) {
             if (i - coins[j] >= 0) {
                 int tmp = 1 + dp[i - coins[j]];

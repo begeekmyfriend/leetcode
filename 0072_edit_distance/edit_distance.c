@@ -31,23 +31,25 @@ static inline int min(int a, int b)
 static int minDistance(char* word1, char* word2)
 {
     int i, j;
-    int len1 = strlen(word1);
-    int len2 = strlen(word2);
-    int *table = malloc((len1 + 1) * (len2 + 1) * sizeof(int));
-    int **dp = malloc((len1 + 1) * sizeof(int *));
-    for (i = 0; i < len1 + 1; i++) {
-        dp[i] = table + i * (len2 + 1);
+    int l1 = strlen(word1);
+    int l2 = strlen(word2);
+    int *table = malloc((l1 + 1) * (l2 + 1) * sizeof(int));
+    int **dp = malloc((l1 + 1) * sizeof(int *));
+
+    for (i = 0; i < l1 + 1; i++) {
+        dp[i] = table + i * (l2 + 1);
     }
 
-    for (i = 0; i < len2 + 1; i++) {
+    dp[0][0] = 0;
+    for (i = 1; i <= l2; i++) {
         dp[0][i] = i;
     }
-    for (i = 0; i < len1 + 1; i++) {
+    for (i = 1; i <= l1; i++) {
         dp[i][0] = i;
     }
 
-    for (i = 1; i < len1 + 1; i++) {
-        for (j = 1; j < len2 + 1; j++) {
+    for (i = 1; i <= l1; i++) {
+        for (j = 1; j <= l2; j++) {
             if (word1[i - 1] == word2[j - 1]) {
                 dp[i][j] = dp[i - 1][j - 1];
             } else {
@@ -55,7 +57,8 @@ static int minDistance(char* word1, char* word2)
             }
         }
     }
-    return dp[len1][len2];
+
+    return dp[l1][l2];
 }
 
 int main(int argc, char **argv)

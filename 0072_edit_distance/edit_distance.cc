@@ -26,6 +26,7 @@ public:
                  left_up = up;
             }
         }
+
         return dp[l2];
     }
 };
