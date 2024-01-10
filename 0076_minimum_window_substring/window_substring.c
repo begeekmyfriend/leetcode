@@ -18,31 +18,31 @@ static char *minWindow(char *s, char *t)
     int i, j, count[256] = { 0 };
     int slen = strlen(s);
     int tlen = strlen(t);
+    /* edges of sliding window */
+    int l = 0, r = 0;
+    int min_len = slen + 1;
+    int start = 0;
+    int chars_to_meet = 0;
+
     for (i = 0; i < tlen; i++) {
         count[t[i]]++;
     }
 
-    /* edges of sliding window */
-    int lo = 0, hi = 0;
-    int min_len = slen + 1;
-    int start = 0;
-    int chars_to_meet = tlen;
-    while (hi < slen) {
-        if (--count[s[hi++]] >= 0) {
+    while (r < slen) {
+        if (--count[s[r++]] >= 0) {
             /* pattern found */
-            chars_to_meet--;
+            chars_to_meet++;
         }
 
-        while (chars_to_meet == 0) {
-            if (hi - lo < min_len) {
-                min_len = hi - lo;
-                start = lo;
+        while (chars_to_meet == tlen) {
+            if (r - l < min_len) {
+                min_len = r - l;
+                start = l;
             }
 
             /* Chars with negative count are not included in the pattern string */
-            if (++count[s[lo++]] > 0) {
-                /* chars_to_meet == 1 */
-                chars_to_meet++;
+            if (++count[s[l++]] > 0) {
+                chars_to_meet--;
             }
         }
     }

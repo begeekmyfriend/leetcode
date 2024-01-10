@@ -13,6 +13,9 @@ int longestPalindromeSubseq(char * s)
     int i, j, k;
     int len = strlen(s);
     int **dp = malloc(len * sizeof(int *));
+
+    /* The dp array indicates the length of palindrome subsequence of
+     * nums[i...j] */
     for (i = 0; i < len; i++) {
         dp[i] = malloc(len * sizeof(int));
         memset(dp[i], 0, len * sizeof(int));

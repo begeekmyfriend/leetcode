@@ -6,19 +6,21 @@
 
 bool checkInclusion(char * s1, char * s2)
 {
-    int i, count[128] = { -1 }, pat_len = 0;
+    int i, count[128] = { 0 }, pat_len;
+    int l = 0, r = 0, len = 0;
+
     for (i = 0; s1[i] != '\0'; i++) {
         count[s1[i]]++;
-        pat_len++;
     }
+    pat_len = i;
 
-    int l = 0, r = 0, len = 0;
     while (s2[r] != '\0') {
         if (--count[s2[r++]] >= 0) {
             len++;
         }
-        while (r - l >= pat_len) {
-            if (len == pat_len) {
+
+        while (len >= pat_len) {
+            if (r - l == pat_len) {
                 return true;
             }
             if (++count[s2[l++]] > 0) {
