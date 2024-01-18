@@ -1,20 +1,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+
 static int removeDuplicates(int* nums, int numsSize)
 {
-    if (numsSize <= 1) {
-        return numsSize;
-    }
-
-    int i, count = 1;
+    int i, size = 0;
     for (i = 1; i < numsSize; i++) {
-        if (nums[i - 1] != nums[i]) {
-            nums[count++] = nums[i];
+        if (nums[size] != nums[i]) {
+            nums[++size] = nums[i];
         }
     }
 
-    return count;
+    return size + 1;
 }
 
 int main(int argc, char **argv)

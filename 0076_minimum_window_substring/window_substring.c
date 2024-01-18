@@ -22,7 +22,7 @@ static char *minWindow(char *s, char *t)
     int l = 0, r = 0;
     int min_len = slen + 1;
     int start = 0;
-    int chars_to_meet = 0;
+    int len = 0;
 
     for (i = 0; i < tlen; i++) {
         count[t[i]]++;
@@ -31,10 +31,10 @@ static char *minWindow(char *s, char *t)
     while (r < slen) {
         if (--count[s[r++]] >= 0) {
             /* pattern found */
-            chars_to_meet++;
+            len++;
         }
 
-        while (chars_to_meet == tlen) {
+        while (len >= tlen) {
             if (r - l < min_len) {
                 min_len = r - l;
                 start = l;
@@ -42,7 +42,7 @@ static char *minWindow(char *s, char *t)
 
             /* Chars with negative count are not included in the pattern string */
             if (++count[s[l++]] > 0) {
-                chars_to_meet--;
+                len--;
             }
         }
     }

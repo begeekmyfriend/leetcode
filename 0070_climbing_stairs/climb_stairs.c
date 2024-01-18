@@ -2,18 +2,18 @@
 #include <stdlib.h>
 #include <string.h>
 
-static int dfs(int n, int *count)
+static int dfs(int n, int *steps)
 {
     if (n == 1) {
         return 1;
     } else if (n == 2) {
         return 2;
-    } else if (count[n] > 0) {
-        return count[n];
+    } else if (steps[n] > 0) {
+        return steps[n];
     } else {
-        count[n] += dfs(n - 1, count);
-        count[n] += dfs(n - 2, count);
-        return count[n];
+        steps[n] += dfs(n - 1, steps);
+        steps[n] += dfs(n - 2, steps);
+        return steps[n];
     }
 }
 
@@ -21,9 +21,9 @@ static int climbStairs(int n)
 {
 #if 1
     if (n < 1) return 0;
-    int *count = malloc((n + 1) * sizeof(int));
-    memset(count, 0, (n + 1) * sizeof(int));
-    return dfs(n, count);
+    int *steps = malloc((n + 1) * sizeof(int));
+    memset(steps, 0, (n + 1) * sizeof(int));
+    return dfs(n, steps);
 #else
     int i, a = 1, b = 2, c;
     for (i = 3; i <= n; i++) {
