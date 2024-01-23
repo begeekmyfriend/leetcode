@@ -1,60 +1,65 @@
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-static int calculator(char *s)
+
+static int dfs(char **input)
 {
-    int n;
-    int pos1 = 0;
-    int pos2 = 0;
-    int *nums = malloc(1000 * sizeof(int));
-    char *signs = malloc(1000 * sizeof(char));
+    int i, res = 0;
+    int num = 0;
+    int stk[700], pos = 0;
+    char sign = '+';
+    char *s = *input;
 
-    nums[pos1++] = 0;
     while (*s != '\0') {
-        switch (*s) {
-        case '+':
-        case '-':
-        case '(':
-            signs[pos2++] = *s;
-            break;
-        case ')':
-            --pos2;
-            if (pos1 >= 2 && pos2 > 0 && signs[pos2 - 1] != '(') {
-                n = nums[--pos1];
-                int a = nums[--pos1];
-                if (signs[--pos2] == '+') {
-                    n = a + n;
-                } else {
-                    n = a - n;
-                }
-            }
-            nums[pos1++] = n;
-            break;
-        case ' ':
-            break;
-        default:
-            n = 0;
-            while(*s >= '0' && *s <= '9') {
-                n = n * 10 + (*s - '0');
-                s++;
-            }
-            s--;
-
-            if (pos1 >= 2 && signs[pos2 - 1] != '(' && signs[pos2 - 1] != '(') {
-                int a = nums[--pos1];
-                if (signs[--pos2] == '+') {
-                    n = a + n;
-                } else {
-                    n = a - n;
-                }
-            }
-            nums[pos1++] = n;
-            break;
+        char c = *s++;
+        if (isdigit(c)) {
+            num = 10 * num + (c - '0');
         }
-        s++;
+
+        if (c == '(') {
+            /* dfs("2*(1+3)") = 2 * dfs("1+3") */
+            num = dfs(&s);
+        }
+
+        if (!isdigit(c) && c != ' ' || *s == '\0') {
+            switch (sign) {
+                case '+':
+                    stk[pos++] = num;
+                    break;
+                case '-':
+                    stk[pos++] = -num;
+                    break;
+                case '*':
+                    stk[pos - 1] *= num;
+                    break;
+                case '/':
+                    stk[pos - 1] /= num;
+                    break;
+            }
+            /* update the sign and reset the number */
+            sign = c;
+            num = 0;
+        }
+
+        /* return from the dfs */
+        if (c == ')')
+            break;
     }
 
-    return n;
+    /* update position */
+    *input = s;
+
+    while (pos > 0) {
+        res += stk[--pos];
+    }
+
+    return res;
+}
+
+static int calculator(char *s)
+{
+    return dfs(&s);
 }
 
 int main(int argc, char **argv)
