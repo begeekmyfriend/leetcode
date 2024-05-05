@@ -14,21 +14,21 @@ static struct ListNode* reverseKGroup(struct ListNode* head, int k)
     dummy.next = head;
     for (; head != NULL; head = head->next) {
         if (++len % k == 0) {
-            /* t always the original first one */
-            struct ListNode *t = prev->next;
+            /* p always the original first one */
+            struct ListNode *p = prev->next;
             /* loop condition implicits the final state */
             while (prev->next != head) {
                 /* the new segment head */
-                struct ListNode *h = t->next;
+                struct ListNode *q = p->next;
                 /* deletion */
-                t->next = h->next;
+                p->next = q->next;
                 /* insertion */
-                h->next = prev->next;
-                prev->next = h;
+                q->next = prev->next;
+                prev->next = q;
             }
             /* For iteration */
-            prev = t;
-            head = t;
+            prev = p;
+            head = p;
         }
     }
     return dummy.next;
