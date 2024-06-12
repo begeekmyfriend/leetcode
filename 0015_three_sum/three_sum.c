@@ -43,7 +43,7 @@ int** threeSum(int* nums, int numsSize, int* returnSize, int** returnColumnSizes
     int i, j, capacity = 50000;
     int **results = malloc(capacity * sizeof(int *));
     for (i = 0; i < numsSize - 2; i++) {
-        if (i == 0 || i > 0 && nums[i] != nums[i - 1]) {
+        if (i == 0 || (i > 0 && nums[i] != nums[i - 1])) {
             two_sum(nums, i + 1, numsSize - 1, -nums[i], results, returnSize);
         }
     }
@@ -58,14 +58,18 @@ int** threeSum(int* nums, int numsSize, int* returnSize, int** returnColumnSizes
 
 int main(void)
 {
-    int i, count;
+    int i, j, count;
     //int nums[] = { -1, 0, 1, 2, -1, -4 };
     //int nums[] = { 0, 0, 0 };
     //int nums[] = { -1, 0, 1, 0 };
     int nums[] = {-2,0,0,2,2};
-    int **triplets = threeSum(nums, sizeof(nums) / sizeof(*nums), &count);
+    int *col_sizes;
+    int **triplets = threeSum(nums, sizeof(nums) / sizeof(*nums), &count, &col_sizes);
     for (i = 0; i < count; i++) {
-        printf("%d %d %d\n", triplets[i][0], triplets[i][1], triplets[i][2]);
+        for (j = 0; j < col_sizes[i]; j++) {
+            printf("%d \n", triplets[i][j]);
+        }
+        printf("\n");
     }
 
     return 0;

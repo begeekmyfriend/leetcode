@@ -72,10 +72,10 @@ int main(int argc, char **argv)
         nums[i] = atoi(argv[i + 1]);
     }
 
-    int *size;
-    int **lists = permute(nums, argc - 1, &count, &size);
+    int *col_sizes;
+    int **lists = permute(nums, argc - 1, &count, &col_sizes);
     for (i = 0; i < count; i++) {
-        for (j = 0; j < argc - 1; j++) {
+        for (j = 0; j < col_sizes[i]; j++) {
             printf("%d", lists[i][j]);
         }
         putchar('\n');

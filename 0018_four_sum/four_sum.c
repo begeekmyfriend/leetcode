@@ -68,13 +68,16 @@ int** fourSum(int* nums, int numsSize, int target, int* returnSize, int** return
 
 int main(void)
 {
-    int i, count, target = 11, *col_sizes;
+    int i, j, count, target = 11, *col_sizes;
     //int nums[] = { 1, 0, -1, 0, -2, 2 };
     //int nums[] = { -3, -2, -1, 0, 0, 1, 2, 3 };
     int nums[] = { 0, 1, 5, 0, 1, 5, 5, -4 };
     int **quadruplets = fourSum(nums, sizeof(nums) / sizeof(*nums), target, &count, &col_sizes);
     for (i = 0; i < count; i++) {
-        printf("%d %d %d %d\n", quadruplets[i][0], quadruplets[i][1], quadruplets[i][2], quadruplets[i][3]);
+        for (j = 0; j < col_sizes[i]; j++) {
+            printf("%d ", quadruplets[i][j]);
+        }
+        printf("\n");
     }
 
     return 0;
