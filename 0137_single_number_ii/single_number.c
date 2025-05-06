@@ -39,6 +39,7 @@ static int singleNumber(int *nums, int numsSize)
                 count[i]++;
             }
         }
+        /* The specified bit counting should be multiple of 3 without the outlier */
         mask |= (count[i] % 3) << i;
     }
     return mask;

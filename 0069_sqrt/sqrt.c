@@ -60,6 +60,9 @@ int mySqrt(int x)
     unsigned int lo = 1;
     unsigned int hi = (unsigned int) x;
     unsigned int mid = lo + (hi - lo) / 2;
+    // Firstly test mid > x / mid to decide whether hi = mid;
+    // else then test mid + 1 > x / (mid + 1) to decide whether the mid is located;
+    // Otherwise assign low = mid.
     for (; ;) {
         if (mid > x/mid) {
             hi = mid;

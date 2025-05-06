@@ -20,7 +20,7 @@ private:
         } else {
             for (int i = start; i < candidates.size(); i++) {
                 stack.push_back(candidates[i]);
-                /* The elements in solution can be duplicate for the purpose of the problem */
+                /* The elements in solution can be taken as many times as you can for the purpose of the problem */
                 dfs(candidates, i, target - candidates[i], res);
                 stack.pop_back();
             }
