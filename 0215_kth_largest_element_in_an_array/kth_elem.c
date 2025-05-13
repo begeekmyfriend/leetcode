@@ -62,6 +62,10 @@ static void quick_select(int *nums, int lo, int hi, int k)
          * shall make the partition in the middle of the array as far as
          * possible. If the partition is located in the head or tail, the
          * performance might well be very bad for it.
+         *
+         * Note: Do NOT use nums[++i] <= pivot or nums[--j] >= pivot as the
+         * loop condition because it leads to redundant operations in each
+         * recusive iteration when there are many duplicate elements.
          */
         while (i < hi && nums[++i] > pivot) {}
         while (j > lo && nums[--j] < pivot) {}
@@ -72,7 +76,8 @@ static void quick_select(int *nums, int lo, int hi, int k)
 
     /* invariant: i == j + 1 or i == j */
     swap(&nums[i], &nums[hi]);
-    if (i + 1 >= k) {
+    /* compare index [i] with [k - 1] to locate the kth element */
+    if (i > k - 1) {
         quick_select(nums, lo, i - 1, k);
     } else {
         quick_select(nums, i + 1, hi, k);
