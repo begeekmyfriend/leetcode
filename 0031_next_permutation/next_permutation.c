@@ -21,15 +21,13 @@ static void reverse(int *a, int size)
 
 static void nextPermutation(int* nums, int numsSize)
 {
-    if (numsSize <= 1) {
-        return;
-    }
-
+    // find the first smaller element in decreasing sequence from back to forth.
     int i = numsSize - 2;
     while (i >= 0 && nums[i] >= nums[i + 1]) {
         i--;
     }
 
+    // if found, find the first bigger element from back to forth and swap them.
     if (i >= 0) {
         int j = numsSize - 1;
         while (j >= 0 && nums[j] <= nums[i]) {
@@ -37,6 +35,8 @@ static void nextPermutation(int* nums, int numsSize)
         }
         swap(nums + i, nums + j);
     }
+
+    // reverse the subsequence into increasing one.
     reverse(nums + i + 1, numsSize - i - 1);
 }
 

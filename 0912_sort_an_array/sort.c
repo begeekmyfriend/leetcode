@@ -26,7 +26,7 @@ static void quick_sort(int *nums, int lo, int hi)
         return;
     }
 
-    /* shuffle the pivot */
+    /* shuffle the pivot as it is a must for performance */
     mid = lo + (hi - lo) / 2;
     swap(&nums[mid], &nums[hi]);
 
@@ -38,11 +38,15 @@ static void quick_sort(int *nums, int lo, int hi)
          * shall make the partition in the middle of the array as far as
          * possible. If the partition is located in the head or tail, the
          * performance might well be very bad for it.
+         *
+         * Note: Do NOT use nums[++i] <= pivot or nums[--j] >= pivot as the
+         * loop condition because it leads to redundant operations in each
+         * recusive iteration when there are many duplicate elements.
          */
-        while (i < hi && nums[++i] < pivot) {}
-        while (j > lo && nums[--j] > pivot) {}
+        while (i < j && nums[++i] < pivot) {}
+        while (i < j && nums[--j] > pivot) {}
         if (i < j) {
-        swap(&nums[i], &nums[j]);
+            swap(&nums[i], &nums[j]);
         }
     }
 
